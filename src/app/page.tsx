@@ -1,101 +1,109 @@
+'use client';
 import Image from "next/image";
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css'
+import { useEffect, useRef } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    if (videoRef.current) {
+      videojs(videoRef.current, {
+        autoplay: true,
+        controls: true,
+        preload: true,
+        aspectRatio: '9:16'
+      });
+    }
+  }, []);
+
+  const categories = [
+    {
+      text: 'Kampot \n Recommends 2025',
+      image: 'kampot-recommend.jpg'
+    },
+    {
+      text: 'Tourism Destination',
+      image: 'pagoda.jpg'
+    },
+    {
+      text: 'Stay',
+      image: 'stay.jpg'
+    },
+    {
+      text: 'Eat / Drink',
+      image: 'khmer-food.jpg'
+    },
+    {
+      text: 'Coffee',
+      image: 'coffee.jpg'
+    },
+    {
+      text: 'Things to Do',
+      image: 'activity.jpg'
+    },
+    {
+      text: 'Massage & Steam',
+      image: 'massage.jpg'
+    },
+    {
+      text: 'Exercise',
+      image: 'exercise.jpg'
+    },
+    {
+      text: 'Market Shopping',
+      image: 'market.jpg'
+    },
+    {
+      text: 'Deals and Offers',
+      image: 'deal.jpg'
+    },
+    {
+      text: 'Transportation',
+      image: 'cambodia-train.jpg'
+    },
+    {
+      text: 'Video Inspiration',
+      image: 'kampot.jpg'
+    }
+  ];
+
+  return (
+    <div className="bg-gray-300 min-h-screen">
+      {/* Main Container with 100vh */}
+      <div className="container-full h-[100vh] flex flex-col">
+        {/* Main Layout */}
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+          {/* Left Hero Section - 100vh height with 9:16 ratio */}
+          <div
+            className="bg-blue-500 shadow-lg relative flex items-center justify-center text-white w-full md:w-[56.25vh]"
+            style={{
+              height: '100vh',
+              minHeight: '100vh',
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <video ref={videoRef} className="video-js">
+              <source src='samples/hotel.mp4' type="video/mp4" />
+            </video>
+          </div>
+
+          {/* Right Side Grid (Smaller Cards) */}
+          <div className="flex-1 pl-[.125rem] overflow-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-[.125rem] h-full">
+                {categories.map((category, idx) => (
+                  <div key={idx} className="relative p-4 text-white flex items-center justify-center min-h-[100px]">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center filter brightness-70"
+                      style={{ backgroundImage: `url(samples/${category.image})` }}> 
+                    </div>
+                    <h3 className="relative z-10 text-xl font-bold text-center shadow-md" dangerouslySetInnerHTML={{ __html: category.text.replace('\n', '<br>') }}></h3>
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
