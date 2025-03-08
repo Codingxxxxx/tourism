@@ -3,6 +3,7 @@ import Image from "next/image";
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css'
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -10,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     if (videoRef.current) {
       videojs(videoRef.current, {
-        autoplay: true,
+        autoplay: false,
         controls: true,
         preload: true,
         aspectRatio: '9:16'
@@ -92,13 +93,12 @@ export default function Home() {
           <div className="flex-1 pl-[.125rem] overflow-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[.125rem] h-full">
                 {categories.map((category, idx) => (
-                  <div key={idx} className="relative p-4 text-white flex items-center justify-center min-h-[100px]">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center filter brightness-70"
-                      style={{ backgroundImage: `url(samples/${category.image})` }}> 
+                  <Link href={`/category/${category.text}`} className="relative">
+                    <div className='relative aspect-[16/9] rounded overflow-hidden shadow filter brightness-70'>
+                      <Image src={`/samples/${category.image}`} alt={category.text} objectFit='cover' fill />
                     </div>
-                    <h3 className="relative z-10 text-xl font-bold text-center shadow-md" dangerouslySetInnerHTML={{ __html: category.text.replace('\n', '<br>') }}></h3>
-                  </div>
+                    <h3 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md z-1" dangerouslySetInnerHTML={{ __html: category.text.replace('\n', '<br>') }}></h3>
+                  </Link>
                 ))}
             </div>
           </div>
