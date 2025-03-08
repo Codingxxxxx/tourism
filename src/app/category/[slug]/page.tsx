@@ -24,7 +24,7 @@ export default function Page() {
   useEffect(() => {
     if (videoRef.current) {
       videojs(videoRef.current, {
-        autoplay: true,
+        autoplay: false,
         controls: true,
         preload: true,
         aspectRatio: '9:16'
