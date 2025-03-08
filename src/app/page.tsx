@@ -94,7 +94,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[.125rem] h-full">
                 {categories.map((category, idx) => (
                   <Link href={`/category/${category.text}`} className="relative">
-                    <div className='relative aspect-[16/9] rounded overflow-hidden shadow filter brightness-70'>
+                    <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
                       <Image src={`/samples/${category.image}`} alt={category.text} objectFit='cover' fill />
                     </div>
                     <h3 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md z-1" dangerouslySetInnerHTML={{ __html: category.text.replace('\n', '<br>') }}></h3>
