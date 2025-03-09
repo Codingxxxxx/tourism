@@ -85,7 +85,7 @@ export default function Page() {
             <ul className="grid grid-cols-4 gap-x-4 gap-y-4 mt-2">
               {subCategories.map((subCategory, idx) => (
                 <li key={idx} className='g-white'>
-                  <Link href={`/article/${subCategory.title}`}>
+                  <Link href={`/${encodeURIComponent(subCategory.title)}/${encodeURIComponent(subCategory.title)}`}>
                     <div className='relative aspect-[16/9] rounded overflow-hidden shadow'>
                       <Image src={`/samples2/${subCategory.image}`} alt={subCategory.title} fill  />
                     </div>
