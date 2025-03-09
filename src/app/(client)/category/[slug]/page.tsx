@@ -79,13 +79,13 @@ export default function Page() {
 
           {/* Right Side Grid (Smaller Cards) */}
           <div className="flex-1 pl-2 overflow-auto">
-            <header className='p-4 bg-blue-500 text-white'>
+            <header className='p-4 bg-blue-500 text-white rounded-bl'>
               <Link href="/">Home</Link> / {decodeURIComponent(slug)}
             </header>
             <ul className="grid grid-cols-4 gap-x-4 gap-y-4 mt-2">
               {subCategories.map((subCategory, idx) => (
                 <li key={idx} className='g-white'>
-                  <Link href={`/article/${subCategory.title}`}>
+                  <Link href={`/${encodeURIComponent(subCategory.title)}/${encodeURIComponent(subCategory.title)}`}>
                     <div className='relative aspect-[16/9] rounded overflow-hidden shadow'>
                       <Image src={`/samples2/${subCategory.image}`} alt={subCategory.title} fill  />
                     </div>
