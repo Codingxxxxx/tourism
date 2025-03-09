@@ -6,9 +6,13 @@ import 'video.js/dist/video-js.css'
 import { useEffect, useRef, useState } from "react";
 import { useParams } from 'next/navigation';
 
+type PageParams = {
+  slug: string
+}
+
 export default function Page() {
-  const params = useParams();
-  const slug = params.slug || '';
+  const params = useParams<PageParams>();
+  const slug = params.slug ?? '';
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const [subCategories, setSubCategories] = useState<{title: string, image: string}[]>([]);

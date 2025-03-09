@@ -27,10 +27,15 @@ type CategoryType = {
   placeList: PlaceType[]
 }
 
+type PageParams = {
+  category?: string; // Optional string parameter
+  subCategory?: string; // Optional string parameter
+}
+
 export default function Page() {
-  const params = useParams();
-  const category = params.category || '';
-  const subCategory = params.subCategory || '';
+  const params = useParams<PageParams>();
+  const category = params.category ?? '';
+  const subCategory = params.subCategory ?? '';
   
   const [dialogData, setDialogData] = useState<PlaceType | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
