@@ -5,14 +5,14 @@ import videojs from 'video.js';
 import 'video.js/dist/video-js.css'
 import { useEffect, useRef, useState, forwardRef, useMemo } from "react";
 import { useParams } from 'next/navigation';
-import { Tabs, Tab, Box, Link as MuiLink, Dialog, AppBar, Toolbar, IconButton, Slide } from '@mui/material';
+import { Tabs, Tab, Box, Link as MuiLink, Dialog, AppBar, Toolbar, IconButton, Slide, SlideProps } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TabPanel, { a11yProps } from '@/components/TabPanel';
 import { Breadcrumbs, Typography } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import HomeIcon from '@mui/icons-material/Home';
 
-const Transition = forwardRef(function Transition(props, ref) {
+const Transition = forwardRef<unknown, SlideProps>((props, ref) => {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
