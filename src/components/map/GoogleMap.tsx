@@ -68,9 +68,9 @@ const unselectedMarkerIcon = {
   url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
       <!--  Outline with light color -->
-      <path fill="#FFD717" stroke="black" stroke-width=".5" d="M12 1C6.925 1 2.5 5.425 2.5 10.5c0 6.9 8.45 16.875 8.85 17.4a1 1 0 0 0 1.3 0c0.4-0.525 8.85-10.5 8.85-17.4C21.5 5.425 17.075 1 12 1z"/>
+      <path fill="#df9292" stroke="black" stroke-width=".5" d="M12 1C6.925 1 2.5 5.425 2.5 10.5c0 6.9 8.45 16.875 8.85 17.4a1 1 0 0 0 1.3 0c0.4-0.525 8.85-10.5 8.85-17.4C21.5 5.425 17.075 1 12 1z"/>
       <!-- Darker Inner Circle -->
-      <circle fill="#EF9651" cx="12" cy="10" r="5"/>
+      <circle fill="#c96363" cx="12" cy="10" r="5"/>
     </svg>
   `),
   scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
