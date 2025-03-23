@@ -1,7 +1,6 @@
 import { Box } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { useGoogleMapStore, PlaceDetails } from '@/stores/useGoogleMapStore';
-import PlacePhoto from './PlacePhoto';
 import MapSidebar from './MapSidebar';
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -123,7 +122,7 @@ export default function GoogleMap({ markers, onClose }: GoogleMapProps) {
 
           // Add click listener
           google.maps.event.addListener(marker, 'click', () => {
-            setSelectedMarker({
+            if (selectedMarker?.marker.placeId !== markerData.placeId) setSelectedMarker({
               marker: markerData,
               markerEl: marker
             })
@@ -136,11 +135,11 @@ export default function GoogleMap({ markers, onClose }: GoogleMapProps) {
       // Fit map to bounds if there are markers
       if (markers.length > 0) {
         mapInstance.current!.fitBounds(bounds);
-        mapInstance.current!.panBy(0, -50);
+        mapInstance.current!.panBy(100, 100);
 
         // Optional: Limit max zoom
         const listener = google.maps.event.addListener(mapInstance.current!, 'bounds_changed', () => {
-          const maxZoom = 15; // Adjust as needed
+          const maxZoom = markers.length <= 1 ? 15 : 13; // higher value mean zoom in bigger
           if (mapInstance.current!.getZoom()! > maxZoom) {
             mapInstance.current!.setZoom(maxZoom);
           }
@@ -171,11 +170,11 @@ export default function GoogleMap({ markers, onClose }: GoogleMapProps) {
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Side bar */}
       {selectedPlaceDetails && <Box 
-        className='bg-white shadow-sm border border-gray-300 overflow-hidden' 
+        className='bg-white shadow-lg border border-gray-300 overflow-hidden' 
         sx={{ 
           position: 'absolute', 
           zIndex: 1, 
-          width: '400px', 
+          width: '380px', 
           height: '100%'
           }}
         >

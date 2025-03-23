@@ -16,6 +16,8 @@ export default function MapSidebar({ placeDetails, onClose }: MapSidebarProps) {
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
       <PlacePhoto photos={placeDetails.photos} />
+      {/* Seperator */}
+      <Divider />
       {/* Place Main Info */}
       <Box sx={{ padding: 2 }}>
         {/* Place name */}
@@ -42,7 +44,7 @@ export default function MapSidebar({ placeDetails, onClose }: MapSidebarProps) {
       {/* Place additional info */}
       <Box className='text-slate-700 text-sm' sx={{ padding: 2 }}>
         {/* Address */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
           <LocationOnOutlined color='primary' sx={{ marginRight: 2 }} />
           {placeDetails.address ? <Typography variant='inherit'  dangerouslySetInnerHTML={{__html: placeDetails.address }} /> : 'N/A'}
         </Box>

@@ -26,7 +26,7 @@ export default function PlacePhoto(props: PlacePhotoProps) {
   return (
     <Box sx={{ position: 'relative' }}>
       <Swiper
-        spaceBetween={1}
+        spaceBetween={0}
         slidesPerView={1}
         modules={[Pagination]}
         loop={loop}
