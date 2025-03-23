@@ -45,7 +45,7 @@ export default function MapSidebar({ placeDetails, onClose }: MapSidebarProps) {
       <Box className='text-slate-700 text-sm' sx={{ padding: 2 }}>
         {/* Address */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-          <LocationOnOutlined color='primary' sx={{ marginRight: 2 }} />
+          <LocationOnOutlined color='primary' sx={{ marginRight: 2, alignSelf: 'baseline' }} />
           {placeDetails.address ? <Typography variant='inherit'  dangerouslySetInnerHTML={{__html: placeDetails.address }} /> : 'N/A'}
         </Box>
         {/* business open hour */}
