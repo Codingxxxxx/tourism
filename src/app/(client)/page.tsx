@@ -93,7 +93,7 @@ export default function Home() {
           <div className="flex-1 pl-[.125rem] overflow-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[.125rem] h-full">
                 {categories.map((category, idx) => (
-                  <Link href={`/category/${encodeURIComponent(category.text)}`} className="relative">
+                  <Link key={idx} href={`/category/${encodeURIComponent(category.text)}`} className="relative">
                     <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
                       <Image style={{ objectFit: 'cover' }} src={`/samples/${category.image}`} alt={category.text}  fill />
                     </div>

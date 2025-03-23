@@ -52,28 +52,9 @@ type SelectedMarker = {
   markerEl: google.maps.Marker
 }
 
-const defaultMarkerIcon = {
-  url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
-      <!-- Darker Red Marker with Black Outline -->
-      <path fill="#ea4335" stroke="black" stroke-width=".5" d="M12 1C6.925 1 2.5 5.425 2.5 10.5c0 6.9 8.45 16.875 8.85 17.4a1 1 0 0 0 1.3 0c0.4-0.525 8.85-10.5 8.85-17.4C21.5 5.425 17.075 1 12 1z"/>
-      <!-- Darker Inner Circle -->
-      <circle fill="#b11210" cx="12" cy="10" r="5"/>
-    </svg>
-  `),
-  scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
-}
-
-const unselectedMarkerIcon = {
-  url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
-      <!--  Outline with light color -->
-      <path fill="#df9292" stroke="black" stroke-width=".5" d="M12 1C6.925 1 2.5 5.425 2.5 10.5c0 6.9 8.45 16.875 8.85 17.4a1 1 0 0 0 1.3 0c0.4-0.525 8.85-10.5 8.85-17.4C21.5 5.425 17.075 1 12 1z"/>
-      <!-- Darker Inner Circle -->
-      <circle fill="#c96363" cx="12" cy="10" r="5"/>
-    </svg>
-  `),
-  scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
+type CustomMarkerIcon = {
+  url: string,
+  scaledSize: google.maps.Size
 }
 
 export default function GoogleMap({ markers, onClose }: GoogleMapProps) {
@@ -83,7 +64,9 @@ export default function GoogleMap({ markers, onClose }: GoogleMapProps) {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<SelectedMarker>(); // track current click/selected marker
   const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<PlaceDetails>();
-  const [googleMarkers, setGoogleMarkers] = useState<google.maps.Marker[]>([]);
+  const [googleMarkers] = useState<google.maps.Marker[]>([]);
+  const [defaultMarkerIcon, setDefaultMarkerIcon] = useState<CustomMarkerIcon>();
+  const [unselectedMarkerIcon, setUnselectedMarkerIcon] = useState<CustomMarkerIcon>();
 
   // Load and initialize the map on mount
   useEffect(() => {
@@ -95,6 +78,30 @@ export default function GoogleMap({ markers, onClose }: GoogleMapProps) {
       mapInstance.current = new google.maps.Map(mapRef.current, {
         mapTypeControl: false,
       });
+
+      setDefaultMarkerIcon({
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
+            <!-- Darker Red Marker with Black Outline -->
+            <path fill="#ea4335" stroke="black" stroke-width=".5" d="M12 1C6.925 1 2.5 5.425 2.5 10.5c0 6.9 8.45 16.875 8.85 17.4a1 1 0 0 0 1.3 0c0.4-0.525 8.85-10.5 8.85-17.4C21.5 5.425 17.075 1 12 1z"/>
+            <!-- Darker Inner Circle -->
+            <circle fill="#b11210" cx="12" cy="10" r="5"/>
+          </svg>
+        `),
+        scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
+      })
+  
+      setUnselectedMarkerIcon({
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
+            <!--  Outline with light color -->
+            <path fill="#df9292" stroke="black" stroke-width=".5" d="M12 1C6.925 1 2.5 5.425 2.5 10.5c0 6.9 8.45 16.875 8.85 17.4a1 1 0 0 0 1.3 0c0.4-0.525 8.85-10.5 8.85-17.4C21.5 5.425 17.075 1 12 1z"/>
+            <!-- Darker Inner Circle -->
+            <circle fill="#c96363" cx="12" cy="10" r="5"/>
+          </svg>
+        `),
+        scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
+      })
 
       setIsMapLoaded(true);
     };
