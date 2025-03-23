@@ -95,7 +95,7 @@ export default function Home() {
                 {categories.map((category, idx) => (
                   <Link href={`/category/${encodeURIComponent(category.text)}`} className="relative">
                     <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
-                      <Image src={`/samples/${category.image}`} alt={category.text} objectFit='cover' fill />
+                      <Image style={{ objectFit: 'cover' }} src={`/samples/${category.image}`} alt={category.text}  fill />
                     </div>
                     <h3 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md z-1" dangerouslySetInnerHTML={{ __html: category.text.replace('\n', '<br>') }}></h3>
                   </Link>

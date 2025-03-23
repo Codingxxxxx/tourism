@@ -11,6 +11,7 @@ import TabPanel, { a11yProps } from '@/components/TabPanel';
 import { Breadcrumbs, Typography } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import HomeIcon from '@mui/icons-material/Home';
+import { GoogleMap, MarkerProps } from '@/components/map';
 
 const Transition = forwardRef<unknown, SlideProps>((props, ref) => {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -19,7 +20,8 @@ const Transition = forwardRef<unknown, SlideProps>((props, ref) => {
 type PlaceType = {
   title: string,
   image?: string,
-  mapUrl?: string
+  mapUrl?: string,
+  markers?: MarkerProps[]
 }
 
 type CategoryType = {
@@ -55,42 +57,102 @@ export default function Page() {
     {
       title: 'Kampot Riverside',
       image: 'beach1.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62742.54174907594!2d104.14799924880865!3d10.625310965554116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310837b60517b0c7%3A0xf1a92b4bad95e82!2sKampot%20Riverside%20Boutique!5e0!3m2!1sen!2skh!4v1741507004230!5m2!1sen!2skh'
+      markers: [
+        {
+          placeId: 'ChIJx7AXBbY3CDERgl7ZurSSGg8',
+          latLng: {
+            lat: 10.590481203389674,
+            lng: 104.19565161089196
+          }
+        },
+        {
+          placeId: 'ChIJr6xUEAs1CDER7YtY_Xn9NfU',
+          latLng: {
+            lat: 10.582712665163752,
+            lng: 104.20163891261086
+          }
+        },
+        {
+          placeId: 'ChIJAQFIbGA1CDERwshkV6Gxxog',
+          latLng: {
+            lat: 10.590880964866345, 
+            lng: 104.19523095507053
+          }
+        }
+      ]
     },
     {
-      title: 'Doungte Kampot',
+      title: 'Tube Coffee',
       image: 'beach2.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3920.9222614691007!2d104.14175997498035!3d10.663142089478805!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3108482cdec69461%3A0x70e8cf7ac6b2abaf!2sDaung%20TE%20Kampot!5e0!3m2!1sen!2skh!4v1741507048374!5m2!1sen!2skh'
+      markers: [
+        {
+          placeId: 'ChIJDW1JtslRCTERgqjUURfXJZA',
+          latLng: {
+            lat: 11.566625751713737,
+            lng: 104.93180499556362
+          }
+        },
+        {
+          placeId: 'ChIJ25lnwG9RCTER5lEPNu_FIdM',
+          latLng: {
+            lat: 11.541737814645185, 
+            lng: 104.91419353974189
+          }
+        },
+        {
+          placeId: 'ChIJhVlNIldRCTERp7DuYEFJrCY',
+          latLng: {
+            lat: 11.550743881084081,
+            lng: 104.91499425323484
+          }
+        }
+      ]
     },
     {
-      title: 'New Beach Kampot',
+      title: 'The Pizza Compnay',
       image: 'beach3.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62751.30369457673!2d104.1316225582031!3d10.582575600000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3108350b1054acaf%3A0xf535fd79fd588bed!2sKampot%20River%20beach!5e0!3m2!1sen!2skh!4v1741507103499!5m2!1sen!2skh'
+      markers: [
+        {
+          placeId: 'ChIJR4YiOjxRCTER6NBR7GRfwcc',
+          latLng: {
+            lat: 11.558490536506705,
+            lng: 104.9186205360423
+          }
+        },
+        {
+          placeId: 'ChIJwRB2R3VRCTERUtokQQ_3Zy4',
+          latLng: {
+            lat: 11.566351775133901,
+            lng: 104.89358442254941
+          }
+        }
+      ]
     },
     {
-      title: 'Firefly River Cruise Tour',
+      title: 'Daung Te Kampot',
       image: 'beach4.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62749.59333404496!2d104.12695774868072!3d10.590931073839993!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310836897d5fd26f%3A0x6f50ed443bd607ff!2sKampot!5e0!3m2!1sen!2skh!4v1741507137793!5m2!1sen!2skh'
+      markers: [
+        {
+          placeId: 'ChIJYZTG3ixICDERr6uyxnrP6HA',
+          latLng: {
+            lat: 10.663331873691261,
+            lng: 104.14437781089309
+          }
+        }
+      ]
     },
     {
-      title: 'BoTree Farm',
+      title: 'Kampot Night Market',
       image: 'beach5.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3921.8581452423614!2d104.32379147497927!3d10.590262089547407!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3109cb0f31bf60fb%3A0x3b1a3c3c0ac6a8e3!2sBoTree%20Farm!5e0!3m2!1sen!2skh!4v1741507173776!5m2!1sen!2skh'
-    },
-    {
-      title: 'Kampot Provincial Museum',
-      image: 'beach6.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3921.7059875845325!2d104.17601287887283!3d10.602144762556096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3108368f7a6e9c13%3A0x4a67334eb12f9f1a!2sKampot%20Provincial%20Museum!5e0!3m2!1sen!2skh!4v1741507214363!5m2!1sen!2skh'
-    },
-    {
-      title: 'La Plantation Pepper Farm',
-      image: 'beach7.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.5947416012737!2d104.84376047499404!3d11.580882788621032!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310951fd490fd01f%3A0xd3baf3a2c2c75e3d!2sKP%20Plantation%20Office%20-%20Kampot%20Pepper!5e0!3m2!1sen!2skh!4v1741507245851!5m2!1sen!2skh'
-    },
-    {
-      title: 'Trapeang Sangkae',
-      image: 'beach8.jpg',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15687.817637366035!2d104.2289105474802!3d10.582737582870315!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3108345832742d31%3A0x58b359a713445815!2sTrapeang%20Sanke%20Commuinty%20Based%20Ecotourism!5e0!3m2!1sen!2skh!4v1741507280868!5m2!1sen!2skh'
+      markers: [
+        {
+          placeId: 'ChIJ4ZDxymI2CDERnzorBKiwhuU',
+          latLng: {
+            lat: 10.611587896653162,
+            lng: 104.18146192623512
+          }
+        }
+      ]
     }
   ];
 
@@ -131,8 +193,13 @@ export default function Page() {
     if (!mapData) return setDialogData(null);
     setDialogData({
       mapUrl: mapData.mapUrl,
-      title: mapData.title
+      title: mapData.title,
+      markers: mapData.markers
     });
+  }
+
+  const handleClose = () => {
+    setDialogData(null)
   }
 
   useEffect(() => {
@@ -195,7 +262,7 @@ export default function Page() {
                         <li key={idx}>
                           <Box className='hover:cursor-pointer' onClick={() => handleClick(place)}>
                             <div className='relative aspect-[16/9] rounded overflow-hidden shadow'>
-                              <Image className='absolute' src={`/samples3/${place.image}`} alt={place.title} fill objectFit='cover' />
+                              <Image className='absolute' src={`/samples3/${place.image}`} alt={place.title} fill style={{ objectFit: 'cover' }} />
                             </div>
                             <span className='block text-sm text-slate-700 mt-2'>{place.title}</span>
                           </Box>
@@ -214,22 +281,7 @@ export default function Page() {
         open={dialogData != null}
         slots={{ transition: Transition }}
       >
-        <AppBar position="static" sx={{ flexShrink: 0 }}>
-          <Toolbar >
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={() => handleClick(null)}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {dialogData?.title}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <iframe width='100%' height='100%'  allowFullScreen={true} loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={dialogData?.mapUrl}></iframe>
+        {dialogData?.markers && <GoogleMap markers={dialogData?.markers} onClose={handleClose} /> }
       </Dialog>
     </div>
   )
