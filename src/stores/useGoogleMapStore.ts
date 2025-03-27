@@ -31,7 +31,6 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
     })),
   getMarker: async (marker: MarkerProps): Promise<PlaceDetails> => {
     if (marker.placeId in get().markerCache) {
-      console.log('marker from cache', get().markerCache[marker.placeId]);
       return get().markerCache[marker.placeId];
     }
 
