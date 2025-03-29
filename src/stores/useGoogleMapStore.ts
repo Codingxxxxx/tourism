@@ -17,21 +17,14 @@ export type PlaceDetails = {
 
 type GoogleMapStore = {
   markerCache: Record<string, PlaceDetails>,
-  placeService: google.maps.places.PlacesService | null,
-  setPlaceService: (googlePlaceService: google.maps.places.PlacesService) => void;
-  getMarker: (maker: MarkerProps) => Promise<PlaceDetails>
+  getMarker: (maker: MarkerProps, placeService: google.maps.places.PlacesService) => Promise<PlaceDetails>
 }
 
 export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
   markerCache: {},
-  placeService: null,
-  setPlaceService: (googlePlaceService: google.maps.places.PlacesService) =>
-    set((state) => ({
-      placeService: googlePlaceService
-    })),
-  getMarker: async (marker: MarkerProps): Promise<PlaceDetails> => {
+  getMarker: async (marker: MarkerProps, placeService: google.maps.places.PlacesService): Promise<PlaceDetails> => {
+    // get from cache if place already queried
     if (marker.placeId in get().markerCache) {
-      console.log('marker from cache', get().markerCache[marker.placeId]);
       return get().markerCache[marker.placeId];
     }
 
@@ -51,7 +44,7 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
           'icon'
         ]
       };
-      get().placeService?.getDetails(reqPayload, (result, status) => {
+      placeService.getDetails(reqPayload, (result, status) => {
         resolve({
           status,
           businessStatus: result?.business_status,
@@ -68,7 +61,7 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
       });
 
     })
-    
+
     set((state: any) => ({
       markerCache: { ...state.markerCache, [marker.placeId]: placeDetails }
     }))
