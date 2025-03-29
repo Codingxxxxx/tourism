@@ -6,13 +6,13 @@ import PlacePhoto, { PlacePhotoProps } from './PlacePhoto';
 export type {
   MapSidebarProps,
   PlacePhotoProps,
-  MarkerProps
+  MarkerProps,
+  CustomMarkerIcon
 }
 
 export {
   GoogleMap,
   MapSidebar,
   PlacePhoto,
-  GoogleMapv2,
-  CustomMarkerIcon
+  GoogleMapv2
 }
