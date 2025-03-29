@@ -47,12 +47,12 @@ type GoogleMapProps = {
   onClose: () => void
 }
 
-type SelectedMarker = {
+export type SelectedMarker = {
   marker: MarkerProps,
   markerEl: google.maps.Marker
 }
 
-type CustomMarkerIcon = {
+export type CustomMarkerIcon = {
   url: string,
   scaledSize: google.maps.Size
 }

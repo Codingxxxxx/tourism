@@ -6,18 +6,51 @@ import { useParams } from 'next/navigation';
 import { Box, Link as MuiLink, Slide, SlideProps } from '@mui/material';
 import { Breadcrumbs, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import { GoogleMapv2, MarkerProps } from '@/components/map';
+import { GoogleMapv2, MarkerProps, CustomMarkerIcon } from '@/components/map';
+import styles from '@/app/styles/ScrollBox.module.css';
+import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
+import { AddAPhoto } from '@mui/icons-material';
+
+const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+// Singleton promise to track Google Maps script loading
+let scriptLoadPromise: Promise<void> | null = null;
+
+// Option 1: If using @types/google.maps (Recommended)
+const loadGoogleMapsScript = (): Promise<void> => {
+  if (window.google?.maps) {
+    return Promise.resolve();
+  }
+
+  if (scriptLoadPromise) {
+    return scriptLoadPromise;
+  }
+
+  scriptLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAP_KEY}&callback=initMap&libraries=places&v=weekly`;
+    script.defer = true;
+    script.async = true;
+
+    // Assuming @types/google.maps is installed, initMap is already typed
+    window.initMap = () => resolve();
+    script.onerror = () => {
+      scriptLoadPromise = null;
+      reject(new Error('Failed to load Google Maps script'));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return scriptLoadPromise;
+};
 
 type PlaceType = {
   title: string,
   image?: string,
   mapUrl?: string,
-  markers: MarkerProps[]
-}
-
-type CategoryType = {
-  title: String,
-  placeList: PlaceType[]
+  markers: MarkerProps[],
+  galleries?: google.maps.places.PlacePhoto[]
 }
 
 type PageParams = {
@@ -25,6 +58,7 @@ type PageParams = {
   subCategory?: string;
 }
 
+// Mock data
 const testLocation: PlaceType[] = [
   {
     title: 'Kampot Riverside',
@@ -141,14 +175,60 @@ export default function Page() {
   const params = useParams<PageParams>();
   const category = params.category ?? '';
   const subCategory = params.subCategory ?? '';
-  
-  const [placeTypes, setPlaceTypes] = useState<PlaceType[]>();
+  const { getMarker } = useGoogleMapStore();
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<google.maps.Map | null>(null);
+  const [places, setPlaces] = useState<PlaceType[]>();
+  const [selectedPlace, setSelectedPlace] = useState<PlaceType>();
+  const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
 
+  const onLocationClicked = (placeType: PlaceType) => {
+    setSelectedPlace(placeType);
+  }
+
+  // load google map API script
   useEffect(() => {
-    setPlaceTypes(
-      [...shuffleArray(testLocation)]
-    );
-  }, []);
+    let isMounted = true;
+
+    const initializeMap = () => {
+      if (!isMounted || !mapRef.current) return;
+
+      const googleMapInstance = new google.maps.Map(mapRef.current, {
+        mapTypeControl: false,
+      });
+
+      mapInstance.current = googleMapInstance;
+      setPlaceService(new google.maps.places.PlacesService(googleMapInstance));
+    };    
+
+    loadGoogleMapsScript()
+      .then(() => {
+        if (isMounted) initializeMap();
+      })
+      .catch((error) => console.error('Error loading Google Maps:', error));
+
+    return () => {
+      isMounted = false;
+    };
+  }, [mapRef]);
+
+  // Get initial place data with images on google map
+  useEffect(() => {
+    if (!placeService) return;
+    const markerPromises = testLocation
+      .flatMap(placeType => placeType.markers[0])
+      .map(marker => getMarker(marker, placeService));
+
+    Promise
+      .all(markerPromises)
+      .then((placeDetails) => {
+        const locations = placeDetails.map((placeInfo, idx) => ({ ...testLocation[idx], galleries: placeInfo.photos }))
+        
+        setPlaces(locations);
+        setSelectedPlace(locations[0]);
+      })
+
+  }, [placeService]);
 
   return (
     <div className="min-h-screen">
@@ -167,21 +247,34 @@ export default function Page() {
         </Breadcrumbs>
         {/* Destination List */}
         <Box sx={{ display: 'flex', overflow: 'hidden', flexGrow: 1, padding: 1, gap: 2 }}>
-          <ul className='flex flex-col shrink-0 gap-5 overflow-auto'>
-              {placeTypes && placeTypes.map((place, idx) => {
+          <ul className={`flex flex-col shrink-0 gap-5 overflow-auto ${styles.scrollable}`}>
+              {places && places.map((place, idx) => {
                 return (
                   <li key={idx}>
-                    <button className='position-relative cursor-pointer'>
+                    <button className='position-relative cursor-pointer border rounded-lg shadow-md border-slate-300' onClick={() => onLocationClicked(place)}>
+                      {/* Place images */}
                       <Box className='w-[320px] aspect-[16/9] w-100' sx={{ position: 'relative' }}>
-                        <Image className='rounded-lg' src={`/samples3/${place.image}`} style={{ objectFit: 'cover' }} alt={place.title} fill />
+                        <Image className='rounded-t-lg' src={place.galleries![0].getUrl({ maxWidth: 350 })} style={{ objectFit: 'cover' }} alt={place.title} fill />
+                        {/* Photo count */}
+                        <Box
+                          className='bottom-2 right-2 bg-slate-50 rounded-lg p-1 opacity-75 text-slate-800' 
+                          sx={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <AddAPhoto sx={{ marginRight: 1 }} /> 
+                          <Typography className='text-xs'>
+                            <span className='text-sm'>Photos {place.galleries?.length}</span>
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Typography variant='subtitle1' sx={{ marginTop: .5, textAlign: 'left' }}>{place.title}</Typography>
+                      {/* Information box */}
+                      <Box sx={{ paddingX: 2, paddingY: 1 }}>
+                        <Typography variant='subtitle1' fontWeight='500' sx={{ marginTop: .25, textAlign: 'left' }}>{place.title}</Typography>
+                      </Box>
                     </button>
                   </li>
                 )
               })}
             </ul>
-            {placeTypes && <GoogleMapv2 onClose={() => {}} markers={placeTypes[0].markers} />}
+            {<GoogleMapv2 ref={mapRef} mapInstance={mapInstance} markers={selectedPlace?.markers} />}
         </Box>
       </div>
     </div>

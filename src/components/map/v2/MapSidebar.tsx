@@ -9,10 +9,9 @@ import Link from 'next/link';
 
 export type MapSidebarProps = {
   placeDetails: PlaceDetails,
-  onClose: () => void
 }
 
-export default function MapSidebar({ placeDetails, onClose }: MapSidebarProps) {
+export default function MapSidebar({ placeDetails }: MapSidebarProps) {
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
       <PlacePhoto photos={placeDetails.photos} />
