@@ -1,17 +1,19 @@
 import PlacePhoto from './../PlacePhoto'
 import { PlaceDetails } from '@/stores/useGoogleMapStore';
-import { Box, Typography, Rating, Divider, Button, Icon } from '@mui/material';
-import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, ArrowBackOutlined } from '@mui/icons-material';
+import { Box, Typography, Rating, Divider } from '@mui/material';
+import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined } from '@mui/icons-material';
 import { formatOpeningHours } from '@/utils/openHourFormatter';
-import { formatPlaceType } from '@/utils/placeFormatter';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export type MapSidebarProps = {
   placeDetails: PlaceDetails,
 }
 
 export default function MapSidebar({ placeDetails }: MapSidebarProps) {
+  const lat = placeDetails.geometry?.location?.lat();;
+  const lng = placeDetails.geometry?.location?.lng();
+  const travelUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(placeDetails.placeName)}&destination_ll=${lat},${lng}&travelmode=driving`;
+
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
       <PlacePhoto photos={placeDetails.photos} />
@@ -63,6 +65,11 @@ export default function MapSidebar({ placeDetails }: MapSidebarProps) {
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
           <PhoneOutlined color='primary' sx={{ marginRight: 2 }} />
             {placeDetails.phoneNumber ? <Typography variant='inherit'>{placeDetails.phoneNumber}</Typography> : 'N/A'}
+        </Box>
+        {/* Direction */}
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
+          <DirectionsOutlined color='primary' sx={{ marginRight: 2 }} />
+            {placeDetails.geometry ? <a className='text-blue-600 hover:text-blue-800 hover:underline' href={travelUrl} rel='noreferrer nofollow' target='_blank'>Travel Destination</a> : 'N/A'}
         </Box>
       </Box>
     </Box>
