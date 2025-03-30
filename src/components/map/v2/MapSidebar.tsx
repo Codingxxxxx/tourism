@@ -10,9 +10,13 @@ export type MapSidebarProps = {
 }
 
 export default function MapSidebar({ placeDetails }: MapSidebarProps) {
-  const lat = placeDetails.geometry?.location?.lat();;
-  const lng = placeDetails.geometry?.location?.lng();
-  const travelUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(placeDetails.placeName)}&destination_ll=${lat},${lng}&travelmode=driving`;
+  let travelUrl = '';
+
+  if (placeDetails.geometry && placeDetails.geometry.location) {
+    const lat = placeDetails.geometry?.location?.lat();
+    const lng = placeDetails.geometry?.location?.lng();
+    travelUrl =`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(placeDetails.placeName || '')}&destination_ll=${lat},${lng}&travelmode=driving`;
+  }
 
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
