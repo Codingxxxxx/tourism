@@ -27,12 +27,12 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
   const { getMarker } = useGoogleMapStore();
   const mapRef = useRef<HTMLDivElement>(null);
   
-  const [googleMarkers] = useState<google.maps.Marker[]>([]);
   const [defaultMarkerIcon, setDefaultMarkerIcon] = useState<CustomMarkerIcon>();
   const [unselectedMarkerIcon, setUnselectedMarkerIcon] = useState<CustomMarkerIcon>();
   const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
   const [selectedMarker, setSelectedMarker] = useState<SelectedMarker>(); // track current click/selected marker
   const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<PlaceDetails>();
+  const [googleMarkers] = useState(new Map<string, google.maps.Marker>());
 
   useImperativeHandle(ref, () => mapRef.current);
 
@@ -40,7 +40,7 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
   useEffect(() => {
     if (!mapInstance.current || !markers) return;
     
-    setDefaultMarkerIcon({
+    const defaultMarkerIcon = {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
           <!-- Darker Red Marker with Black Outline -->
@@ -50,9 +50,9 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
         </svg>
       `),
       scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
-    })
+    };
 
-    setUnselectedMarkerIcon({
+    const unselectedMarkerIcon = {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
           <!--  Outline with light color -->
@@ -62,7 +62,7 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
         </svg>
       `),
       scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
-    })
+    };
 
     const placeService = new google.maps.places.PlacesService(mapInstance.current);
 
@@ -89,12 +89,6 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
             icon: unselectedMarkerIcon
           });
 
-          // use first marker as default
-          if (idx === 0) setSelectedMarker({
-            marker: markerData,
-            markerEl: marker
-          });
-
           // Add click listener
           google.maps.event.addListener(marker, 'click', () => {
             if (selectedMarker?.marker.placeId === markerData.placeId) return;
@@ -104,15 +98,16 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
               markerEl: marker
             });
 
-            // update marker icon
+            // update other marker icon to unselected
             googleMarkers
+              .values()
               .filter(googleMarker => googleMarker != marker)
               .forEach((googleMarker) => {
                 googleMarker.setIcon(unselectedMarkerIcon);
               })
           });
 
-          googleMarkers.push(marker);
+          googleMarkers.set(idx.toString(), marker);
         })
       );
 
@@ -138,10 +133,32 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
     //mapInstance.current!.panBy(500, 200);
 
     // Remove previous markers
-    googleMarkers.forEach(googleMarker => googleMarker.setMap(null));
+    googleMarkers
+      .entries()
+      .forEach(([key, markerEl]) => {
+        markerEl.setMap(null);
+        googleMarkers.delete(key);
+      });
 
-    loadMarkersAndFitBounds();
     setPlaceService(placeService);
+    setDefaultMarkerIcon(defaultMarkerIcon);
+    setUnselectedMarkerIcon(unselectedMarkerIcon);
+
+    // init each markers
+    loadMarkersAndFitBounds()
+      .then(() => {
+        // use marker 0 as default
+        const defaultSelectMarker = markers[0];
+        const defaultMarkerEl = googleMarkers.get('0');
+
+        if (!defaultSelectMarker || !defaultMarkerEl) return;
+
+        setSelectedMarker({
+          marker: defaultSelectMarker,
+          markerEl: defaultMarkerEl
+        });
+      });
+    // use first marker as default
   }, [mapInstance, markers]);
 
   // query information of selected marker
