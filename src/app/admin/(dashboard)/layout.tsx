@@ -1,11 +1,14 @@
 'use client'
+
 import { ReactNode, Suspense, useMemo, useState } from 'react';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { PageContainer } from '@toolpad/core/PageContainer';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import LinearProgress from '@mui/material/LinearProgress';
 import type { Navigation, Session } from '@toolpad/core/AppProvider';
-import { Dashboard, Topic, PeopleAlt, Room } from '@mui/icons-material';
+import { Dashboard, Topic, PeopleAlt, Room, Add, List } from '@mui/icons-material';
+import { Box } from '@mui/material';
+import { PageContainer, PageHeader } from '@toolpad/core';
+import CustomHeader from '@/components/dashboard/CustomHeader';
 
 const NAVIGATION: Navigation = [
   {
@@ -25,8 +28,9 @@ const NAVIGATION: Navigation = [
   },
   {
     segment: 'admin/users',
-    title: 'Users',
-    icon: <PeopleAlt />
+    title: 'User',
+    icon: <PeopleAlt />,
+    pattern: 'admin/users(/new)?'
   },
 ];
 
@@ -62,7 +66,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <Suspense fallback={<LinearProgress />}>
       <NextAppProvider navigation={NAVIGATION} branding={branding} session={session} authentication={authentication}>
         <DashboardLayout>
-          <PageContainer>{children}</PageContainer>
+            {children}
         </DashboardLayout>
       </NextAppProvider>
     </Suspense>
