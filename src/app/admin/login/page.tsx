@@ -1,35 +1,46 @@
 'use client'
-import { Formik, Form, Field } from 'formik';
-import { useState } from 'react';
+import { Formik, Form, Field, FormikHelpers } from 'formik';
+import { startTransition, useActionState, useState } from 'react';
 import * as Yub from 'yup';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import FormGroup from '@/components/form/FormGroup';
 import CustomTextField from '@/components/form/CustomField';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
+import { LoginSchema } from '@/shared/schemas';
+import { login } from '@/server/actions/auth';
+
+type FormState = {
+  username: string,
+  password: string
+}
 
 export default function Login() { 
-  const [background] = useState('/admin/login_bg.jpg');
-  const [formStat, setFormStat] = useState({
+  const background = '/admin/login_bg.jpg'
+  const [state, formAction, pending] = useActionState(login, undefined)
+  const [formStat, setFormStat] = useState<FormState>({
     username: '',
     password: ''
   });
 
-  const validationSchema = Yub.object({
-    username: Yub.string().label('Username').required(),
-    password: Yub.string().label('Password').required()
-  });
+  const onFormSubmit = (values: FormState) => {
+    const formData = new FormData();
+    Object.entries(values).forEach(([key, value]) => {
+      formData.set(key, value)
+    })
 
-  const onFormSubmit = () => {
-
+    startTransition(() => {
+      formAction(formData)  
+    });
   }
+
 
   return (
     <Box 
       className='h-screen flex flex-col justify-center items-center' 
       sx={{ backgroundImage: `url(${background})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: 'cover'}}>
-      <Formik initialValues={formStat} onSubmit={onFormSubmit} validationSchema={validationSchema}>
-        {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isSubmitting }) => (
-          <Form className='flex flex-col gap-2 w-md border border-gray-200 p-10 rounded shadow-sm bg-slate-200 opacity-95'>
+      <Formik initialValues={formStat} onSubmit={onFormSubmit} validationSchema={LoginSchema}>
+        {() => (
+          <Form action={formAction} className='flex flex-col gap-2 w-md border border-gray-200 p-10 rounded shadow-sm bg-slate-200 opacity-95'>
             <Typography textAlign='center' variant='h5' sx={{ marginBottom: 5, fontWeight: 'bold' }}>Login</Typography>
             {/* Name Input */}
             <FormGroup>
@@ -43,22 +54,17 @@ export default function Login() {
             </FormGroup>
             {/* Password Input */}
             <FormGroup>
-              <TextField
+              <CustomTextField
+                  id='password'
                   label='Password'
                   name='password'
                   type='password'
-                  required
-                  value={values.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.password && Boolean(errors.password)}
-                  fullWidth
                 />
                 <CustomErrorMessage name='password' />
             </FormGroup>
             {/* Submit Button */}
-            <Button type="submit" variant="contained" color="primary" disabled={isSubmitting} size='large'>
-              {isSubmitting ? "Login..." : "Submit"}
+            <Button type="submit" variant="contained" color="primary" disabled={pending} size='large'>
+              {pending ? "Login..." : "Submit"}
             </Button>
           </Form>
         )}

@@ -1,14 +1,14 @@
 'use client'
 
-import { ReactNode, Suspense, useMemo, useState } from 'react';
+import { ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import LinearProgress from '@mui/material/LinearProgress';
 import type { Navigation, Session } from '@toolpad/core/AppProvider';
 import { Dashboard, Topic, PeopleAlt, Room, Add, List } from '@mui/icons-material';
-import { Box } from '@mui/material';
-import { PageContainer, PageHeader } from '@toolpad/core';
-import CustomHeader from '@/components/dashboard/CustomHeader';
+import { logout } from '@/server/actions/auth';
+import { getSessionData } from '@/server/actions/session';
+import { redirect } from 'next/navigation';
 
 const NAVIGATION: Navigation = [
   {
@@ -43,7 +43,7 @@ const demoSession = {
 }
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(demoSession);
+  const [session, setSession] = useState<Session | null>();
 
   const branding = {
     logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
@@ -53,13 +53,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const authentication = useMemo(() => {
     return {
-      signIn: () => {
-        setSession(demoSession);
+      signOut: async () => {
+        await logout()
+        setSession(null)
+        redirect('/admin/login')
       },
-      signOut: () => {
-        setSession(null);
-      },
+      signIn: () => {}
     };
+  }, []);
+
+  useEffect(() => {
+    getSessionData()
+      .then(sessionData => {
+        setSession({
+          user: {
+            name: sessionData.fullname,
+            image: 'https://avatars.githubusercontent.com/u/19550456',
+            id: sessionData.userId
+          }
+        })
+      });
   }, []);
 
   return (
