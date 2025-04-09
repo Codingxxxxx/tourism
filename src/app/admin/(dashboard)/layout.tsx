@@ -28,7 +28,7 @@ const NAVIGATION: Navigation = [
   },
   {
     segment: 'admin/users',
-    title: 'User',
+    title: 'Users',
     icon: <PeopleAlt />,
     pattern: 'admin/users(/new)?'
   },

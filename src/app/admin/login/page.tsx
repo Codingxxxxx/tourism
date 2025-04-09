@@ -2,9 +2,10 @@
 import { Formik, Form, Field } from 'formik';
 import { useState } from 'react';
 import * as Yub from 'yup';
-import { Box, Button, FormHelperText, TextField, FormControl, Typography } from '@mui/material';
-import FormError from '@/components/form/FormError';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import FormGroup from '@/components/form/FormGroup';
+import CustomTextField from '@/components/form/CustomField';
+import CustomErrorMessage from '@/components/form/ErrorMessage';
 
 export default function Login() { 
   const [background] = useState('/admin/login_bg.jpg');
@@ -14,8 +15,8 @@ export default function Login() {
   });
 
   const validationSchema = Yub.object({
-    username: Yub.string().required(),
-    password: Yub.string().required()
+    username: Yub.string().label('Username').required(),
+    password: Yub.string().label('Password').required()
   });
 
   const onFormSubmit = () => {
@@ -32,20 +33,15 @@ export default function Login() {
             <Typography textAlign='center' variant='h5' sx={{ marginBottom: 5, fontWeight: 'bold' }}>Login</Typography>
             {/* Name Input */}
             <FormGroup>
-              <TextField
+              <CustomTextField
                 id='username'
-                label='Username'
                 name='username'
-                required
-                value={values.username}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.username && Boolean(errors.username)}
-                fullWidth 
+                type='text'
+                label='Username'
               />
-              <FormError message={errors.username} visible={touched.username && errors.username} />
+              <CustomErrorMessage name='username' />
             </FormGroup>
-            {/* Email Input */}
+            {/* Password Input */}
             <FormGroup>
               <TextField
                   label='Password'
@@ -58,7 +54,7 @@ export default function Login() {
                   error={touched.password && Boolean(errors.password)}
                   fullWidth
                 />
-                <FormError message={errors.password} visible={touched.password && errors.password} />
+                <CustomErrorMessage name='password' />
             </FormGroup>
             {/* Submit Button */}
             <Button type="submit" variant="contained" color="primary" disabled={isSubmitting} size='large'>
