@@ -4,7 +4,7 @@ import { FormState } from '@/shared/formStates';
 import { type SessionPayload, createSession, deleteSession } from '@/server/libs/session';
 import { redirect } from 'next/navigation';
 
-export async function login(state: FormState, formData: FormData) {
+export async function login(state: FormState, formData: FormData): Promise<FormState> {
   const requestPayload = Object.fromEntries(formData.entries())
   const session: SessionPayload = {
     userId: '11111',
