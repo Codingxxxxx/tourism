@@ -16,7 +16,7 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
 
   await createSession(session);
 
-  redirect('/admin');
+  redirect('/admin/users');
 }
 
 export async function logout() {
