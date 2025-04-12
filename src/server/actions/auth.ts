@@ -10,7 +10,8 @@ export async function login(state: FormState, formData: FormData) {
     userId: '11111',
     fullname: 'Rotha',
     role: '',
-    username: 'jsdfsf'
+    username: 'jsdfsf',
+    email: 'rotha@mail.com'
   };
 
   await createSession(session);

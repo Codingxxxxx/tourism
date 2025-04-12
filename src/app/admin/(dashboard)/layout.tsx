@@ -58,7 +58,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         setSession(null)
         redirect('/admin/login')
       },
-      signIn: () => {}
+      signIn: () => {
+      }
     };
   }, []);
 
@@ -69,7 +70,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           user: {
             name: sessionData.fullname,
             image: 'https://avatars.githubusercontent.com/u/19550456',
-            id: sessionData.userId
+            id: sessionData.userId,
+            email: sessionData.email
           }
         })
       });

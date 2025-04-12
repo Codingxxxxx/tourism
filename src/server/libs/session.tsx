@@ -7,7 +7,8 @@ export type SessionPayload = {
   userId: string,
   fullname: string,
   role: string,
-  username: string
+  username: string,
+  email: string,
   expiresAt?: Date
 }
  
@@ -29,7 +30,8 @@ export async function decrypt(session: string | undefined = '') {
     })
     return payload
   } catch (error) {
-    console.log('Failed to verify session')
+    console.error('Failed to verify session', error);
+    throw error;
   }
 }
 
@@ -59,7 +61,8 @@ export async function getAdminDisplaySession(): Promise<AdminSession> {
     fullname: payload?.fullname || '',
     role: payload?.role || '',
     username: payload?.username || '',
-    userId: payload?.userId || ''
+    userId: payload?.userId || '',
+    email: payload?.email || ''
   }
 }
 
