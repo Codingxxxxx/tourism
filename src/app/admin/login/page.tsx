@@ -1,37 +1,44 @@
 'use client'
 import { Formik, Form } from 'formik';
-import { startTransition, useActionState, useState } from 'react';
+import { startTransition, useActionState, useEffect, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import FormGroup from '@/components/form/FormGroup';
 import CustomTextField from '@/components/form/CustomField';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
+import { FormAlert } from '@/components/form/FormAlert';
 import { LoginSchema } from '@/shared/schemas';
 import { login } from '@/server/actions/auth';
+import { isProd } from '@/shared/config';
 
-type FormState = {
-  username: string,
+type FormProps = {
+  email: string,
   password: string
 }
 
 export default function Login() { 
   const background = '/admin/login_bg.jpg'
-  const [state, formAction, pending] = useActionState(login, undefined)
-  const [formStat, setFormStat] = useState<FormState>({
-    username: '',
-    password: ''
+  const [stat, formAction, pending] = useActionState(login, undefined)
+
+  // provide default user in development or demo
+  const [formStat, _] = useState<FormProps>({
+    email: !isProd ? 'admin@example.com' : '',
+    password: !isProd ? 'password123' : ''
   });
 
-  const onFormSubmit = (values: FormState) => {
+  const onFormSubmit = (values: FormProps) => {
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       formData.set(key, value)
     })
 
     startTransition(() => {
-      formAction(formData)  
+      formAction(formData);
     });
   }
 
+  useEffect(() => {
+    if (!stat) return;
+  }, [stat])
 
   return (
     <Box 
@@ -44,12 +51,12 @@ export default function Login() {
             {/* Name Input */}
             <FormGroup>
               <CustomTextField
-                id='username'
-                name='username'
+                id='email'
+                name='email'
                 type='text'
-                label='Username'
+                label='Email'
               />
-              <CustomErrorMessage name='username' />
+              <CustomErrorMessage name='email' />
             </FormGroup>
             {/* Password Input */}
             <FormGroup>
@@ -61,6 +68,10 @@ export default function Login() {
                 />
                 <CustomErrorMessage name='password' />
             </FormGroup>
+            {/* Alert */}
+            {stat && !stat.success && !pending && <FormGroup>
+              <FormAlert success={false} message={stat.message} />
+            </FormGroup>}
             {/* Submit Button */}
             <Button type="submit" variant="contained" color="primary" disabled={pending} size='large'>
               {pending ? "Login..." : "Submit"}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { isLoggedIn } from '@/server/libs/session';
 
 const excludeRoutes = [
   '/admin/login'
@@ -20,9 +20,7 @@ export async function middleware(request: NextRequest) {
   if (isExcludedRoute) return NextResponse.next();
   
   try {
-    const cookieStore = await cookies();
-    
-    if (!cookieStore.has('session')) return NextResponse.redirect(new URL('/admin/login', request.url));
+    if (!await isLoggedIn()) return NextResponse.redirect(new URL('/admin/login', request.url));
     return NextResponse.next();
   } catch (error) {
     console.error(error);
