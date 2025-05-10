@@ -8,7 +8,7 @@ import CustomErrorMessage from '@/components/form/ErrorMessage';
 import { FormAlert } from '@/components/form/FormAlert';
 import { LoginSchema } from '@/shared/schemas';
 import { login } from '@/server/actions/auth';
-import { isProd } from '@/shared/config';
+import { AppConfig } from '@/shared/config';
 
 type FormProps = {
   email: string,
@@ -21,8 +21,8 @@ export default function Login() {
 
   // provide default user in development or demo
   const [formStat, _] = useState<FormProps>({
-    email: !isProd ? 'admin@example.com' : '',
-    password: !isProd ? 'password123' : ''
+    email: AppConfig.ENABLE_DEMO_ACCOUNT ? 'admin@example.com' : '',
+    password: AppConfig.ENABLE_DEMO_ACCOUNT ? 'password123' : ''
   });
 
   const onFormSubmit = (values: FormProps) => {
