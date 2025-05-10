@@ -3,15 +3,34 @@
 import { FormState } from '@/shared/formStates';
 import { type SessionPayload, createSession, deleteSession } from '@/server/libs/session';
 import { redirect } from 'next/navigation';
+import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpClient';
+import { ApiEndpont } from '@/server/const/api';
+import { ApiCode } from '@/shared/api';
 
 export async function login(state: FormState, formData: FormData): Promise<FormState> {
-  const requestPayload = Object.fromEntries(formData.entries())
+  const email = formData.get('email');
+  const password = formData.get('password');
+  
+  const res = await HttpClient.post(ApiEndpont.LOGIN, {
+    email,
+    password
+  });
+
+  // invalid user name or password
+if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
+    return buildResponse('Invalid Username Or Password');
+  } 
+
+  // unknown error
+  if (!res.isOk) return buildResponse(res.messge)
+
   const session: SessionPayload = {
-    userId: '11111',
     fullname: 'Rotha',
     role: '',
     username: 'jsdfsf',
-    email: 'rotha@mail.com'
+    email: 'rotha@mail.com',
+    accessToken: res.data.accessToken,
+    refreshToken: res.data.refreshToken
   };
 
   await createSession(session);

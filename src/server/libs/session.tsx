@@ -4,12 +4,13 @@ import { cookies } from 'next/headers';
 import { AdminSession } from '@/shared/adminSession';
 
 export type SessionPayload = {
-  userId: string,
   fullname: string,
   role: string,
   username: string,
   email: string,
   expiresAt?: Date
+  accessToken: string,
+  refreshToken: string
 }
  
 const secretKey = process.env.SESSION_SECRET
@@ -48,20 +49,38 @@ export async function createSession(sessionPayload: SessionPayload) {
     secure: true,
     expires: expiresAt,
     sameSite: 'lax',
-    path: '/',
+    path: '/admin',
   })
 }
 
-export async function getAdminDisplaySession(): Promise<AdminSession> {
+export async function getSessionData(): Promise<SessionPayload> {
   const cookieStore = await cookies()
   const sessionToken = cookieStore.get('session')?.value;
-  const payload = await decrypt(sessionToken);
+  return await decrypt(sessionToken);
+}
+
+export async function getAccessToken(): Promise<string> {
+  const payload = await getSessionData();
+  return payload.accessToken;
+}
+
+export async function isLoggedIn() {
+  const cookieStore = await cookies()
+  return cookieStore.get('session') != undefined;
+}
+
+export async function getRefreshToken(): Promise<string> {
+  const payload = await getSessionData();
+  return payload.refreshToken;
+}
+
+export async function getAdminDisplaySession(): Promise<AdminSession> {
+  const payload = await getSessionData();
 
   return {
     fullname: payload?.fullname || '',
     role: payload?.role || '',
     username: payload?.username || '',
-    userId: payload?.userId || '',
     email: payload?.email || ''
   }
 }
