@@ -70,7 +70,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           user: {
             name: sessionData.fullname,
             image: 'https://avatars.githubusercontent.com/u/19550456',
-            id: sessionData.userId,
             email: sessionData.email
           }
         })

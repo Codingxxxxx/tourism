@@ -8,8 +8,8 @@ import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/api';
 
 export async function login(state: FormState, formData: FormData): Promise<FormState> {
-  const email = formData.get('email');
-  const password = formData.get('password');
+  const email = formData.get('email')?.toString() || '';
+  const password = formData.get('password')?.toString() || '';
   
   const res = await HttpClient.post(ApiEndpont.LOGIN, {
     email,
@@ -28,7 +28,7 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
     fullname: 'Rotha',
     role: '',
     username: 'jsdfsf',
-    email: 'rotha@mail.com',
+    email: email,
     accessToken: res.data.accessToken,
     refreshToken: res.data.refreshToken
   };
