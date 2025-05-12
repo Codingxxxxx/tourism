@@ -1,3 +1,4 @@
+'use client';
 import { PageHeaderProps, useActivePage } from '@toolpad/core';
 import { Box, Breadcrumbs, Typography, Link } from '@mui/material';
 

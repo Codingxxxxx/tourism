@@ -1,6 +1,5 @@
-export type FormState =
-  | {
-      message?: string,
-      success: boolean
-    }
-  | undefined
+export type FormState = {
+  message?: string,
+  success: boolean,
+  data?: any
+}

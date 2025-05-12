@@ -9,7 +9,7 @@ export default function CustomTextField ({ label, name, type = 'text', ...props 
     <TextField
       label={label}
       type={type}
-      fullWidth
+      fullWidth 
       error={error}
       {...field} // Spreads value, onChange, onBlur
       {...props}

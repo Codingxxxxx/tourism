@@ -1,5 +1,7 @@
 import 'server-only'
 import { getAccessToken, isLoggedIn } from '@/server/libs/session';
+import { PaginationMeta } from '@/shared/types/dto';
+import { FormState } from '@/shared/formStates';
 
 const API_BASE = process.env.API_BASE;
 
@@ -8,11 +10,18 @@ export type ApiResponse = {
   statusName: string,
   messge: string,
   data?: object | any,
-  isOk: boolean
+  isOk: boolean,
+  meta?: PaginationMeta
+}
+
+export type ApiRequestOptions = {
+  url: string,
+  method: 'GET' | 'POST' | 'DELETE' | 'UPDATE',
+  data?: Record<string, string> | FormData | null
 }
 
 export class HttpClient {
-  static post(url: string, data: object): Promise<ApiResponse> {
+  static request({ url, data, method }: ApiRequestOptions): Promise<ApiResponse> {
     return new Promise(async (resolve) => {
       let accessToken = '';
 
@@ -20,23 +29,40 @@ export class HttpClient {
         accessToken = await getAccessToken();
       }
 
-      fetch(API_BASE + url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Authorization': 'Bearer ' + accessToken,
-          'Content-Type': 'application/json'
-        },
-        mode: 'cors'
-      })
+      // define body and set content type appropriately
+      const requestUrl = API_BASE + url;
+      let request: Request;
+
+      const headers = new Headers();
+      headers.append('Authorization', 'Bearer ' + accessToken);
+
+      if (!(data instanceof FormData)) {
+        headers.append('Content-Type', 'application/json')
+        request = new Request(requestUrl, {
+          method,
+          body: JSON.stringify(data),
+          headers,
+          mode: 'cors'
+        })
+      } else {
+        request = new Request(requestUrl, {
+          method,
+          body: data,
+          headers,
+          mode: 'cors'
+        })
+      }
+      
+      fetch(request)
       .then(async (res) => {
-        const resJson = await res.json();
+        const resData = await res.json();
         resolve({
           code: res.status,
-          messge: resJson.message || '',
-          statusName: resJson.statusName || '',
-          data: resJson.data || null,
-          isOk: resJson.code === 0
+          messge: resData.message || '',
+          statusName: resData.statusName || '',
+          data: resData.data || null,
+          isOk: resData.code === 0,
+          meta: resData.meta
         })
       })
       .catch((error: Error) => {
@@ -51,9 +77,10 @@ export class HttpClient {
   }
 }
 
-export async function buildResponse(message: string, success: boolean = false) {
+export async function buildResponse(message: string, success: boolean = false, data?: any): Promise<FormState> {
   return {
     message,
-    success
+    success,
+    data: data ?? null,
   }
 }
