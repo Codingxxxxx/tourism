@@ -5,15 +5,19 @@ import { type SessionPayload, createSession, deleteSession } from '@/server/libs
 import { redirect } from 'next/navigation';
 import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
-import { ApiCode } from '@/shared/api';
+import { ApiCode } from '@/shared/types/api';
 
 export async function login(state: FormState, formData: FormData): Promise<FormState> {
   const email = formData.get('email')?.toString() || '';
   const password = formData.get('password')?.toString() || '';
   
-  const res = await HttpClient.post(ApiEndpont.LOGIN, {
-    email,
-    password
+  const res = await HttpClient.request({
+    method: 'POST',
+    url: ApiEndpont.LOGIN,
+    data: {
+      email,
+      password
+    }
   });
 
   // invalid user name or password

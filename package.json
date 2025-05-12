@@ -13,6 +13,7 @@
     "@fontsource/roboto": "^5.2.5",
     "@mui/material-nextjs": "^6.4.3",
     "@toolpad/core": "^0.13.0",
+    "date-fns": "^4.1.0",
     "formik": "^2.4.6",
     "jose": "^6.0.10",
     "next": "15.2.1",

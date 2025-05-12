@@ -8,7 +8,6 @@ import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
-import CustomHeader from '@/components/dashboard/CustomHeader';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
 
 export default function Page() {

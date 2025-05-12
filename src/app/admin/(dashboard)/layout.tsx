@@ -17,13 +17,14 @@ const NAVIGATION: Navigation = [
     icon: <Dashboard />,
   },
   {
-    segment: 'admin/topic',
-    title: 'Topic',
-    icon: <Topic />
+    segment: 'admin/categories',
+    title: 'Categories',
+    icon: <Topic />,
+    pattern: 'admin/categories(/new)?'
   },
   {
     segment: 'admin/locations',
-    title: 'Location',
+    title: 'Locations',
     icon: <Room />
   },
   {
@@ -31,7 +32,7 @@ const NAVIGATION: Navigation = [
     title: 'Users',
     icon: <PeopleAlt />,
     pattern: 'admin/users(/new)?'
-  },
+  }
 ];
 
 const demoSession = {
