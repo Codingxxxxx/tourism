@@ -7,7 +7,7 @@ import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpC
 import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/types/api';
 
-export async function login(state: FormState, formData: FormData): Promise<FormState> {
+export async function login(formData: FormData): Promise<FormState> {
   const email = formData.get('email')?.toString() || '';
   const password = formData.get('password')?.toString() || '';
   

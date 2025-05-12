@@ -9,6 +9,7 @@ import { FormAlert } from '@/components/form/FormAlert';
 import { LoginSchema } from '@/shared/schemas';
 import { login } from '@/server/actions/auth';
 import { AppConfig } from '@/shared/config';
+import { FormState } from '@/shared/formStates';
 
 type FormProps = {
   email: string,
@@ -17,7 +18,7 @@ type FormProps = {
 
 export default function Login() { 
   const background = '/admin/login_bg.jpg'
-  const [stat, formAction, pending] = useActionState(login, undefined)
+  const [stat, setStat] = useState<FormState>();
 
   // provide default user in development or demo
   const [formStat, _] = useState<FormProps>({
@@ -25,28 +26,23 @@ export default function Login() {
     password: AppConfig.ENABLE_DEMO_ACCOUNT ? 'password123' : ''
   });
 
-  const onFormSubmit = (values: FormProps) => {
+  const onFormSubmit = async (values: FormProps) => {
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       formData.set(key, value)
     })
 
-    startTransition(() => {
-      formAction(formData);
-    });
+    const stat = await login(formData);
+    setStat(stat);
   }
-
-  useEffect(() => {
-    if (!stat) return;
-  }, [stat])
 
   return (
     <Box 
       className='h-screen flex flex-col justify-center items-center' 
       sx={{ backgroundImage: `url(${background})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: 'cover'}}>
       <Formik initialValues={formStat} onSubmit={onFormSubmit} validationSchema={LoginSchema}>
-        {() => (
-          <Form action={formAction} className='flex flex-col gap-2 w-md border border-gray-200 p-10 rounded shadow-sm bg-slate-200 opacity-95'>
+        {({ isSubmitting }) => (
+          <Form className='flex flex-col gap-2 w-md border border-gray-200 p-10 rounded shadow-sm bg-slate-200 opacity-95'>
             <Typography textAlign='center' variant='h5' sx={{ marginBottom: 5, fontWeight: 'bold' }}>Login</Typography>
             {/* Name Input */}
             <FormGroup>
@@ -69,12 +65,12 @@ export default function Login() {
                 <CustomErrorMessage name='password' />
             </FormGroup>
             {/* Alert */}
-            {stat && !stat.success && !pending && <FormGroup>
+            {stat && !stat.success && !isSubmitting && <FormGroup>
               <FormAlert success={false} message={stat.message} />
             </FormGroup>}
             {/* Submit Button */}
-            <Button type="submit" variant="contained" color="primary" disabled={pending} size='large'>
-              {pending ? "Login..." : "Submit"}
+            <Button type="submit" variant="contained" color="primary" disabled={isSubmitting} size='large'>
+              {isSubmitting ? "Login..." : "Submit"}
             </Button>
           </Form>
         )}
