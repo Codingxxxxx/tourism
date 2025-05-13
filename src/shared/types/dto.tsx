@@ -24,8 +24,8 @@ export type PaginationMeta = {
 }
 
 export type PaginationParamters = {
-  limit: string,
-  offset: string
+  limit: number,
+  offset: number
 }
 
 export type FormCreateCateogry = {
