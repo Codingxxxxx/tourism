@@ -9,6 +9,7 @@ import { Dashboard, Topic, PeopleAlt, Room, Add, List } from '@mui/icons-materia
 import { logout } from '@/server/actions/auth';
 import { getSessionData } from '@/server/actions/session';
 import { redirect } from 'next/navigation';
+import { Backdrop, CircularProgress } from '@mui/material';
 
 const NAVIGATION: Navigation = [
   {
@@ -45,6 +46,7 @@ const demoSession = {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>();
+  const [openBackdrop, setOpenBackdrop] = useState(false);
 
   const branding = {
     logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
@@ -55,6 +57,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const authentication = useMemo(() => {
     return {
       signOut: async () => {
+        setOpenBackdrop(true);
         await logout()
         setSession(null)
         redirect('/admin/login')
@@ -83,6 +86,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <DashboardLayout>
             {children}
         </DashboardLayout>
+        {/* backdrop */}
+        <Backdrop
+          sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+          open={openBackdrop}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </NextAppProvider>
     </Suspense>
   );
