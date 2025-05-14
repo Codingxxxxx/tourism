@@ -1,7 +1,8 @@
 import 'server-only'
-import { getAccessToken, isLoggedIn } from '@/server/libs/session';
+import { deleteSession, getAccessToken, isLoggedIn } from '@/server/libs/session';
 import { PaginationMeta } from '@/shared/types/dto';
 import { FormState } from '@/shared/formStates';
+import { redirect } from 'next/navigation';
 
 const API_BASE = process.env.API_BASE;
 
@@ -55,6 +56,10 @@ export class HttpClient {
       
       fetch(request)
       .then(async (res) => {
+        if (res.status === 401) {
+          await deleteSession();
+          redirect('/admin/login');
+        };
         const resData = await res.json();
         resolve({
           code: res.status,
