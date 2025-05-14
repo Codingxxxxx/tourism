@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Button, Checkbox, FormControlLabel, FormControlState, Grid2 as Grid, Slide, SlideProps, Snackbar } from '@mui/material';
+import { Button, Grid2 as Grid, Slide, SlideProps, Snackbar } from '@mui/material';
 import { Formik, Form, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
@@ -89,33 +89,38 @@ export default function Page() {
     })();
   }, []);
   
-  const onFormSubmit = async (values: FormCategoryStats, helper: FormikHelpers<FormControlState>) => {
-    let sourceUrl = ''; // can be image url or video url
+  const onFormSubmit = async (values: FormCategoryStats, helper: FormikHelpers<FormCategoryStats>): Promise<void> => {
+    try {
+      let sourceUrl = ''; // can be image url or video url
 
-    if (!values.isEmbedVideo) {
-      // upload image
-      const formData = new FormData();
-      const file = values.image[0];
-      formData.set('file', file, file.name);
-      const result = await uploadImage(formData);
-      sourceUrl = result?.data.url
-    } else {
-      sourceUrl = values.video
-    }
-    
-    // create category
-    const formStat = await createCategory({
-      name: values.categoryName,
-      nameKH: values.categoryNameKH,
-      photo: values.isEmbedVideo ? undefined : sourceUrl,
-      video: values.isEmbedVideo ? sourceUrl : undefined,
-      parentId: values.parentId
-    });
+      if (!values.isEmbedVideo) {
+        // upload image
+        const formData = new FormData();
+        const file = values.image[0];
+        formData.set('file', file, file.name);
+        const result = await uploadImage(formData);
+        sourceUrl = result?.data.url
+      } else {
+        sourceUrl = values.video
+      }
+      
+      // create category
+      const formStat = await createCategory({
+        name: values.categoryName,
+        nameKH: values.categoryNameKH,
+        photo: values.isEmbedVideo ? undefined : sourceUrl,
+        video: values.isEmbedVideo ? sourceUrl : undefined,
+        parentId: values.parentId
+      });
 
-    setFormStat(formStat);
+      setFormStat(formStat);
 
-    if (formStat.success) {
-      helper.resetForm();
+      if (formStat.success) {
+        helper.resetForm();
+      }
+
+    } catch (error) {
+      helper.setSubmitting(false);
     }
   }
 
@@ -154,9 +159,8 @@ export default function Page() {
                 <FormGroup>
                   <CustomDropdown
                     id='parent'
-                    label='Parent Cateogry'
+                    label='Parent Category'
                     name='parent'
-                    required
                     items={categories.map(category => ({ text: category.name, value: category.id }))}
                   />
                   <CustomErrorMessage name='parent' />
@@ -181,6 +185,7 @@ export default function Page() {
                       id='video'
                       label='Video URL'
                       name='video'
+                      required
                     />
                     <CustomErrorMessage name='video' />
                   </FormGroup>
