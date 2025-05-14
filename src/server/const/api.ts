@@ -6,5 +6,6 @@ export const ApiEndpont = {
   REFRESH_TOKEN: '/auth/refresh',
   CATEGORY_LIST: '/category',
   CATEGORY_CREATE: '/category',
+  CATEGORY_ALL: '/category/list',
   UPLOAD_IMAGE: '/upload/image'
 }

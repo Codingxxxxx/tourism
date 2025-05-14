@@ -42,7 +42,6 @@ export default function FileInput({ label, ...props }: Props) {
   const [field, meta] = useField(props);
   const isInvalidAndTouched = meta.touched && meta.error;
   
-  console.log(isInvalidAndTouched)
   async function onFileInput(event: ChangeEvent<HTMLInputElement>) {
     if (!event.target.files) return;
     const inputFiles = Array.from(event.target.files);

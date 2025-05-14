@@ -36,3 +36,14 @@ export async function createCategory(formCrateCategory: FormCreateCateogry): Pro
   if (!isOk) return buildResponse(messge, false);
   return buildResponse('Category has been created', true);
 }
+
+export async function getAllCategories(): Promise<FormState> {
+  const { isOk, messge, data } = await HttpClient.request({
+    url: ApiEndpont.CATEGORY_ALL,
+    method: 'GET'
+  })
+
+  if (!isOk) buildResponse(messge, false);
+
+  return buildResponse('', true, data);
+}
