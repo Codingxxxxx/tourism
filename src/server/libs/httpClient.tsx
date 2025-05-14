@@ -17,7 +17,7 @@ export type ApiResponse = {
 export type ApiRequestOptions = {
   url: string,
   method: 'GET' | 'POST' | 'DELETE' | 'UPDATE',
-  data?: Record<string, string> | FormData | null
+  data?: Record<string, any> | FormData | null
 }
 
 export class HttpClient {

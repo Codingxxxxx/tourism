@@ -2,7 +2,6 @@ import * as Yup from 'yup';
 import { convertByteToMB } from '@/shared/utils/fileUtils';
 
 type FileOptions = {
-  required: boolean,
   maxSize?: number,
   formats: string[],
   min?: number,
@@ -29,11 +28,10 @@ function validateFileType(file: File, formats: string[]): boolean {
 }
 
 export function yupFiles({
-  required = true,
   maxSize = 2.5 * 1024 * 1024, // 2MB default
   formats,
-  min = 1,
-  max = 1,
+  min,
+  max,
 }: FileOptions) {
   let schema = Yup
     .array()
@@ -42,8 +40,9 @@ export function yupFiles({
         .test('fileSize', ({ value }) => `File too large, must be under ${convertByteToMB(maxSize)}MB`, file => validateFileSize(file as File , maxSize))
         .test('fileType', ({ value }) => `Unsupported format, accept ${formats.join(', ')}`, file => validateFileType(file as File, formats))
     );Array<File>
-  if (required) {
-    schema = schema.min(min, `At least ${min} file(s) required`);
+
+  if (min) {
+    schema = schema.min(min, `At least ${min} file(s) required`)
   }
 
   if (max) {

@@ -32,8 +32,9 @@ export type FormCreateCateogry = {
   name: string,
   nameKH: string,
   description?: string,
-  video?: string
-  image?: string
+  video?: string,
+  photo?: string,
+  parentId: number
 }
 
 export type UploadImageResult = {
