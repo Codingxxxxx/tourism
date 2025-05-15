@@ -53,7 +53,7 @@ const validationSchema = Yub.object({
 });
 
 export default function Page() {
-  const [formStat, setFormStat] = useState<ServerResponse | null>();
+  const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
   const [categories, setCategories] = useState<Category[]>([]);
 
   const breadcrumbs: Breadcrumb[] = [
@@ -89,7 +89,7 @@ export default function Page() {
   
   const onFormSubmit = async (values: FormCategoryStats, helper: FormikHelpers<FormCategoryStats>): Promise<void> => {
     try {
-      setFormStat(null);
+      setServerResponse(null);
       let sourceUrl = ''; // can be image url or video url
 
       if (!values.isEmbedVideo) {
@@ -104,7 +104,7 @@ export default function Page() {
       }
 
       // create category
-      const formStat = await handleServerAction(() => 
+      const serverResponse = await handleServerAction(() => 
         createCategory({
           name: values.categoryName,
           nameKH: values.categoryNameKH,
@@ -114,9 +114,9 @@ export default function Page() {
         })
       );
 
-      setFormStat(formStat);
+      setServerResponse(serverResponse);
 
-      if (formStat.success) {
+      if (serverResponse.success) {
         helper.resetForm();
       }
 
@@ -215,8 +215,8 @@ export default function Page() {
         )}
       </Formik>
       {/* alert */}
-      {formStat && 
-        <Toast success={formStat.success} message={formStat.message} />
+      {serverResponse && 
+        <Toast success={serverResponse.success || false} message={serverResponse.message} />
       }
     </DashboardContainer>
   )
