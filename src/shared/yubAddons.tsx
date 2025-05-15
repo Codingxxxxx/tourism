@@ -37,7 +37,7 @@ export function yupFiles({
     .array()
     .of(
       Yup.mixed()
-        .test('fileSize', ({ value }) => `File too large, must be under ${convertByteToMB(maxSize)}MB`, file => validateFileSize(file as File , maxSize))
+        .test('fileSize', ({ value }) => `File too large, must be under ${convertByteToMB(maxSize)}mb`, file => validateFileSize(file as File , maxSize))
         .test('fileType', ({ value }) => `Unsupported format, accept ${formats.join(', ')}`, file => validateFileType(file as File, formats))
     );Array<File>
 
