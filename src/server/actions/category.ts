@@ -2,10 +2,10 @@
 import { HttpClient, buildResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
 import { Category, FormCreateCateogry, PaginationMeta, PaginationParamters } from '@/shared/types/dto';
-import { FormState } from '@/shared/formStates';
+import { ServerResponse } from "@/shared/types/serverActions";
 import { PaginatedCategories } from '@/shared/types/serverActions/category';
 
-export async function getCategories(stat: PaginatedCategories | null, payload: PaginationParamters): Promise<PaginatedCategories> {
+export async function getCategories(stat: ServerResponse<PaginatedCategories>, payload: PaginationParamters): Promise<ServerResponse<PaginatedCategories>> {
   const { limit, offset } = payload;
   const urlParams = new URLSearchParams({
     limit: String(limit),
@@ -17,16 +17,23 @@ export async function getCategories(stat: PaginatedCategories | null, payload: P
     method: 'GET'
   });
 
+  if (res.unauthorized) return buildResponse({
+    isUnauthorized: true
+  })
+
   const categories: Category[] = res.data;
   const meta: PaginationMeta = res.meta as PaginationMeta;
 
-  return {
-    categories,
-    meta
-  }
+  return buildResponse<PaginatedCategories>({
+    success: true,
+    data: {
+      categories,
+      meta
+    }
+  });
 }
 
-export async function createCategory(formCrateCategory: FormCreateCateogry): Promise<FormState> {
+export async function createCategory(formCrateCategory: FormCreateCateogry): Promise<ServerResponse> {
   const { isOk, message, unauthorized } = await HttpClient.request({
     url: ApiEndpont.CATEGORY_CREATE,
     method: 'POST',
@@ -46,7 +53,7 @@ export async function createCategory(formCrateCategory: FormCreateCateogry): Pro
   });
 }
 
-export async function getAllCategories(): Promise<FormState> {
+export async function getAllCategories(): Promise<ServerResponse> {
   const { isOk, message, data, unauthorized } = await HttpClient.request({
     url: ApiEndpont.CATEGORY_ALL,
     method: 'GET'

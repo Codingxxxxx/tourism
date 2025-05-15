@@ -1,13 +1,12 @@
 'use server'
 
-import { FormState } from '@/shared/formStates';
-import { type SessionPayload, createSession, deleteSession } from '@/server/libs/session';
+import { ServerResponse } from "@/shared/types/serverActions";import { type SessionPayload, createSession, deleteSession } from '@/server/libs/session';
 import { redirect } from 'next/navigation';
 import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/types/api';
 
-export async function login(formData: FormData): Promise<FormState> {
+export async function login(formData: FormData): Promise<ServerResponse> {
   const email = formData.get('email')?.toString() || '';
   const password = formData.get('password')?.toString() || '';
   

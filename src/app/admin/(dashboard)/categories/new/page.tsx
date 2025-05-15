@@ -12,7 +12,7 @@ import FileInput from '@/components/form/FileInput';
 import { yupFiles } from '@/shared/yubAddons';
 import { uploadImage } from '@/server/actions/upload';
 import { createCategory, getAllCategories, getCategories } from '@/server/actions/category';
-import { FormState } from '@/shared/formStates';
+import { ServerResponse } from "@/shared/types/serverActions";
 import { useEffect, useState } from 'react';
 import { Category } from '@/shared/types/dto';
 import CustomDropdown from '@/components/form/CustomDropdown';
@@ -53,7 +53,7 @@ const validationSchema = Yub.object({
 });
 
 export default function Page() {
-  const [formStat, setFormStat] = useState<FormState | null>();
+  const [formStat, setFormStat] = useState<ServerResponse | null>();
   const [categories, setCategories] = useState<Category[]>([]);
 
   const breadcrumbs: Breadcrumb[] = [

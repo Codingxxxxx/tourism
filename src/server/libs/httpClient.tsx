@@ -1,7 +1,7 @@
 import 'server-only'
 import { deleteSession, getAccessToken, isLoggedIn } from '@/server/libs/session';
 import { PaginationMeta } from '@/shared/types/dto';
-import { FormState } from '@/shared/formStates';
+import { ServerResponse } from "@/shared/types/serverActions";
 import { redirect } from 'next/navigation';
 
 const API_BASE = process.env.API_BASE;
@@ -22,12 +22,12 @@ export type ApiRequestOptions = {
   data?: Record<string, any> | FormData | null
 }
 
-type ResponseOptions = {
-  message?: string,
-  success?: boolean,
-  data?: any,
-  isUnauthorized?: boolean
-}
+type ResponseOptions<T = any> = {
+  message?: string;
+  success?: boolean;
+  data?: T;
+  isUnauthorized?: boolean;
+};
 
 export class HttpClient {
   static request({ url, data, method }: ApiRequestOptions): Promise<ApiResponse> {
@@ -93,7 +93,7 @@ export class HttpClient {
   }
 }
 
-export async function buildResponse({ data, isUnauthorized = false, message, success = false }: ResponseOptions): Promise<FormState> {
+export async function buildResponse<T = any>({ data, isUnauthorized = false, message, success = false }: ResponseOptions<T>): Promise<ServerResponse<T>> {
   return {
     message,
     success,

@@ -9,8 +9,7 @@ import { FormAlert } from '@/components/form/FormAlert';
 import { LoginSchema } from '@/shared/schemas';
 import { login } from '@/server/actions/auth';
 import { AppConfig } from '@/shared/config';
-import { FormState } from '@/shared/formStates';
-
+import { ServerResponse } from "@/shared/types/serverActions";
 type FormProps = {
   email: string,
   password: string
@@ -18,7 +17,7 @@ type FormProps = {
 
 export default function Login() { 
   const background = '/admin/login_bg.jpg'
-  const [stat, setStat] = useState<FormState>();
+  const [stat, setStat] = useState<ServerResponse>();
 
   // provide default user in development or demo
   const [formStat, _] = useState<FormProps>({
