@@ -35,20 +35,20 @@ const validationSchema = Yub.object({
   video: Yub
     .string()
     .label('Video URL')
-    .url()
     .when('isEmbedVideo', {
       is: true,
-      then: (schema) => schema.required(),
+      then: (schema) => schema.required().url(),
       otherwise: (schema) => schema.notRequired()
     })
     ,
-  image: yupFiles({
-      formats: ['image/png', 'image/jpg', 'image/jpeg']
-    })
-    .when('isEmbedVideo', {
-      is: false,
-      then: (schema) => schema.min(1, 'Image is required'),
-      otherwise: (schema) => schema.notRequired()
+  image: Yub
+    .mixed()
+    .when('isEmbedVideo', ([isEmbedVideo], schema) => {
+      if (isEmbedVideo) return Yub.mixed().notRequired();
+      return yupFiles({
+        formats: ['image/png', 'image/jpg', 'image/jpeg'],
+        min: 1
+      })
     })
 });
 
