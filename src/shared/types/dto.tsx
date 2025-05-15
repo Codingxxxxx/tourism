@@ -17,10 +17,10 @@ export type Category = Meta & {
 
 export type PaginationMeta = {
   total: number,
-  itemCount: number,
-  limit: number,
-  page: number,
-  pages: number
+  itemCount?: number,
+  limit?: number,
+  page?: number,
+  pages?: number
 }
 
 export type PaginationParamters = {
