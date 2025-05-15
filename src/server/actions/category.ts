@@ -27,23 +27,41 @@ export async function getCategories(stat: PaginatedCategories | null, payload: P
 }
 
 export async function createCategory(formCrateCategory: FormCreateCateogry): Promise<FormState> {
-  const { isOk, code, messge } = await HttpClient.request({
+  const { isOk, message, unauthorized } = await HttpClient.request({
     url: ApiEndpont.CATEGORY_CREATE,
     method: 'POST',
     data: formCrateCategory
   })
 
-  if (!isOk) return buildResponse(messge, false);
-  return buildResponse('Category has been created', true);
+  if (unauthorized) return buildResponse({
+    isUnauthorized: true
+  });
+
+  if (!isOk) return buildResponse({
+    message
+  });
+  return buildResponse({
+    message: 'Category has been created',
+    success: true
+  });
 }
 
 export async function getAllCategories(): Promise<FormState> {
-  const { isOk, messge, data } = await HttpClient.request({
+  const { isOk, message, data, unauthorized } = await HttpClient.request({
     url: ApiEndpont.CATEGORY_ALL,
     method: 'GET'
   })
 
-  if (!isOk) buildResponse(messge, false);
+  if (unauthorized) return buildResponse({
+    isUnauthorized: true
+  });
 
-  return buildResponse('', true, data);
+  if (!isOk) buildResponse({
+    message
+  });
+
+  return buildResponse({
+    success: true,
+    data
+  });
 }

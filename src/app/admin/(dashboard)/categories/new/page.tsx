@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Button, Grid2 as Grid, Slide, SlideProps, Snackbar } from '@mui/material';
+import { Button, Grid2 as Grid } from '@mui/material';
 import { Formik, Form, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
@@ -11,11 +11,13 @@ import DashboardContainer from '@/components/dashboard/DashboardContainer';
 import FileInput from '@/components/form/FileInput';
 import { yupFiles } from '@/shared/yubAddons';
 import { uploadImage } from '@/server/actions/upload';
-import { createCategory, getAllCategories } from '@/server/actions/category';
+import { createCategory, getAllCategories, getCategories } from '@/server/actions/category';
 import { FormState } from '@/shared/formStates';
 import { useEffect, useState } from 'react';
 import { Category } from '@/shared/types/dto';
 import CustomDropdown from '@/components/form/CustomDropdown';
+import Toast from '@/components/form/Toast';
+import { handleServerAction } from '@/shared/utils/apiUtils';
 
 type FormCategoryStats = {
   categoryName: string
@@ -24,10 +26,6 @@ type FormCategoryStats = {
   isEmbedVideo: boolean,
   video: string,
   parent: number
-}
-
-function SlideTransition(props: SlideProps) {
-  return <Slide {...props} direction='up' />;
 }
 
 const validationSchema = Yub.object({
@@ -84,8 +82,8 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
-      const { data, success, message } = await getAllCategories();
-      setCategories(data)
+      const { data } = await handleServerAction(() => getAllCategories());
+      setCategories(data || [])
     })();
   }, []);
   
@@ -100,19 +98,21 @@ export default function Page() {
         const file = values.image[0];
         formData.set('file', file, file.name);
         const result = await uploadImage(formData);
-        sourceUrl = result?.data.url
+        sourceUrl = result?.data?.url
       } else {
         sourceUrl = values.video
       }
 
       // create category
-      const formStat = await createCategory({
-        name: values.categoryName,
-        nameKH: values.categoryNameKH,
-        photo: values.isEmbedVideo ? undefined : sourceUrl,
-        video: values.isEmbedVideo ? sourceUrl : undefined,
-        parentId: values.parent
-      });
+      const formStat = await handleServerAction(() => 
+        createCategory({
+          name: values.categoryName,
+          nameKH: values.categoryNameKH,
+          photo: values.isEmbedVideo ? undefined : sourceUrl,
+          video: values.isEmbedVideo ? sourceUrl : undefined,
+          parentId: values.parent
+        })
+      );
 
       setFormStat(formStat);
 
@@ -122,6 +122,7 @@ export default function Page() {
 
     } catch (error) {
       helper.setSubmitting(false);
+      console.log(error);
     }
   }
 
@@ -213,14 +214,9 @@ export default function Page() {
           </Form>
         )}
       </Formik>
+      {/* alert */}
       {formStat && 
-        <Snackbar
-          open={true}
-          slots={{ transition: SlideTransition }}
-          message={formStat.message}
-          key={SlideTransition.name}
-          autoHideDuration={1200}
-        />
+        <Toast success={formStat.success} message={formStat.message} />
       }
     </DashboardContainer>
   )

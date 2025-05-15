@@ -22,11 +22,15 @@ export async function login(formData: FormData): Promise<FormState> {
 
   // invalid user name or password
 if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
-    return buildResponse('Invalid Username Or Password');
+    return buildResponse({
+      message: 'Invalid Username Or Password'
+    });
   } 
 
   // unknown error
-  if (!res.isOk) return buildResponse(res.messge)
+  if (!res.isOk) return buildResponse({
+    message: res.message
+  })
 
   const session: SessionPayload = {
     fullname: 'Rotha',
