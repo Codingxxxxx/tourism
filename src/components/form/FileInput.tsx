@@ -1,6 +1,6 @@
 import { Box, Typography, ImageList, ImageListItem } from '@mui/material';
 import { FieldProps } from 'formik';
-import { ChangeEvent, InputHTMLAttributes, useEffect, useState } from 'react';
+import { ChangeEvent, InputHTMLAttributes } from 'react';
 import { CloudUpload } from '@mui/icons-material';
 import { useField, useFormikContext } from 'formik';
 import { convertByteToMB } from '@/shared/utils/fileUtils';
@@ -37,8 +37,7 @@ function FileDisplay({ file }: FileDisplayProps) {
 }
 
 export default function FileInput({ label, ...props }: Props) {
-  const { setFieldValue, isValid, touched, dirty } = useFormikContext();
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const { setFieldValue } = useFormikContext();
   const [field, meta] = useField(props);
   const isInvalidAndTouched = meta.touched && meta.error;
   
@@ -46,7 +45,6 @@ export default function FileInput({ label, ...props }: Props) {
     if (!event.target.files) return;
     const inputFiles = Array.from(event.target.files);
     // manually set custom value to Formik
-    setSelectedFiles(inputFiles);
     await setFieldValue(field.name, inputFiles, true);
   }
 
@@ -66,9 +64,9 @@ export default function FileInput({ label, ...props }: Props) {
           <CloudUpload fontSize='large' color='inherit' />
           <Typography sx={{ fontSize: '.975rem', marginTop: 1 }} color='inherit'>{label || 'Select file upload'} (Max size {props.maxsize} MB)</Typography>
         </Box>
-        {!isInvalidAndTouched && selectedFiles?.length > 0 && 
+        {meta.value?.length > 0 && 
           <ImageList >
-            {selectedFiles.map(file => <FileDisplay file={file} key={file.name}  />)}
+            {(meta.value as File[]).map(file => <FileDisplay file={file} key={file.name}  />)}
         </ImageList>
         }
       </label>

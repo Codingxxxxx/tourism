@@ -23,7 +23,7 @@ type FormCategoryStats = {
   image: File[],
   isEmbedVideo: boolean,
   video: string,
-  parentId: number
+  parent: number
 }
 
 function SlideTransition(props: SlideProps) {
@@ -49,13 +49,13 @@ const validationSchema = Yub.object({
     })
     .when('isEmbedVideo', {
       is: false,
-      then: (schema) => schema.min(1),
+      then: (schema) => schema.min(1, 'Image is required'),
       otherwise: (schema) => schema.notRequired()
     })
 });
 
 export default function Page() {
-  const [formStat, setFormStat] = useState<FormState>();
+  const [formStat, setFormStat] = useState<FormState | null>();
   const [categories, setCategories] = useState<Category[]>([]);
 
   const breadcrumbs: Breadcrumb[] = [
@@ -79,7 +79,7 @@ export default function Page() {
       image: [],
       isEmbedVideo: false,
       video: '',
-      parentId: 0
+      parent: 0
     };
 
   useEffect(() => {
@@ -91,6 +91,7 @@ export default function Page() {
   
   const onFormSubmit = async (values: FormCategoryStats, helper: FormikHelpers<FormCategoryStats>): Promise<void> => {
     try {
+      setFormStat(null);
       let sourceUrl = ''; // can be image url or video url
 
       if (!values.isEmbedVideo) {
@@ -103,14 +104,14 @@ export default function Page() {
       } else {
         sourceUrl = values.video
       }
-      
+
       // create category
       const formStat = await createCategory({
         name: values.categoryName,
         nameKH: values.categoryNameKH,
         photo: values.isEmbedVideo ? undefined : sourceUrl,
         video: values.isEmbedVideo ? sourceUrl : undefined,
-        parentId: values.parentId
+        parentId: values.parent
       });
 
       setFormStat(formStat);
@@ -162,6 +163,7 @@ export default function Page() {
                     label='Parent Category'
                     name='parent'
                     items={categories.map(category => ({ text: category.name, value: category.id }))}
+                    defaultSelectValue={0}
                   />
                   <CustomErrorMessage name='parent' />
                 </FormGroup>
@@ -193,12 +195,17 @@ export default function Page() {
               }
               {/* check if embed video */}
               <Grid size={12}>
-                <CustomCheckBox id='isEmbedVideo' label='Enable embed video' name='isEmbedVideo'  />
+                <CustomCheckBox 
+                  id='isEmbedVideo' 
+                  label='Enable embed video' 
+                  name='isEmbedVideo' 
+                  checked={values.isEmbedVideo}
+                />
               </Grid>
               {/* submit btn */}
               <Grid  size={12}>
-                <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large'>
-                  {isSubmitting ? "Login..." : "Submit"}
+                <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large' loading={isSubmitting}>
+                  Submit
                 </Button>
               </Grid>
             </Grid>

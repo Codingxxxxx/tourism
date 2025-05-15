@@ -7,10 +7,11 @@ type Item = {
 }
 
 type DropDownProps = SelectProps & {
-  items: Item[]
+  items: Item[],
+  defaultSelectValue: string | number
 }
 
-export default function CustomDropdown ({ items, name, label, ...props }: DropDownProps) {
+export default function CustomDropdown ({ items, name, label, defaultSelectValue, ...props }: DropDownProps) {
   const [field, meta] = useField(name);
   const error = Boolean(meta.touched && meta.error);
 
@@ -24,7 +25,7 @@ export default function CustomDropdown ({ items, name, label, ...props }: DropDo
         error={error}
         fullWidth
         >
-          <MenuItem  value=''>
+          <MenuItem value={defaultSelectValue} defaultValue={defaultSelectValue}>
             Please Select
           </MenuItem>
           {items.map(item => <MenuItem value={item.value}>{item.text}</MenuItem>)}
