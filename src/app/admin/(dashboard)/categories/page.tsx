@@ -10,6 +10,9 @@ import { getCategories } from "@/server/actions/category";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import { PaginatedCategories } from "@/shared/types/serverActions/category";
 import { getPageOffset } from '@/shared/utils/paginationUtils';
+import { ServerResponse } from "@/shared/types/serverActions";
+import { PaginationParamters } from "@/shared/types/dto";
+import { withServerHandler } from "@/shared/utils/apiUtils";
 const columns: GridColDef[] = [
   {
     field: 'name',
@@ -27,10 +30,12 @@ const columns: GridColDef[] = [
 ]
 
 export default function PageCategory() {
-  const initialState: PaginatedCategories = {
-    categories: [],
-    meta: {
-      total: 0
+  const initialState: ServerResponse<PaginatedCategories> = {
+    data: {
+      categories: [],
+      meta: {
+        total: 0
+      }
     }
   };
 
@@ -39,7 +44,7 @@ export default function PageCategory() {
     page: 0
   });
 
-  const [stat, action, isPending] = useActionState(getCategories, initialState);
+  const [stat, action, isPending] = useActionState(withServerHandler(getCategories), initialState);
 
   useEffect(() => {
     startTransition(() => {
@@ -60,9 +65,9 @@ export default function PageCategory() {
         </Button>
         <DataGrid 
           columns={columns} 
-          rows={stat.categories}
+          rows={stat.data?.categories}
           paginationMode='server'
-          rowCount={stat.meta?.total} 
+          rowCount={stat.data?.meta?.total} 
           loading={isPending} 
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
