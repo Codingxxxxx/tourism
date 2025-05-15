@@ -9,16 +9,24 @@ const API_BASE = process.env.API_BASE;
 export type ApiResponse = {
   code: number,
   statusName: string,
-  messge: string,
+  message: string,
   data?: object | any,
   isOk: boolean,
-  meta?: PaginationMeta
+  meta?: PaginationMeta,
+  unauthorized: boolean
 }
 
 export type ApiRequestOptions = {
   url: string,
   method: 'GET' | 'POST' | 'DELETE' | 'UPDATE',
   data?: Record<string, any> | FormData | null
+}
+
+type ResponseOptions = {
+  message?: string,
+  success?: boolean,
+  data?: any,
+  isUnauthorized?: boolean
 }
 
 export class HttpClient {
@@ -56,36 +64,40 @@ export class HttpClient {
       
       fetch(request)
       .then(async (res) => {
+
         if (res.status === 401) {
           await deleteSession();
-          redirect('/admin/login');
         };
+
         const resData = await res.json();
         resolve({
           code: res.status,
-          messge: resData.message || '',
+          message: resData.message || '',
           statusName: resData.statusName || '',
           data: resData.data || null,
           isOk: resData.code === 0,
-          meta: resData.meta
+          meta: resData.meta,
+          unauthorized: resData.code === 401
         })
       })
       .catch((error: Error) => {
         resolve({
           code: 999,
-          messge: error.message || 'Unable to serve request at the moment',
+          message: error.message || 'Unable to serve request at the moment',
           statusName: '',
-          isOk: false
+          isOk: false,
+          unauthorized: false
         })
       })
     })
   }
 }
 
-export async function buildResponse(message: string, success: boolean = false, data?: any): Promise<FormState> {
+export async function buildResponse({ data, isUnauthorized = false, message, success = false }: ResponseOptions): Promise<FormState> {
   return {
     message,
     success,
-    data: data ?? null,
+    data,
+    isUnauthorized
   }
 }

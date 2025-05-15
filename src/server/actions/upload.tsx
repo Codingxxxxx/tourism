@@ -6,13 +6,24 @@ import { ApiEndpont } from "../const/api";
 import { UploadImageResult } from "@/shared/types/dto";
 
 export async function uploadImage(formData: FormData): Promise<FormState> {
-  const { isOk, statusName, data } = await HttpClient.request({
+  const { isOk, unauthorized, data, message } = await HttpClient.request({
     url: ApiEndpont.UPLOAD_IMAGE,
     method: 'POST',
     data: formData
   })
 
-  if (!isOk) return buildResponse('Unable to upload file ' + statusName, false);
+  if (unauthorized) return buildResponse({
+    isUnauthorized: true,
+    message
+  })
 
-  return buildResponse('', true, { url: data.relPath });
+  if (!isOk) return buildResponse({
+    message,
+    success: false
+  });
+
+  return buildResponse({
+    success: true,
+    data: { url: data.relPath }
+  });
 }
