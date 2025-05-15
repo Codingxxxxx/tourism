@@ -176,6 +176,7 @@ export default function Page() {
                     id='image'
                     name='image'
                     accept='image/*'
+                    maxsize={2.5}
                   />
                   <CustomErrorMessage name='image' />
                 </Grid>

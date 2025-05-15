@@ -1,5 +1,4 @@
 import { ErrorMessage, type ErrorMessageProps } from 'formik';
-import { Box } from '@mui/material';
 
 export default function CustomErrorMessage(props: ErrorMessageProps) {
   return (

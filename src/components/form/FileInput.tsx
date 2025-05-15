@@ -7,7 +7,7 @@ import { convertByteToMB } from '@/shared/utils/fileUtils';
 
 type Props = {
   label?: string,
-  maxsize?: number,
+  maxsize: number,
   accept: string
 } & InputHTMLAttributes<HTMLInputElement> & Partial<FieldProps>;
 
@@ -21,7 +21,7 @@ const NORMAL_BORDER_CLASSS = 'border-[var(--mui-palette-StepConnector-border)] h
 function FileDisplay({ file }: FileDisplayProps) {
   const objectUrl = URL.createObjectURL(file);
   return (
-    <Box>
+    <Box sx={{ width: '100%' }}>
       <ImageListItem className='relative'>
         <img
           className='rounded border'
@@ -36,8 +36,8 @@ function FileDisplay({ file }: FileDisplayProps) {
   )
 }
 
-export default function FileInput({ label, ...props }: Props) {
-  const { setFieldValue } = useFormikContext();
+export default function FileInput({ label, maxsize = 2.5, ...props }: Props) {
+  const { setFieldValue, setTouched, validateField } = useFormikContext();
   const [field, meta] = useField(props);
   const isInvalidAndTouched = meta.touched && meta.error;
   
@@ -45,7 +45,9 @@ export default function FileInput({ label, ...props }: Props) {
     if (!event.target.files) return;
     const inputFiles = Array.from(event.target.files);
     // manually set custom value to Formik
-    await setFieldValue(field.name, inputFiles, true);
+    await setFieldValue(field.name, inputFiles)
+    await setTouched({ [field.name]: true });
+    await validateField(field.name);
   }
 
   return (
@@ -62,12 +64,13 @@ export default function FileInput({ label, ...props }: Props) {
       <label htmlFor={props.name} className='block cursor-pointer p-4'>
         <Box sx={{ textAlign: 'center', color: 'var(--mui-palette-primary-dark)', marginBottom: 4 }}>
           <CloudUpload fontSize='large' color='inherit' />
-          <Typography sx={{ fontSize: '.975rem', marginTop: 1 }} color='inherit'>{label || 'Select file upload'} (Max size {props.maxsize} MB)</Typography>
+          <Typography sx={{ marginTop: 1 }} color='inherit'>{label || 'Select file to upload'}</Typography>
+          <Typography sx={{ fontSize: '.9rem' }}>(Max size {maxsize} MB)</Typography>
         </Box>
         {meta.value?.length > 0 && 
-          <ImageList >
+          <ImageList cols={1}>
             {(meta.value as File[]).map(file => <FileDisplay file={file} key={file.name}  />)}
-        </ImageList>
+          </ImageList>
         }
       </label>
     </Box>
