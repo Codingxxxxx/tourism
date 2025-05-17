@@ -1,12 +1,12 @@
 'use server'
 
 import { ServerResponse } from "@/shared/types/serverActions";import { type SessionPayload, createSession, deleteSession } from '@/server/libs/session';
-import { redirect } from 'next/navigation';
 import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/types/api';
+import { AdminSession } from "@/shared/adminSession";
 
-export async function login(formData: FormData): Promise<ServerResponse> {
+export async function login(formData: FormData): Promise<ServerResponse<AdminSession>> {
   const email = formData.get('email')?.toString() || '';
   const password = formData.get('password')?.toString() || '';
   
@@ -42,7 +42,15 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
 
   await createSession(session);
 
-  redirect('/admin/users');
+  return buildResponse<AdminSession>({
+    success: true,
+    data: {
+      email,
+      fullname: 'Rotha',
+      role: '',
+      username: ''
+    }
+  })
 }
 
 export async function logout() {
