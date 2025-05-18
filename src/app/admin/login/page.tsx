@@ -1,6 +1,6 @@
 'use client'
 import { Formik, Form } from 'formik';
-import { startTransition, useActionState, useEffect, useState } from 'react';
+import { startTransition, useActionState, useEffect, useState, useTransition } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import FormGroup from '@/components/form/FormGroup';
 import CustomTextField from '@/components/form/CustomField';
@@ -10,6 +10,10 @@ import { LoginSchema } from '@/shared/schemas';
 import { login } from '@/server/actions/auth';
 import { AppConfig } from '@/shared/config';
 import { ServerResponse } from "@/shared/types/serverActions";
+import { useApiHandlerStore } from '@/stores/useApiHandlerStore';
+import { useRouter } from 'next/navigation';
+import { AdminSession } from '@/shared/adminSession';
+
 type FormProps = {
   email: string,
   password: string
@@ -17,7 +21,10 @@ type FormProps = {
 
 export default function Login() { 
   const background = '/admin/login_bg.jpg'
-  const [stat, setStat] = useState<ServerResponse>();
+  const [serverResponse, setServerResponse] = useState<ServerResponse<AdminSession> | null>();
+  const sessionExpired = useApiHandlerStore((state) => state.isSessionExpired);
+  const setSessionExipred = useApiHandlerStore((state) => state.setSessionExipred);
+  const router = useRouter();
 
   // provide default user in development or demo
   const [formStat, _] = useState<FormProps>({
@@ -26,13 +33,23 @@ export default function Login() {
   });
 
   const onFormSubmit = async (values: FormProps) => {
+    setServerResponse(null);
+    // reset to not expired
+    setSessionExipred(false);
+
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       formData.set(key, value)
     })
 
-    const stat = await login(formData);
-    setStat(stat);
+    const result = await login(formData)
+
+    setServerResponse(result);
+
+    // init session and redirect
+    if (result.success) {
+      router.push('/admin');
+    }
   }
 
   return (
@@ -63,12 +80,18 @@ export default function Login() {
                 />
                 <CustomErrorMessage name='password' />
             </FormGroup>
+            {/** session expired */}
+            {sessionExpired && !serverResponse && 
+              <FormGroup>
+                <FormAlert success={false} message='Your session is expired, please login again' />
+              </FormGroup>
+            }
             {/* Alert */}
-            {stat && !stat.success && !isSubmitting && <FormGroup>
-              <FormAlert success={false} message={stat.message} />
+            {!isSubmitting && serverResponse && !serverResponse.success  && <FormGroup>
+              <FormAlert success={false} message={serverResponse.message} />
             </FormGroup>}
             {/* Submit Button */}
-            <Button type="submit" variant="contained" color="primary" disabled={isSubmitting} size='large'>
+            <Button type="submit" variant="contained" color="primary" loading={isSubmitting || serverResponse?.success} size='large'>
               {isSubmitting ? "Login..." : "Submit"}
             </Button>
           </Form>

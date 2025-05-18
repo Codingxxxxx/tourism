@@ -4,18 +4,19 @@ import { ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import LinearProgress from '@mui/material/LinearProgress';
-import type { Navigation, Session } from '@toolpad/core/AppProvider';
-import { Dashboard, Topic, PeopleAlt, Room, Add, List } from '@mui/icons-material';
+import type { Authentication, Navigation, Session } from '@toolpad/core/AppProvider';
+import { Dashboard, Topic, PeopleAlt, Room } from '@mui/icons-material';
 import { logout } from '@/server/actions/auth';
-import { getSessionData } from '@/server/actions/session';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Backdrop, CircularProgress } from '@mui/material';
+import { useApiHandlerStore } from '@/stores/useApiHandlerStore';
+import { getSessionData } from '@/server/actions/session';
 
 const NAVIGATION: Navigation = [
   {
     segment: 'admin',
     title: 'Dashboard',
-    icon: <Dashboard />,
+    icon: <Dashboard />
   },
   {
     segment: 'admin/categories',
@@ -36,17 +37,11 @@ const NAVIGATION: Navigation = [
   }
 ];
 
-const demoSession = {
-  user: {
-    name: 'Rotha',
-    email: 'bharatkashyap@outlook.com',
-    image: 'https://avatars.githubusercontent.com/u/19550456',
-  }
-}
-
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>();
   const [openBackdrop, setOpenBackdrop] = useState(false);
+  const sessionExpired = useApiHandlerStore((state) => state.isSessionExpired);
+  const router = useRouter();
+  const [session, setSession] = useState<Session>();
 
   const branding = {
     logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
@@ -54,18 +49,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     homeUrl: '/toolpad/core/introduction',
   };
 
-  const authentication = useMemo(() => {
-    return {
-      signOut: async () => {
-        setOpenBackdrop(true);
-        await logout()
-        setSession(null)
-        redirect('/admin/login')
-      },
-      signIn: () => {
-      }
-    };
-  }, []);
+  async function signOut() {
+    setOpenBackdrop(true);
+    await logout()
+    router.push('/admin/login')
+  }
 
   useEffect(() => {
     getSessionData()
@@ -80,10 +68,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       });
   }, []);
 
+  useEffect(() => {
+    if (!sessionExpired) return;
+    signOut();
+  }, [sessionExpired]);
+
+  const authentication: Authentication = useMemo(() => {
+    return {
+      signOut: async () => {
+        signOut();
+      },
+      signIn: () => {},
+
+    };
+  }, []);
+
   return (
     <Suspense fallback={<LinearProgress />}>
       <NextAppProvider navigation={NAVIGATION} branding={branding} session={session} authentication={authentication}>
-        <DashboardLayout>
+        <DashboardLayout > 
             {children}
         </DashboardLayout>
         {/* backdrop */}

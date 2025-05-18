@@ -1,4 +1,5 @@
-import { type ServerResponse } from "@/shared/types/serverActions";
+import { type ServerResponse } from '@/shared/types/serverActions';
+import { useApiHandlerStore } from '@/stores/useApiHandlerStore';
 
 export async function handleServerAction(
   action: () => Promise<ServerResponse>
@@ -6,7 +7,7 @@ export async function handleServerAction(
   const res = await action();
   
   if (res.isUnauthorized) {
-    window.location.href = '/admin/login';
+    useApiHandlerStore.getState().setSessionExipred(true);
   }
 
   return res;
