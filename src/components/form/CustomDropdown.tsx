@@ -8,16 +8,17 @@ type Item = {
 
 type DropDownProps = SelectProps & {
   items: Item[],
-  defaultSelectValue: string | number
+  defaultSelectValue?: string | number,
+  required?: boolean
 }
 
-export default function CustomDropdown ({ items, name, label, defaultSelectValue, ...props }: DropDownProps) {
+export default function CustomDropdown ({ required = false, items, name, label, defaultSelectValue, ...props }: DropDownProps) {
   const [field, meta] = useField(name);
   const error = Boolean(meta.touched && meta.error);
 
   return (
     <FormControl>
-      <InputLabel htmlFor={props.id}>{label}</InputLabel>
+      <InputLabel required htmlFor={props.id}>{label}</InputLabel>
       <Select 
         label={label}
         {...field}
@@ -25,9 +26,7 @@ export default function CustomDropdown ({ items, name, label, defaultSelectValue
         error={error}
         fullWidth
         >
-          <MenuItem value={defaultSelectValue} defaultValue={defaultSelectValue}>
-            Please Select
-          </MenuItem>
+          {defaultSelectValue && <MenuItem value={defaultSelectValue} defaultValue={defaultSelectValue}>Please Select</MenuItem>}
           {items.map(item => <MenuItem value={item.value}>{item.text}</MenuItem>)}
         </Select>
     </FormControl>

@@ -5,7 +5,7 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import LinearProgress from '@mui/material/LinearProgress';
 import type { Authentication, Navigation, Session } from '@toolpad/core/AppProvider';
-import { Dashboard, Topic, PeopleAlt, Room } from '@mui/icons-material';
+import { Dashboard, Topic, PeopleAlt, Room, Restaurant } from '@mui/icons-material';
 import { logout } from '@/server/actions/auth';
 import { useRouter } from 'next/navigation';
 import { Backdrop, CircularProgress } from '@mui/material';
@@ -19,6 +19,12 @@ const NAVIGATION: Navigation = [
     icon: <Dashboard />
   },
   {
+    segment: 'admin/destinations',
+    title: 'Destinations',
+    icon: <Restaurant />,
+    pattern: 'admin/destinations(/new)?'
+  },
+  {
     segment: 'admin/categories',
     title: 'Categories',
     icon: <Topic />,
@@ -27,7 +33,8 @@ const NAVIGATION: Navigation = [
   {
     segment: 'admin/locations',
     title: 'Locations',
-    icon: <Room />
+    icon: <Room />,
+    pattern: 'admin/locations(/new)?'
   },
   {
     segment: 'admin/users',
