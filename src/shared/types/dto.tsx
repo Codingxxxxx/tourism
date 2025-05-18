@@ -16,11 +16,11 @@ export type Category = Meta & {
 }
 
 export type Location = Meta & {
-  id: number,
+  id?: number,
   name: string,
   remark: string,
-  latitude: string,
-  longitude: string
+  latitude?: string,
+  longitude?: string
 }
 
 export type PaginationMeta = {

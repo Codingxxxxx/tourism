@@ -4,6 +4,7 @@ import { ServerResponse } from '@/shared/types/serverActions';
 import { buildResponse, HttpClient } from '@/server/libs/httpClient';
 import { ApiEndpont } from '../const/api';
 import { PaginatedLocations } from '@/shared/types/serverActions/category';
+import { Location } from '@/shared/types/dto';
 
 export async function getLocations(stat: any, { limit, offset } : PaginationParamters): Promise<ServerResponse<PaginatedLocations>> {
   const { isOk, meta, data, message, unauthorized } = await HttpClient.request({
@@ -41,4 +42,22 @@ export async function createLocation(payload: FormCreateLocation): Promise<Serve
     success: true,
     message: 'New location is created'
   })
-} 
+}
+
+export async function getLocationList(): Promise<ServerResponse<Location[]>> {
+  const { isOk, unauthorized, data, message } = await HttpClient.request({
+    method: 'GET',
+    url: ApiEndpont.LOCATION_ALL
+  });
+
+  if (!isOk) return buildResponse({
+    data: [],
+    message,
+    isUnauthorized: unauthorized
+  });
+
+  return buildResponse<Location[]>({
+    data,
+    success: true
+  })  
+}
