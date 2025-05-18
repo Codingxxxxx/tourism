@@ -15,6 +15,14 @@ export type Category = Meta & {
   video: string
 }
 
+export type Location = Meta & {
+  id: number,
+  name: string,
+  remark: string,
+  latitude: string,
+  longitude: string
+}
+
 export type PaginationMeta = {
   total: number,
   itemCount?: number,
@@ -35,6 +43,11 @@ export type FormCreateCateogry = {
   video?: string,
   photo?: string,
   parentId: number
+}
+
+export type FormCreateLocation = {
+  name: string,
+  remark:string
 }
 
 export type UploadImageResult = {
