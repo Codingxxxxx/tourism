@@ -10,5 +10,6 @@ export const ApiEndpont = {
   UPLOAD_IMAGE: '/upload/image',
   LOCATION_LIST: '/location',
   LOCATOIN_CREATE: '/location',
-  LOCATION_ALL: '/location/list'
+  LOCATION_ALL: '/location/list',
+  LISTING_CREATE: '/cms/listing'
 }

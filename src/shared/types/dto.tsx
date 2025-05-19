@@ -12,7 +12,8 @@ export type Category = Meta & {
   parentId: number,
   description:  string,
   photo: string,
-  video: string
+  video: string,
+  child: Category[]
 }
 
 export type Location = Meta & {
@@ -21,6 +22,23 @@ export type Location = Meta & {
   remark: string,
   latitude?: string,
   longitude?: string
+}
+
+export type Destination = Meta & {
+  id?: number,
+  name: string,
+  categoryIds: number[],
+  locationId: number,
+  latitude: number,
+  longitude: number,
+  placeId: string,
+  description: string,
+  cover: string,
+  map?: string,
+  website?: string,
+  contactNumber?: string,
+  isPopular: number,
+  ratingScore: number
 }
 
 export type PaginationMeta = {
@@ -52,4 +70,22 @@ export type FormCreateLocation = {
 
 export type UploadImageResult = {
   url: string
+}
+
+export type FormCreateDestination = {
+  name: string,
+  categoryIds: number[],
+  locationId: number,
+  latitude: number,
+  longitude: number,
+  placeId: string,
+  description: string,
+  cover?: string,
+  map?: string,
+  website?: string,
+  contactNumber: string,
+  ratingScore: number,
+  email: string,
+  isPopular: number,
+  status: number
 }
