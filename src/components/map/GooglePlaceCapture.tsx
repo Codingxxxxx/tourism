@@ -1,8 +1,7 @@
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
-import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
-import { GoogleMap, LoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
-import { loadComponents } from 'next/dist/server/load-components';
-import { useRef, useState } from 'react';
+import { PlaceDetails, useGoogleMapStore } from '@/stores/useGoogleMapStore';
+import { GoogleMap, LoadScript, Marker, StandaloneSearchBox, Autocomplete } from '@react-google-maps/api';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   onCaptured?: (event:  google.maps.MapMouseEvent) => void,
@@ -13,7 +12,7 @@ export type MapEvent =  {
   placeId?: string
 } & google.maps.MapMouseEvent
 
-type MarkerCoordinate = {
+type SelectedCoordinate = {
   lat: number,
   lng: number,
   placeId?: string
@@ -22,68 +21,50 @@ type MarkerCoordinate = {
 const containerStyle = {
   width: '100%',
   height: '600px',
+  marginBottom: '4rem'
 };
 
-const cambodiaBounds = {
-  north: 14.6908, // Northernmost point of Cambodia
-  south: 10.4091, // Southernmost point
-  east: 107.6277, // Easternmost point
-  west: 102.3399, // Westernmost point
+const defaultCenterMap = { 
+  lat: 11.5564, 
+  lng: 104.9282
 };
+
+// query place id by lat and lng
+function getPlaceId(lat: number, lng: number): Promise<string> {
+  const geocoder = new window.google.maps.Geocoder();
+  const location = { lat, lng };
+
+  return new Promise((resolve, reject) => {
+    geocoder.geocode({ location }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        resolve(results[0].place_id);
+      } else {
+        console.error(status);
+        resolve('')
+      }
+    });
+  });
+};
+
 
 export default function GooglePlaceCapture(props: Props) {
-  const [marker, setMarker] = useState<MarkerCoordinate | null>(null); // State for marker position
-  const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null); // Ref for search box
-  const [mapCenter, setMapCenter] = useState<MarkerCoordinate>({
-    lat: 12.5657,
-    lng: 104.9910
-  });
-  const setCordinate = useGoogleMapCaptureStore((state) => state.setCordinate);
-  const [zoom, setZoom] = useState(8);
-  const [mapService, setMapService] = useState<google.maps.places.PlacesService>();
+  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate>();
+  const searchBoxRef = useRef<google.maps.places.Autocomplete | null>(null); // Ref for search box
+  const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
   const getMarker = useGoogleMapStore((state) => state.getMarker);
+  const setCapturedPlaceDetails = useGoogleMapCaptureStore((state) => state.setCapturedPlaceDetails);
+  const [googleMap, setGoogleMap] = useState<google.maps.Map>();
 
-  async function showMarker(location: MarkerCoordinate) {
-    setMarker({
-      lat: location.lat,
-      lng: location.lng,
-    });
-
-    setMapCenter(location); // Center map on searched location
-    setZoom(13);
-
-    if (!mapService) throw new Error('Map service not found')
-
-    let placeName = '';
-
-    if (location.placeId) {
-      const placeInfo = await getMarker({
-        latLng: {
-          lat: location.lat,
-          lng: location.lng
-        },
-        placeId: location.placeId
-      }, mapService);
-      placeName = placeInfo.placeName ?? 'N/A'
-    }
-
-    setCordinate({
-      lat: location.lat,
-      lng: location.lng,
-      placeId: location.placeId ?? '',
-      placeName,
-    })
-  }
-
-  function onMapLoaded(map: any) {
+  function onMapLoaded(map: google.maps.Map) {
     const service = new window.google.maps.places.PlacesService(map);
-    setMapService(service);
+    setPlaceService(service);
+    setGoogleMap(map);
   }
 
   async function onMapClick(event: MapEvent) {
-    showMarker({
-      lat: event.latLng?.lat() ?? -1,
-      lng: event.latLng?.lng() ?? -1,
+    setSelectedCoordinate({
+      lat: event.latLng?.lat() ?? 0,
+      lng: event.latLng?.lng() ?? 0,
       placeId: event.placeId
     });
 
@@ -95,18 +76,41 @@ export default function GooglePlaceCapture(props: Props) {
 
   function onPlacesChanged() {
     if (!searchBoxRef.current) return;
-    const places = searchBoxRef.current.getPlaces();
-    if (places && places.length > 0) {
-      const place = places[0];
-
-      const location = {
+    const place = searchBoxRef.current.getPlace()
+    if (place) {
+      setSelectedCoordinate({
         lat: place?.geometry?.location?.lat() ?? 0,
         lng: place?.geometry?.location?.lng() ?? 0,
-      };
-      
-      showMarker(location);
+        placeId: place.place_id
+      });
     }
   }
+
+  // handle on user clicked on any location
+  useEffect(() => {
+    if (!selectedCoordinate || !placeService) return;
+
+    const captureLocation = async () => {
+      let placeId = selectedCoordinate.placeId || await getPlaceId(selectedCoordinate.lat, selectedCoordinate.lng);
+
+      if (!placeId) return setCapturedPlaceDetails(null);
+
+      const placeDetails = await getMarker({
+        latLng: {
+          lat: selectedCoordinate.lat,
+          lng: selectedCoordinate.lng
+        },
+        placeId: placeId as string
+      }, placeService);
+
+      setCapturedPlaceDetails(placeDetails);
+      googleMap?.setZoom(15);
+      googleMap?.panTo(selectedCoordinate);
+    };
+
+    captureLocation();
+
+  }, [selectedCoordinate, placeService]);
 
   return (
     <LoadScript 
@@ -115,26 +119,36 @@ export default function GooglePlaceCapture(props: Props) {
     >
       <GoogleMap
         mapContainerStyle={containerStyle}
-        zoom={zoom}
-        center={mapCenter}
+        zoom={9}
+        center={defaultCenterMap}
         onClick={onMapClick}
-        onLoad={onMapLoaded}
+        onLoad={onMapLoaded} 
       >
-        {marker && <Marker position={marker} />}
-        <StandaloneSearchBox
+        {selectedCoordinate &&
+          <Marker 
+            animation={window.google.maps.Animation.DROP} 
+            position={selectedCoordinate} 
+            key={`${selectedCoordinate.lat}-${selectedCoordinate.lng}`}
+          />
+        }
+        <Autocomplete
           onLoad={(ref) => (searchBoxRef.current = ref)}
-          onPlacesChanged={onPlacesChanged}
-          bounds={cambodiaBounds}
+          onPlaceChanged={onPlacesChanged}
+          options={{
+            componentRestrictions: {
+              country: 'KH' // only search places in Cambodia
+            }
+          }}
         >
           <input
             type='text'
             placeholder='Search for a location'
-            className='bg-slate-100 text-secondary'
+            className='bg-slate-100 text-secondary rounded'
             style={{
               boxSizing: 'border-box',
               border: '1px solid transparent',
-              width: '240px',
-              height: '32px',
+              width: '260px',
+              height: '45px',
               padding: '0 12px',
               borderRadius: '3px',
               boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
@@ -148,7 +162,7 @@ export default function GooglePlaceCapture(props: Props) {
               zIndex: 9999
             }}
           />
-        </StandaloneSearchBox>
+        </Autocomplete>
       </GoogleMap>
     </LoadScript>
   )

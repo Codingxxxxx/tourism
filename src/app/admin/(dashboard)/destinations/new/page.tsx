@@ -36,8 +36,8 @@ export default function Page() {
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
   const [locations, setLocations] = useState<Location[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeStep, setActiveStep] = useState(1);
-  const cordinate = useGoogleMapCaptureStore((state) => state.cordinate);
+  const [activeStep, setActiveStep] = useState(0);
+  const capturedPlaceDetails = useGoogleMapCaptureStore((state) => state.capturedPlaceDetails);
 
   const breadcrumbs: Breadcrumb[] = [
     {
@@ -147,8 +147,8 @@ export default function Page() {
           <Button type="button" variant="contained" color="warning" onClick={() => setActiveStep(0)}>
             BACK
           </Button>
-          <Button type="button" variant="contained" color="primary" disabled={!cordinate || !cordinate.placeId}>
-            Capture: {cordinate?.placeName}
+          <Button type="button" variant="contained" color="primary" disabled={!capturedPlaceDetails}>
+            Capture: {capturedPlaceDetails && capturedPlaceDetails.placeName}
           </Button>
         </Box>
         <Box>
