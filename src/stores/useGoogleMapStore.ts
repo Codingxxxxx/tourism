@@ -32,6 +32,7 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
     const placeDetails = await new Promise<PlaceDetails>((resolve, reject) => {
       const reqPayload: google.maps.places.PlaceDetailsRequest = {
         placeId: marker.placeId,
+        language: 'km',
         fields: [
           'business_status',
           'photos',
@@ -46,6 +47,7 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
         ]
       };
       placeService.getDetails(reqPayload, (result, status) => {
+        console.log(result);
         resolve({
           status,
           businessStatus: result?.business_status,

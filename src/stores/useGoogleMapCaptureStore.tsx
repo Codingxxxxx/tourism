@@ -1,18 +1,12 @@
 import { create } from 'zustand';
-
-export type Cordinate = {
-  lat: number,
-  lng: number,
-  placeId: string,
-  placeName: string
-}
+import { PlaceDetails } from './useGoogleMapStore';
 
 type GoogleMapCaptureStore = {
-  cordinate: Cordinate | null,
-  setCordinate: (cordinate: Cordinate) => void
+  capturedPlaceDetails: PlaceDetails | null,
+  setCapturedPlaceDetails: (capturedPlaceDetails: PlaceDetails | null) => void
 }
 
 export const useGoogleMapCaptureStore = create<GoogleMapCaptureStore>((set) => ({
-  cordinate: null,
-  setCordinate: (cordinate: Cordinate) => set({ cordinate })
+  capturedPlaceDetails: null,
+  setCapturedPlaceDetails: (place: PlaceDetails | null) => set({ capturedPlaceDetails: place })
 }));
