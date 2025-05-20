@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
         pathname: '/**', // Allows all paths under this hostname
       }
     ]
+  },
+  logging: {
+    fetches: {
+      fullUrl: true
+    },
+    incomingRequests: true
   }
 };
 

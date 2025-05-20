@@ -11,7 +11,7 @@ export async function createDestination(payload: FormCreateDestination): Promise
     data: payload
   });
 
-  if (!isOk && false) return buildResponse({
+  if (!isOk) return buildResponse({
     message,
     isUnauthorized: unauthorized
   });

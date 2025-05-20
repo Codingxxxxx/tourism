@@ -179,7 +179,7 @@ export default function Page() {
       }
       <Box hidden={activeStep !== 1}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-          <Button type="button" variant="contained" color="warning" onClick={() => setActiveStep(0)} startIcon={<ArrowBack />}>
+          <Button type="button" variant="contained" color="warning" onClick={() => setActiveStep(0)} disabled={disableMap} startIcon={<ArrowBack />}>
             BACK
           </Button>
           <Button type="button" variant="contained" color="primary" disabled={!capturedPlaceDetails} startIcon={<AddLocation />} onClick={onLocationCaptured} loading={serverResponse === null}>
