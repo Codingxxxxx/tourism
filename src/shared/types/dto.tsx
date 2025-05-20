@@ -38,7 +38,8 @@ export type Destination = Meta & {
   website?: string,
   contactNumber?: string,
   isPopular: number,
-  ratingScore: number
+  ratingScore: number,
+  categories: Category[]
 }
 
 export type PaginationMeta = {
