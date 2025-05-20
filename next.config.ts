@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
         hostname: 'maps.gstatic.com',
         port: '', // Leave empty unless a specific port is required
         pathname: '/**', // Allows all paths under this hostname
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost'
+      },
+      {
+        protocol: 'https',
+        hostname: 'tourism-woad.vercel.app'
       }
     ]
   },

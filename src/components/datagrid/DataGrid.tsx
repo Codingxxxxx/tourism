@@ -5,13 +5,17 @@ export function withDefaultFlex(columns: readonly GridColDef<any>[]): GridColDef
   return columns.map(col => ({ ...col, flex: col.flex ?? 1 }));
 }
 
-export default function DataGrid({ rows, columns, loading, ...props }: DataGridProps) {
+type Props = {
+  autoResize?: boolean
+} & DataGridProps
+
+export default function DataGrid({ autoResize = true, rows, columns, loading, ...props }: Props) {
   return (
     <Paper sx={{ width: '100%' }}>
       <Datatable
         loading={loading}
         rows={rows}
-        columns={withDefaultFlex(columns)}
+        columns={autoResize ? withDefaultFlex(columns) : columns}
         initialState={{
           pagination: {
             paginationModel: {

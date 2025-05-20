@@ -11,5 +11,6 @@ export const ApiEndpont = {
   LOCATION_LIST: '/location',
   LOCATOIN_CREATE: '/location',
   LOCATION_ALL: '/location/list',
-  LISTING_CREATE: '/cms/listing'
+  LISTING_CREATE: '/cms/listing',
+  LISTING_LIST: '/cms/listing'
 }

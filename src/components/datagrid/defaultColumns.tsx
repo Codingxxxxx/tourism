@@ -5,7 +5,7 @@ export const MetaColumns: GridColDef[] = [
   {
     field: 'createdBy',
     headerName: 'Created By',
-    flex: 1
+    width: 100
   },
   {
     field: 'createdAt',
