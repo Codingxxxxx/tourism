@@ -72,7 +72,7 @@ export class HttpClient {
         const resData = await res.json();
         resolve({
           code: res.status,
-          message: resData.message || '',
+          message: resData.code === 0 ? resData.message : 'Failed to process the request, please try again later',
           statusName: resData.statusName || '',
           data: resData.data || null,
           isOk: resData.code === 0,
