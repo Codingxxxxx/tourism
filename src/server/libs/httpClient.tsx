@@ -31,6 +31,7 @@ type ResponseOptions<T = any> = {
 
 export class HttpClient {
   static request({ url, data, method }: ApiRequestOptions): Promise<ApiResponse> {
+    console.debug('Request payload: ', [url, method, data]);
     return new Promise(async (resolve) => {
       let accessToken = '';
 
@@ -70,6 +71,9 @@ export class HttpClient {
         };
 
         const resData = await res.json();
+
+        console.debug('API Response: ', resData);
+
         resolve({
           code: res.status,
           message: resData.code === 0 ? resData.message : 'Failed to process the request, please try again later',
@@ -81,13 +85,14 @@ export class HttpClient {
         })
       })
       .catch((error: Error) => {
+        console.error(error);
         resolve({
           code: 999,
           message: error.message || 'Unable to serve request at the moment',
           statusName: '',
           isOk: false,
           unauthorized: false
-        })
+        });
       })
     })
   }
