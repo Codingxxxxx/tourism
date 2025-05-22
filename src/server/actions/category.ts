@@ -3,7 +3,7 @@ import { HttpClient, buildResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
 import { Category, FormCreateCateogry, PaginationMeta, PaginationParamters } from '@/shared/types/dto';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { PaginatedCategories } from '@/shared/types/serverActions/category';
+import { PaginatedCategories } from '@/shared/types/serverActions';
 
 export async function getCategories(stat: ServerResponse<PaginatedCategories>, payload: PaginationParamters): Promise<ServerResponse<PaginatedCategories>> {
   const { limit, offset } = payload;

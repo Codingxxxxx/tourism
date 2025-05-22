@@ -2,17 +2,15 @@
 import DashboardContainer from "@/components/dashboard/DashboardContainer";
 import { Box, Button, Chip, Rating } from '@mui/material'
 import { AddCircleOutline } from '@mui/icons-material';
-import { GridRenderCellParams, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
+import { type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
 import Link from 'next/link';
 import DataGrid from '@/components/datagrid/DataGrid';
 import { MetaColumns } from '@/components/datagrid/defaultColumns';
-import { getLocations } from "@/server/actions/location";
 import { startTransition, useActionState, useEffect, useState } from "react";
-import { PaginatedLocations } from "@/shared/types/serverActions/category";
 import { getPageOffset } from '@/shared/utils/paginationUtils';
 import { PaginateDestination, ServerResponse } from "@/shared/types/serverActions";
 import { withServerHandler } from "@/shared/utils/apiUtils";
-import { Category } from '@/shared/types/dto';
+import type { Category, Location } from '@/shared/types/dto';
 import { getDestinations } from '@/server/actions/destination';
 import Image from 'next/image';
 
@@ -23,6 +21,14 @@ const columns: GridColDef[] = [
     field: 'name',
     headerName: 'Place Name',
     width: 200
+  },
+  {
+    field: 'location',
+    headerName: 'Location',
+    width: 200,
+    renderCell: ({ value }) => {
+      return (value as Location).name || 'N/A';
+    }
   },
   {
     field: 'categories',
