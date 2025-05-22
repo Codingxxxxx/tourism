@@ -8,7 +8,7 @@ import DataGrid from '@/components/datagrid/DataGrid';
 import { MetaColumns } from '@/components/datagrid/defaultColumns';
 import { getCategories } from "@/server/actions/category";
 import { startTransition, useActionState, useEffect, useState } from "react";
-import { PaginatedCategories } from "@/shared/types/serverActions/category";
+import { PaginatedCategories } from "@/shared/types/serverActions";
 import { getPageOffset } from '@/shared/utils/paginationUtils';
 import { ServerResponse } from "@/shared/types/serverActions";
 import { PaginationParamters } from "@/shared/types/dto";

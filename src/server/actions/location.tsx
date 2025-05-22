@@ -3,7 +3,7 @@ import { FormCreateLocation, PaginationParamters } from '@/shared/types/dto';
 import { ServerResponse } from '@/shared/types/serverActions';
 import { buildResponse, HttpClient } from '@/server/libs/httpClient';
 import { ApiEndpont } from '../const/api';
-import { PaginatedLocations } from '@/shared/types/serverActions/category';
+import { PaginatedLocations } from '@/shared/types/serverActions';
 import { Location } from '@/shared/types/dto';
 
 export async function getLocations(stat: any, { limit, offset } : PaginationParamters): Promise<ServerResponse<PaginatedLocations>> {
