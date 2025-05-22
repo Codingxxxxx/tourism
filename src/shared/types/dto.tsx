@@ -13,6 +13,8 @@ export type Category = Meta & {
   description:  string,
   photo: string,
   video: string,
+  isFeatured: boolean,
+  isFront: boolean,
   child: Category[]
 }
 

@@ -2,9 +2,9 @@ import 'server-only'
 import { deleteSession, getAccessToken, isLoggedIn } from '@/server/libs/session';
 import { PaginationMeta } from '@/shared/types/dto';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { redirect } from 'next/navigation';
 
 const API_BASE = process.env.API_BASE;
+const WEB_API_BASE = process.env.WEB_API_BASE;
 
 export type ApiResponse = {
   code: number,
@@ -19,7 +19,8 @@ export type ApiResponse = {
 export type ApiRequestOptions = {
   url: string,
   method: 'GET' | 'POST' | 'DELETE' | 'UPDATE',
-  data?: Record<string, any> | FormData | null
+  data?: Record<string, any> | FormData | null,
+  forWeb?: boolean
 }
 
 type ResponseOptions<T = any> = {
@@ -30,21 +31,25 @@ type ResponseOptions<T = any> = {
 };
 
 export class HttpClient {
-  static request({ url, data, method }: ApiRequestOptions): Promise<ApiResponse> {
+  static request({ url, data, method, forWeb = false }: ApiRequestOptions): Promise<ApiResponse> {
     console.debug('Request payload: ', [url, method, data]);
     return new Promise(async (resolve) => {
       let accessToken = '';
-
-      if (await isLoggedIn()) {
-        accessToken = await getAccessToken();
-      }
-
-      // define body and set content type appropriately
-      const requestUrl = API_BASE + url;
-      let request: Request;
-
       const headers = new Headers();
-      headers.append('Authorization', 'Bearer ' + accessToken);
+      let request: Request;
+      let requestUrl = '';
+
+      if (forWeb) {
+        requestUrl = WEB_API_BASE + url;
+      } else {
+        requestUrl = API_BASE + url;
+
+        if (await isLoggedIn()) {
+          accessToken = await getAccessToken();
+        }
+              
+        headers.append('Authorization', 'Bearer ' + accessToken);
+      }
 
       if (!(data instanceof FormData)) {
         headers.append('Content-Type', 'application/json')
@@ -66,7 +71,7 @@ export class HttpClient {
       fetch(request)
       .then(async (res) => {
 
-        if (res.status === 401) {
+        if (res.status === 401 && !forWeb) {
           await deleteSession();
         };
 
@@ -81,7 +86,7 @@ export class HttpClient {
           data: resData.data || null,
           isOk: resData.code === 0,
           meta: resData.meta,
-          unauthorized: resData.code === 401
+          unauthorized: resData.code === 401 && !forWeb
         })
       })
       .catch((error: Error) => {
