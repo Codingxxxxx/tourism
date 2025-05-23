@@ -21,7 +21,6 @@ import { handleServerAction } from '@/shared/utils/apiUtils';
 
 type FormCategoryStats = {
   categoryName: string
-  categoryNameKH: string
   image: File[],
   isEmbedVideo: boolean,
   video: string,
@@ -30,14 +29,13 @@ type FormCategoryStats = {
 
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
-  categoryNameKH: Yub.string().label('Category Name KH').required().max(50),
   isEmbedVideo: Yub.bool(),
   video: Yub
     .string()
-    .label('Video URL')
+    .label('Video URL or Embed Code')
     .when('isEmbedVideo', {
       is: true,
-      then: (schema) => schema.required().url(),
+      then: (schema) => schema.required(),
       otherwise: (schema) => schema.notRequired()
     })
     ,
@@ -73,7 +71,6 @@ export default function Page() {
 
   const initialInputValues: FormCategoryStats = {
       categoryName: '',
-      categoryNameKH: '',
       image: [],
       isEmbedVideo: false,
       video: '',
@@ -107,7 +104,7 @@ export default function Page() {
       const serverResponse = await handleServerAction(() => 
         createCategory({
           name: values.categoryName,
-          nameKH: values.categoryNameKH,
+          nameKH: values.categoryName,
           photo: values.isEmbedVideo ? undefined : sourceUrl,
           video: values.isEmbedVideo ? sourceUrl : undefined,
           parentId: values.parent
@@ -144,18 +141,6 @@ export default function Page() {
                   <CustomErrorMessage name='categoryName' />
                 </FormGroup>
               </Grid>
-              {/* Category name kh */}
-              <Grid size={12}>
-                <FormGroup>
-                  <CustomTextField
-                    id='categoryNameKH'
-                    label='Category Name KH'
-                    name='categoryNameKH'
-                    required
-                  />
-                  <CustomErrorMessage name='categoryNameKH' />
-                </FormGroup>
-              </Grid>
               {/* Category list */}
               <Grid size={12}>
                 <FormGroup>
@@ -187,8 +172,10 @@ export default function Page() {
                   <FormGroup sx={{ marginLeft: 'auto' }}>
                     <CustomTextField
                       id='video'
-                      label='Video URL'
+                      label='Video URL or Embed Code'
                       name='video'
+                      multiline
+                      rows={10}
                       required
                     />
                     <CustomErrorMessage name='video' />

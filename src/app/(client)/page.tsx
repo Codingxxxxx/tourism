@@ -9,6 +9,8 @@ import { getDisplayCategories } from '@/server/actions/web/home';
 import { withServerHandler } from "@/shared/utils/apiUtils";
 import { ServerResponse, PaginatedDisplayCategories } from '@/shared/types/serverActions';
 import { CustomBackdrop } from '@/components/Backdrop';
+import { Box } from '@mui/material';
+import { getImagePath } from '@/shared/utils/fileUtils';
 
 
 const NO_IMAGE = '/no_category.jpg';
@@ -62,18 +64,19 @@ export default function Home() {
           <div className="flex-1 pl-[.125rem] overflow-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[.125rem] h-full">
                 {serverResponse?.data?.categories.filter(category => !category.isFront).map((category, idx) => (
-                  <Link key={idx} href={`/category/${encodeURIComponent(category.name)}`} className="relative">
-                    <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
-                      <Image 
-                        style={{ objectFit: 'cover' }} 
-                        src={category.photo ? `/cdn?photoUrl=${encodeURIComponent(category.photo)}` : NO_IMAGE} 
-                        alt={category.name} 
-                        fill
-                        onError={evt => evt.currentTarget.src = NO_IMAGE}
-                        loading='lazy'
-                      />
-                    </div>
-                    <h3 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md z-1" dangerouslySetInnerHTML={{ __html: category.name.replace('\n', '<br>') }}></h3>
+                  <Link key={idx} href={`/category/${encodeURIComponent(category.name)}`}>
+                    <Box sx={{ position: 'relative' }}>
+                      <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
+                        <Image 
+                          style={{ objectFit: 'cover' }} 
+                          src={category.photo ?  getImagePath(category.photo): NO_IMAGE} 
+                          alt={category.name} 
+                          fill
+                          onError={evt => evt.currentTarget.src = NO_IMAGE}
+                        />
+                      </div>
+                      <h3 className="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md" dangerouslySetInnerHTML={{ __html: category.name.replace('\n', '<br>') }}></h3>
+                    </Box>
                   </Link>
                 ))}
             </div>
