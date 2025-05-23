@@ -1,33 +1,73 @@
-'use client'
-import { Box, Button, Paper } from '@mui/material';
+'use client';
+import DashboardContainer from "@/components/dashboard/DashboardContainer";
+import { Box, Button } from '@mui/material'
 import { AddCircleOutline } from '@mui/icons-material';
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import { type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
 import Link from 'next/link';
-import DashboardContainer from '@/components/dashboard/DashboardContainer';
+import DataGrid from '@/components/datagrid/DataGrid';
+import { MetaColumns } from '@/components/datagrid/defaultColumns';
+import { startTransition, useActionState, useEffect, useState } from "react";
+import { PaginatedUsers } from "@/shared/types/serverActions";
+import { getPageOffset } from '@/shared/utils/paginationUtils';
+import { ServerResponse } from "@/shared/types/serverActions";
+import { withServerHandler } from "@/shared/utils/apiUtils";
+import { getUsers } from '@/server/actions/user';
+import { Role } from '@/shared/types/dto';
 
 const columns: GridColDef[] = [
-  { sortable: false, disableColumnMenu: true,  field: 'fullname', headerName: 'Full name' },
-  { sortable: false, disableColumnMenu: true,  field: 'username', headerName: 'Username'},
-  { sortable: false, disableColumnMenu: true,  field: 'role', headerName: 'Role' },
-  { sortable: false, disableColumnMenu: true,  field: 'created_at', headerName: 'Created At', width: 200 },
-  { sortable: false, disableColumnMenu: true,  field: 'created_by', headerName: 'Created By' }
-];
-
-const rows = [
-  { id: 1, fullname: 'Snow', username: 'Jon', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 2, fullname: 'Lannister', username: 'Cersei', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 3, fullname: 'Lannister', username: 'Jaime', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 4, fullname: 'Stark', username: 'Arya', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 5, fullname: 'Targaryen', username: 'Daenerys', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 6, fullname: 'Melisandre', username: null, role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 7, fullname: 'Clifford', username: 'Ferrara', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 8, fullname: 'Frances', username: 'Rossini', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' },
-  { id: 9, fullname: 'Roxie', username: 'Harvey', role: 'Admin', created_at: '2025-03-12 03:12 PM', created_by: 'John' } 
-];
-
-const paginationModel = { page: 0, pageSize: 5 };
+  {
+    field: 'username',
+    headerName: 'Username'
+  },
+  {
+    field: 'firstName',
+    headerName: 'First Name'
+  },
+  {
+    field: 'lastName',
+    headerName: 'Last Name'
+  },
+  {
+    field: 'email',
+    headerName: 'Email'
+  },
+  {
+    field: 'roles',
+    headerName: 'Roles',
+    renderCell: ({ value }) => {
+      return (value as Role[] || []).map(role => role.name).join(', ');
+    }
+  },
+  ...MetaColumns
+]
 
 export default function Page() {
+  const initialState: ServerResponse<PaginatedUsers> = {
+    data: {
+      users: [],
+      meta: {
+        total: 0
+      }
+    }
+  };
+
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    pageSize: 10,
+    page: 0
+  });
+
+  const [stat, action, isPending] = useActionState(withServerHandler(getUsers), initialState);
+
+  useEffect(() => {
+    startTransition(() => {
+      const offset = getPageOffset(paginationModel.page, paginationModel.pageSize);
+      action({
+        limit: paginationModel.pageSize,
+        offset
+      });
+    });
+  }, [paginationModel]);
+
   return (
     <DashboardContainer>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
@@ -35,18 +75,15 @@ export default function Page() {
           <AddCircleOutline sx={{ marginRight: 1 }} />
           new user
         </Button>
-        <Paper sx={{ height: 400, width: '100%' }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{ pagination: { paginationModel } }}
-            pageSizeOptions={[5, 10]}
-            sx={{ border: 0 }}
-            getRowId={(row) => row.id}
-            rowSelection={false}
-            disableRowSelectionOnClick={true}
-          />
-        </Paper>
+        <DataGrid 
+          columns={columns} 
+          rows={stat.data?.users}
+          paginationMode='server'
+          rowCount={stat.data?.meta?.total} 
+          loading={isPending} 
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+        />
       </Box>
     </DashboardContainer>
   )

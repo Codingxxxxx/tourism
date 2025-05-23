@@ -1,14 +1,26 @@
 'use client'
-import { PageContainer } from '@toolpad/core/PageContainer';
+
 import { Breadcrumb } from '@toolpad/core';
-import { Box, Button, Grid2 as Grid, TextField, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Box, Button, Grid2 as Grid } from '@mui/material';
+import { Formik, Form, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
+import Toast from '@/components/form/Toast';
 import * as Yub from 'yup';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
+import { createUser } from '@/server/actions/user';
+import { useState } from 'react';
+import { ServerResponse } from '@/shared/types/serverActions';
+
+type FormProps = {
+  username: string,
+  firstName: string,
+  lastName: string,
+  password: string,
+  confirmPassword: string,
+  email: string
+}
 
 export default function Page() {
   const breadcrumbs: Breadcrumb[] = [
@@ -26,43 +38,81 @@ export default function Page() {
     }
   ];
 
-  const [formStat, setFormStat] = useState({
-      username: '',
-      password: '',
-      fullname: '',
-      confirmPassword: ''
-    });
-  
-    const validationSchema = Yub.object({
-      username: Yub.string().label('Username').required().max(15),
-      password: Yub.string().label('Password').required(),
-      fullname: Yub.string().label('Fullname').required().max(50),
-      confirmPassword: Yub.string().label('Confirm Password').required().oneOf([Yub.ref('password')], 'Confirm Password doesn\'t match')
-    });
-  
-    const onFormSubmit = () => {
-  
+  const [serverResponse, setServerResponse] = useState<ServerResponse | null>(null);
+
+  const initialState: FormProps = {
+    username: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    confirmPassword: '',
+    email: ''
+  }
+
+  const validationSchema = Yub.object({
+    username: Yub.string().label('Username').required().max(15).matches(/^[a-zA-Z0-9]+$/, 'User name must contains letters or numbers only'),
+    firstName: Yub.string().label('First Name').required().max(25),
+    lastName: Yub.string().label('Last Name').required().max(25),
+    password: Yub.string().label('Password').required().min(6),
+    confirmPassword: Yub.string().label('Confirm Password').required().oneOf([Yub.ref('password')], 'Confirm Password doesn\'t match'),
+    email: Yub.string().label('Email').required().email()
+  });
+
+  const onFormSubmit = async (value: FormProps, helpers: FormikHelpers<FormProps>) => {
+    try {
+      setServerResponse(null);
+
+      const serverResponse = await createUser({
+        firstName: value.firstName,
+        lastName: value.lastName,
+        password: value.password,
+        username: value.username,
+        email: value.email,
+        roleIds: [1, 2, 3]
+      });
+
+      setServerResponse(serverResponse);
+
+      if (serverResponse.success) {
+        helpers.resetForm();
+      }
+    } catch (error) {
+      console.error(error);
+      helpers.setSubmitting(false);
     }
+  }
 
   return (
     <DashboardContainer breadcrumbs={breadcrumbs} title='Create New User'>
-      <Formik initialValues={formStat} onSubmit={onFormSubmit} validationSchema={validationSchema}>
-        {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isSubmitting }) => (
+      <Formik initialValues={initialState} onSubmit={onFormSubmit} validationSchema={validationSchema}>
+        {({ isSubmitting }) => (
           <Form>
             <Grid container spacing={2} width={870} maxWidth='100%' marginX='auto' marginTop={4}>
               <Grid size={6}>
-                {/* Fullname */}
+                {/* First Name */}
                 <FormGroup>
                   <CustomTextField
-                    id='fullname'
-                    label='Fullname'
-                    name='fullname'
+                    id='firstName'
+                    label='First Name'
+                    name='firstName'
                     required
                   />
-                  <CustomErrorMessage name='fullname' />
+                  <CustomErrorMessage name='firstName' />
                 </FormGroup>
               </Grid>
-              <Grid  size={6}>
+              <Grid size={6}>
+                {/* Last Name */}
+                <FormGroup>
+                  <CustomTextField
+                    id='lastName'
+                    label='Last Name'
+                    name='lastName'
+                    required
+                  />
+                  <CustomErrorMessage name='lastName' />
+                </FormGroup>
+              </Grid>
+              <Grid  size={12}>
                 {/* Name Input */}
                 <FormGroup>
                   <CustomTextField
@@ -74,20 +124,20 @@ export default function Page() {
                   <CustomErrorMessage name='username' />
                 </FormGroup>
               </Grid>
-              <Grid width='100%'  size={6}>
-                {/* Email Input */}
+              {/* Email */}
+              <Grid  size={12}>
                 <FormGroup>
                   <CustomTextField
-                    label='Password'
-                    name='password'
-                    type='password'
+                    id='email'
+                    label='Email'
+                    name='email'
                     required
                   />
-                  <CustomErrorMessage name='password' />
+                  <CustomErrorMessage name='email' />
                 </FormGroup>
               </Grid>
+              {/* Email Input */}
               <Grid width='100%'  size={6}>
-                {/* Confirm Password */}
                 <FormGroup>
                   <CustomTextField
                     label='Password'
@@ -111,8 +161,8 @@ export default function Page() {
                 </FormGroup>
               </Grid>
               <Grid  size={12}>
-                <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large'>
-                  {isSubmitting ? "Login..." : "Submit"}
+                <Button type="submit" fullWidth variant="contained" color="primary" loading={isSubmitting} size='large'>
+                  Submit
                 </Button>
               </Grid>
             </Grid>
@@ -120,6 +170,7 @@ export default function Page() {
           </Form>
         )}
       </Formik>
+      <Toast open={serverResponse != null} success={serverResponse?.success} message={serverResponse?.message} />
     </DashboardContainer>
   )
 }

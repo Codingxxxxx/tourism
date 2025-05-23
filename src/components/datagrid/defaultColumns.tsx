@@ -3,8 +3,11 @@ import { formatDate } from 'date-fns';
 
 export const MetaColumns: GridColDef[] = [
   {
-    field: 'createdBy',
+    field: 'user',
     headerName: 'Created By',
+    renderCell: ({ value }) => {
+      return value?.username || 'N/A';
+    },
     width: 100
   },
   {

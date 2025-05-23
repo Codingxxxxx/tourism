@@ -1,4 +1,4 @@
-import type { PaginationMeta, Location, Category } from '../dto';
+import type { PaginationMeta, Location, Category, User } from '../dto';
 
 export type ServerResponse<T = any> = {
   message?: string;
@@ -28,3 +28,8 @@ export type PaginatedDisplayCategories = {
   meta: PaginationMeta | null;
   videoCategory?: Category
 };
+
+export type PaginatedUsers = {
+  users: User[],
+  meta?: PaginationMeta
+}

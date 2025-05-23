@@ -3,7 +3,7 @@ import { AlertProps } from './FormAlert';
 import { useState } from 'react';
 
 type Props = SnackbarProps & {
-  success: boolean,
+  success: boolean | undefined,
   message?: string
 }
 
@@ -11,7 +11,7 @@ function SlideTransition(props: SlideProps) {
   return <Slide {...props} direction='down' />;
 }
 
-export default function Toast({ success, message,  ...props }: Props) {
+export default function Toast({ success = false, message,  ...props }: Props) {
   const [open, setOpen] = useState(true);
 
   return (
