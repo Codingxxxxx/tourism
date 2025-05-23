@@ -18,7 +18,7 @@ export default function CustomDropdown ({ required = false, items, name, label, 
 
   return (
     <FormControl>
-      <InputLabel required htmlFor={props.id}>{label}</InputLabel>
+      <InputLabel required={required} htmlFor={props.id}>{label}</InputLabel>
       <Select 
         label={label}
         {...field}
@@ -26,8 +26,8 @@ export default function CustomDropdown ({ required = false, items, name, label, 
         error={error}
         fullWidth
         >
-          {defaultSelectValue && <MenuItem value={defaultSelectValue} defaultValue={defaultSelectValue}>Please Select</MenuItem>}
-          {items.map(item => <MenuItem value={item.value}>{item.text}</MenuItem>)}
+          <MenuItem key={defaultSelectValue} value={defaultSelectValue} defaultValue={defaultSelectValue}>Please Select</MenuItem>
+          {items.map(item => <MenuItem key={item.value} value={item.value}>{item.text}</MenuItem>)}
         </Select>
     </FormControl>
   );
