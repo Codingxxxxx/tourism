@@ -92,3 +92,26 @@ export type FormCreateDestination = {
   isPopular: number,
   status: number
 }
+
+export type FormCreateUser = {
+  firstName: string,
+  lastName: string,
+  username: string,
+  password: string,
+  email: string,
+  roleIds: number[]
+}
+
+export type Role = {
+  id: number,
+  name: string
+}
+
+export type User = {
+  id: number,
+  username: string,
+  email: string,
+  firstName: string,
+  lastName: string,
+  roles: Role[]
+}
