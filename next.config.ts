@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'tourism-woad.vercel.app'
+      },
+      {
+        protocol: 'http',
+        hostname: '34.60.52.162'
       }
     ]
   },

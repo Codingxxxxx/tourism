@@ -11,20 +11,25 @@ import { startTransition, useActionState, useEffect, useState } from "react";
 import { PaginatedCategories } from "@/shared/types/serverActions";
 import { getPageOffset } from '@/shared/utils/paginationUtils';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { PaginationParamters } from "@/shared/types/dto";
+import { Category, PaginationParamters } from "@/shared/types/dto";
 import { withServerHandler } from "@/shared/utils/apiUtils";
+import Image from 'next/image';
+import { getImagePath } from '@/shared/utils/fileUtils';
+
+
 const columns: GridColDef[] = [
   {
     field: 'name',
     headerName: 'Cateogry EN'
   },
   {
-    field: 'nameKH',
-    headerName: 'Category KH'
-  },
-  {
-    field: 'description',
-    headerName: 'Description'
+    field: 'photo',
+    headerName: 'Cover Photo',
+    renderCell: ({ value, row }) => {
+      if (!value) return 'N/A';
+      const cate = row as Category;
+      return <Image src={getImagePath(value)} style={{ objectFit: 'cover' }} width={60} height={60} alt={cate.name} />
+    },
   },
   ...MetaColumns
 ]

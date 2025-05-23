@@ -27,7 +27,7 @@ export async function getCategories(stat: ServerResponse<PaginatedCategories>, p
   return buildResponse<PaginatedCategories>({
     success: true,
     data: {
-      categories,
+      categories: categories || [],
       meta
     }
   });
