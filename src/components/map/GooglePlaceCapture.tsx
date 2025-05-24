@@ -1,6 +1,6 @@
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
-import { GoogleMap, LoadScript, Marker, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, Autocomplete, useJsApiLoader, Libraries } from '@react-google-maps/api';
 import { useEffect, useRef, useState, useTransition } from 'react';
 
 type Props = {
@@ -33,6 +33,7 @@ const defaultCenterMap = {
 };
 
 const DEFAULT_ZOOM = 10;
+const libraries: Libraries = ['places'];
 
 // query place id by lat and lng
 function getPlaceId(lat: number, lng: number): Promise<string> {
@@ -53,6 +54,12 @@ function getPlaceId(lat: number, lng: number): Promise<string> {
 
 
 export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, initialMarkers = null,  ...props }: Props) {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: props.apiKey,
+    libraries: libraries
+  })
+
   const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate>();
   const searchBoxRef = useRef<google.maps.places.Autocomplete | null>(null); // Ref for search box
   const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
@@ -168,62 +175,57 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
     })
   }, [disableInteraction]);
 
-  return (
-    <LoadScript 
-      googleMapsApiKey={props.apiKey}
-      libraries={['places']}
+  return isLoaded ? (
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      zoom={DEFAULT_ZOOM}
+      center={defaultCenterMap}
+      onClick={onMapClick}
+      onLoad={onMapLoaded}
+      options={googleMapOptions}
     >
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        zoom={DEFAULT_ZOOM}
-        center={defaultCenterMap}
-        onClick={onMapClick}
-        onLoad={onMapLoaded}
-        options={googleMapOptions}
+      {selectedCoordinate &&
+        <Marker 
+          animation={window.google.maps.Animation.DROP} 
+          position={selectedCoordinate} 
+          key={`${selectedCoordinate.lat}-${selectedCoordinate.lng}`}
+        />
+      }
+      <Autocomplete
+        onLoad={(ref) => (searchBoxRef.current = ref)}
+        onPlaceChanged={onPlacesChanged}
+        options={{
+          componentRestrictions: {
+            country: 'KH' // only search places in Cambodia
+          }
+        }}
+        
       >
-        {selectedCoordinate &&
-          <Marker 
-            animation={window.google.maps.Animation.DROP} 
-            position={selectedCoordinate} 
-            key={`${selectedCoordinate.lat}-${selectedCoordinate.lng}`}
-          />
-        }
-        <Autocomplete
-          onLoad={(ref) => (searchBoxRef.current = ref)}
-          onPlaceChanged={onPlacesChanged}
-          options={{
-            componentRestrictions: {
-              country: 'KH' // only search places in Cambodia
-            }
+        <input
+          ref={inputBoxRef}
+          disabled={disableInteraction}
+          type='text'
+          placeholder='Search for a location'
+          className='bg-slate-100 text-secondary rounded disabled:bg-slate-200'
+          style={{
+            boxSizing: 'border-box',
+            border: '1px solid transparent',
+            width: '260px',
+            height: '45px',
+            padding: '0 12px',
+            borderRadius: '3px',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+            fontSize: '14px',
+            outline: 'none',
+            textOverflow: 'ellipses',
+            position: 'absolute',
+            top: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999
           }}
-          
-        >
-          <input
-            ref={inputBoxRef}
-            disabled={disableInteraction}
-            type='text'
-            placeholder='Search for a location'
-            className='bg-slate-100 text-secondary rounded disabled:bg-slate-200'
-            style={{
-              boxSizing: 'border-box',
-              border: '1px solid transparent',
-              width: '260px',
-              height: '45px',
-              padding: '0 12px',
-              borderRadius: '3px',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
-              fontSize: '14px',
-              outline: 'none',
-              textOverflow: 'ellipses',
-              position: 'absolute',
-              top: '10px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 9999
-            }}
-          />
-        </Autocomplete>
-      </GoogleMap>
-    </LoadScript>
-  )
+        />
+      </Autocomplete>
+    </GoogleMap>
+  ) : ('Loading...')
 }
