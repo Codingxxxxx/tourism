@@ -5,7 +5,7 @@ export const MetaColumns: GridColDef[] = [
   {
     field: '',
     headerName: 'Created By',
-    renderCell: ({ _, row }) => {
+    renderCell: ({ row }) => {
       if ('createdBy' in row) return row.createdBy;
       if ('user' in row) return row.user.username;
       return 'N/A';
