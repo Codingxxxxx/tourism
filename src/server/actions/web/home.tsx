@@ -64,3 +64,17 @@ export async function getListingBySubCategoryId(subCategoryId: string): Promise<
     success: isOk
   })
 }
+
+export async function getDestinationDetails(destinationId: string): Promise<ServerResponse<Destination>> {
+  const { data, isOk, message } = await HttpClient.request<Destination>({
+    method: 'GET',
+    url: ApiEndpont.WEB_LISTING_DESTINATION_DETAILS + '/' + destinationId,
+    forWeb: true
+  });
+
+  return buildResponse<Destination>({
+    data,
+    success: isOk,
+    message
+  });
+}

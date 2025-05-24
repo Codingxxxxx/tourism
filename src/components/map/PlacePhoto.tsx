@@ -15,7 +15,6 @@ export default function PlacePhoto(props: PlacePhotoProps) {
   const [enablePagination, setEnablePagination] = useState(true);
 
   useEffect(() => {
-    console.log(props.photos.length)
     if (props.photos.length == 1) {
       setLoop(false);
       setEnablePagination(false);
