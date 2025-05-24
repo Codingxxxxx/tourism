@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { useApiHandlerStore } from '@/stores/useApiHandlerStore';
 import { getSessionData } from '@/server/actions/session';
+import { DialogsProvider } from '@toolpad/core';
 
 const NAVIGATION: Navigation = [
   {
@@ -94,7 +95,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <Suspense fallback={<LinearProgress />}>
       <NextAppProvider navigation={NAVIGATION} branding={branding} session={session} authentication={authentication}>
         <DashboardLayout > 
-            {children}
+            <DialogsProvider>
+              {children}
+            </DialogsProvider>
         </DashboardLayout>
         {/* backdrop */}
         <Backdrop

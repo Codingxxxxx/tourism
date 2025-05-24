@@ -1,9 +1,9 @@
 import { type ServerResponse } from '@/shared/types/serverActions';
 import { useApiHandlerStore } from '@/stores/useApiHandlerStore';
 
-export async function handleServerAction(
+export async function handleServerAction<T = any>(
   action: () => Promise<ServerResponse>
-): Promise<ServerResponse> {
+): Promise<ServerResponse<T>> {
   const res = await action();
   
   if (res.isUnauthorized) {

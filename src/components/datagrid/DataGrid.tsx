@@ -2,7 +2,14 @@ import { DataGridProps, DataGrid as Datatable, type GridColDef } from '@mui/x-da
 import { Paper } from '@mui/material'
 
 export function withDefaultFlex(columns: readonly GridColDef<any>[]): GridColDef<any>[] {
-  return columns.map(col => ({ ...col, flex: col.flex ?? 1 }));
+  return columns.map(col => ({ 
+    ...col, 
+    flex: col.flex ?? 1, 
+    hideable: false, 
+    sortable: false, 
+    filterable: false ,
+    disableColumnMenu: true
+  }));
 }
 
 type Props = {

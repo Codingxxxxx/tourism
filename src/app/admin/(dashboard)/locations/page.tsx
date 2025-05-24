@@ -1,29 +1,21 @@
 'use client';
 import DashboardContainer from "@/components/dashboard/DashboardContainer";
-import { Box, Button } from '@mui/material'
+import { Box, Button, responsiveFontSizes } from '@mui/material'
 import { AddCircleOutline } from '@mui/icons-material';
 import { type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
 import Link from 'next/link';
 import DataGrid from '@/components/datagrid/DataGrid';
 import { MetaColumns } from '@/components/datagrid/defaultColumns';
-import { getLocations } from "@/server/actions/location";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { deleteLocation, getLocations } from "@/server/actions/location";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { PaginatedLocations } from "@/shared/types/serverActions";
 import { getPageOffset } from '@/shared/utils/paginationUtils';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { withServerHandler } from "@/shared/utils/apiUtils";
-
-const columns: GridColDef[] = [
-  {
-    field: 'name',
-    headerName: 'Location Name'
-  },
-  {
-    field: 'remark',
-    headerName: 'Description'
-  },
-  ...MetaColumns
-]
+import { handleServerAction, withServerHandler } from "@/shared/utils/apiUtils";
+import EditButton from '@/components/datagrid/ButtonEdit';
+import DeleteButton from '@/components/datagrid/ButtonDelete';
+import { CustomBackdrop } from '@/components/Backdrop';
+import Toast from '@/components/form/Toast';
 
 export default function PageCategory() {
   const initialState: ServerResponse<PaginatedLocations> = {
@@ -41,6 +33,8 @@ export default function PageCategory() {
   });
 
   const [stat, action, isPending] = useActionState(withServerHandler(getLocations), initialState);
+  const [isPendingDelete, startTransition] = useTransition();
+  const [serverResponse, setServerResponse] = useState<ServerResponse | null>(null);
 
   useEffect(() => {
     startTransition(() => {
@@ -51,6 +45,47 @@ export default function PageCategory() {
       });
     });
   }, [paginationModel]);
+
+  const onConfirmedDelete = (id: number) => {
+    startTransition(async () => {
+      setServerResponse(null);
+      const response = await handleServerAction(() => deleteLocation(id));
+      setServerResponse(response);
+
+      // refresh datatable
+      if (response.success) {
+        setPaginationModel({
+          pageSize: 10,
+          page: 0
+        })
+      }
+    })
+  }
+
+  const columns: GridColDef[] = [
+    {
+      field: 'name',
+      headerName: 'Location Name'
+    },
+    {
+      field: 'remark',
+      headerName: 'Description'
+    },
+    ...MetaColumns,
+    {
+      field: 'id',
+      headerName: 'Action',
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: ({ value }) => {
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 0.5  }}>
+            <EditButton href={`locations/edit/${value}`} LinkComponent={Link} />
+            <DeleteButton onConfirmed={() => onConfirmedDelete(value)}  />
+          </Box>
+        )
+    }
+  }];
 
   return (
     <DashboardContainer>
@@ -69,6 +104,8 @@ export default function PageCategory() {
           onPaginationModelChange={setPaginationModel}
         />
       </Box>
+      <CustomBackdrop open={isPendingDelete} />
+      <Toast open={serverResponse != null} success={serverResponse?.success} message={serverResponse?.message} />
     </DashboardContainer>
   )
 } 
