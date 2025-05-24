@@ -142,7 +142,6 @@ export default function PageCategory() {
           new destination
         </Button>
         <DataGrid
-          autoResize={false}
           columns={columns} 
           rows={stat.data?.destinations}
           paginationMode='server'
