@@ -43,3 +43,16 @@ export async function getDestinations(state: any, payload: PaginationParamters):
     }
   });
 }
+
+export async function deleteDestinationById(id: string): Promise<ServerResponse> {
+  const { message, isOk, unauthorized } = await HttpClient.request({
+    url: ApiEndpont.DESTINATION_RESOURCE + '/' + id,
+    method: 'DELETE'
+  });
+
+  return buildResponse({
+    isUnauthorized: unauthorized,
+    message: isOk ? 'Record has been deleted' : message,
+    success: isOk
+  });
+}
