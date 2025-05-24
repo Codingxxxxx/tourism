@@ -62,9 +62,9 @@ export default function Home() {
 
           {/* Right Side Grid (Smaller Cards) */}
           <div className="flex-1 pl-[.125rem] overflow-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[.125rem] h-full">
+            <div className="grid grid-rows-auto  grid-cols-1 md:grid-cols-3 gap-[.125rem]">
                 {serverResponse?.data?.categories.filter(category => !category.isFront).map((category, idx) => (
-                  <Link key={idx} href={`/category/${encodeURIComponent(category.name)}`}>
+                  <Link key={idx} href={`/category/${encodeURIComponent(category.name)}/${category.id}`}>
                     <Box sx={{ position: 'relative' }}>
                       <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
                         <Image 
@@ -75,7 +75,7 @@ export default function Home() {
                           onError={evt => evt.currentTarget.src = NO_IMAGE}
                         />
                       </div>
-                      <h3 className="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md" dangerouslySetInnerHTML={{ __html: category.name.replace('\n', '<br>') }}></h3>
+                      <h3 className="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md" dangerouslySetInnerHTML={{ __html: category.name.replace(/\n/g, '<br>') }}></h3>
                     </Box>
                   </Link>
                 ))}
