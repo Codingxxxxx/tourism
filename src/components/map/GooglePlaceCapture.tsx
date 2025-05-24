@@ -1,20 +1,21 @@
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
-import { GoogleMap, LoadScript, Marker, Autocomplete } from '@react-google-maps/api';
-import { useEffect, useRef, useState } from 'react';
+import { GoogleMap, LoadScript, Marker, Autocomplete, useJsApiLoader, Libraries } from '@react-google-maps/api';
+import { useEffect, useRef, useState, useTransition } from 'react';
 
 type Props = {
   onCaptured?: (event:  google.maps.MapMouseEvent) => void,
   apiKey: string,
   disableInteraction: boolean,
-  resetState: boolean
+  resetState: boolean,
+  initialMarkers?: SelectedCoordinate | null
 }
 
 export type MapEvent =  {
   placeId?: string
 } & google.maps.MapMouseEvent
 
-type SelectedCoordinate = {
+export type SelectedCoordinate = {
   lat: number,
   lng: number,
   placeId?: string
@@ -32,6 +33,7 @@ const defaultCenterMap = {
 };
 
 const DEFAULT_ZOOM = 10;
+const libraries: Libraries = ['places'];
 
 // query place id by lat and lng
 function getPlaceId(lat: number, lng: number): Promise<string> {
@@ -51,7 +53,13 @@ function getPlaceId(lat: number, lng: number): Promise<string> {
 };
 
 
-export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, ...props }: Props) {
+export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, initialMarkers = null,  ...props }: Props) {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: props.apiKey,
+    libraries: libraries
+  })
+
   const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate>();
   const searchBoxRef = useRef<google.maps.places.Autocomplete | null>(null); // Ref for search box
   const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
@@ -59,11 +67,23 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
   const setCapturedPlaceDetails = useGoogleMapCaptureStore((state) => state.setCapturedPlaceDetails);
   const [googleMap, setGoogleMap] = useState<google.maps.Map>();
   const [googleMapOptions, setGoogleMapOptions] = useState<google.maps.MapOptions>();
+  const inputBoxRef = useRef<HTMLInputElement>(null);
+  const [_, startTransition] = useTransition();
 
-  function onMapLoaded(map: google.maps.Map) {
+  async function onMapLoaded(map: google.maps.Map) {
     const service = new window.google.maps.places.PlacesService(map);
     setPlaceService(service);
     setGoogleMap(map);
+    
+    if (!initialMarkers) return;
+    setSelectedCoordinate(initialMarkers);
+    const placeDetails = await getMarker({
+      latLng: {
+        lat: initialMarkers.lat,
+        lng: initialMarkers.lng
+      },
+      placeId: initialMarkers.placeId ?? ''
+    }, service);
   }
 
   async function onMapClick(event: MapEvent) {
@@ -92,6 +112,23 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
     }
   }
 
+  useEffect(() => {
+    if (!initialMarkers || !placeService) return;
+    startTransition(async () => {
+      const placeDetails = await getMarker({
+        latLng: {
+          lat: initialMarkers.lat,
+          lng: initialMarkers.lng
+        },
+        placeId: initialMarkers.placeId ?? ''
+      }, placeService);
+
+      if (!inputBoxRef.current) return;
+      inputBoxRef.current.value = placeDetails.placeName ?? '';
+      setSelectedCoordinate(initialMarkers);
+    });
+  }, [initialMarkers, placeService])
+
   // handle on user clicked on any location
   useEffect(() => {
     if (!selectedCoordinate || !placeService) return;
@@ -112,6 +149,10 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
       setCapturedPlaceDetails(placeDetails);
       googleMap?.setZoom(15);
       googleMap?.panTo(selectedCoordinate);
+
+      if (!inputBoxRef.current) return;
+
+      inputBoxRef.current.value = placeDetails.placeName ?? '';
     };
 
     captureLocation();
@@ -134,61 +175,57 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
     })
   }, [disableInteraction]);
 
-  return (
-    <LoadScript 
-      googleMapsApiKey={props.apiKey}
-      libraries={['places']}
+  return isLoaded ? (
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      zoom={DEFAULT_ZOOM}
+      center={defaultCenterMap}
+      onClick={onMapClick}
+      onLoad={onMapLoaded}
+      options={googleMapOptions}
     >
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        zoom={DEFAULT_ZOOM}
-        center={defaultCenterMap}
-        onClick={onMapClick}
-        onLoad={onMapLoaded}
-        options={googleMapOptions}
+      {selectedCoordinate &&
+        <Marker 
+          animation={window.google.maps.Animation.DROP} 
+          position={selectedCoordinate} 
+          key={`${selectedCoordinate.lat}-${selectedCoordinate.lng}`}
+        />
+      }
+      <Autocomplete
+        onLoad={(ref) => (searchBoxRef.current = ref)}
+        onPlaceChanged={onPlacesChanged}
+        options={{
+          componentRestrictions: {
+            country: 'KH' // only search places in Cambodia
+          }
+        }}
+        
       >
-        {selectedCoordinate &&
-          <Marker 
-            animation={window.google.maps.Animation.DROP} 
-            position={selectedCoordinate} 
-            key={`${selectedCoordinate.lat}-${selectedCoordinate.lng}`}
-          />
-        }
-        <Autocomplete
-          onLoad={(ref) => (searchBoxRef.current = ref)}
-          onPlaceChanged={onPlacesChanged}
-          options={{
-            componentRestrictions: {
-              country: 'KH' // only search places in Cambodia
-            }
+        <input
+          ref={inputBoxRef}
+          disabled={disableInteraction}
+          type='text'
+          placeholder='Search for a location'
+          className='bg-slate-100 text-secondary rounded disabled:bg-slate-200'
+          style={{
+            boxSizing: 'border-box',
+            border: '1px solid transparent',
+            width: '260px',
+            height: '45px',
+            padding: '0 12px',
+            borderRadius: '3px',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+            fontSize: '14px',
+            outline: 'none',
+            textOverflow: 'ellipses',
+            position: 'absolute',
+            top: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999
           }}
-          
-        >
-          <input
-            disabled={disableInteraction}
-            type='text'
-            placeholder='Search for a location'
-            className='bg-slate-100 text-secondary rounded disabled:bg-slate-200'
-            style={{
-              boxSizing: 'border-box',
-              border: '1px solid transparent',
-              width: '260px',
-              height: '45px',
-              padding: '0 12px',
-              borderRadius: '3px',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
-              fontSize: '14px',
-              outline: 'none',
-              textOverflow: 'ellipses',
-              position: 'absolute',
-              top: '10px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 9999
-            }}
-          />
-        </Autocomplete>
-      </GoogleMap>
-    </LoadScript>
-  )
+        />
+      </Autocomplete>
+    </GoogleMap>
+  ) : ('Loading...')
 }

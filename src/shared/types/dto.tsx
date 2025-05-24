@@ -41,7 +41,8 @@ export type Destination = Meta & {
   contactNumber?: string,
   isPopular: number,
   ratingScore: number,
-  categories: Category[]
+  categories: Category[],
+  location: Location
 }
 
 export type PaginationMeta = {
@@ -99,6 +100,14 @@ export type FormCreateUser = {
   lastName: string,
   username: string,
   password: string,
+  email: string,
+  roleIds: number[]
+}
+
+export type FormUpdateUser = {
+  firstName: string,
+  lastName: string,
+  username: string,
   email: string,
   roleIds: number[]
 }

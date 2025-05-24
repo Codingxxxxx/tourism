@@ -8,18 +8,20 @@ import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { startTransition, useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import Toast from '@/components/form/Toast';
 import CustomDropdown from '@/components/form/CustomDropdown';
 import CustomGroupDropdown, { type MultiItems }  from '@/components/form/CustomGroupDropdown';
 import { getLocationList } from '@/server/actions/location';
-import { type Category, type Location } from '@/shared/types/dto';
+import { Destination, type Category, type Location } from '@/shared/types/dto';
 import { getAllCategories } from '@/server/actions/category';
 import { handleServerAction, withServerHandler } from '@/shared/utils/apiUtils';
-import GooglePlaceCapture from '@/components/map/GooglePlaceCapture';
+import GooglePlaceCapture, { SelectedCoordinate } from '@/components/map/GooglePlaceCapture';
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { ArrowBack, AddLocation } from '@mui/icons-material';
-import { createDestination } from '@/server/actions/destination';
+import { createDestination, getDestinationDetails, updateDestination } from '@/server/actions/destination';
+import { useParams, useRouter } from 'next/navigation';
+import { CustomBackdrop } from '@/components/Backdrop';
 
 type FormDestination = {
   categories: number[],
@@ -28,7 +30,7 @@ type FormDestination = {
 
 const validationSchema = Yub.object({
   categories: Yub.array().of(Yub.number().required()).min(1, 'At least one category is required').strict().label('Categories'),
-  location: Yub.number().required().label('Location')
+  location: Yub.number().required().label('Location').test('not-zero', '${label} is required', value => value !== 0 && value !== null)
 });
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -43,36 +45,59 @@ const breadcrumbs: Breadcrumb[] = [
     path: '/admin/destinations'
   },
   {
-    title: 'New Destination',
-    path: '/admin/destination/new'
+    title: 'Edit Destination',
+    path: '/admin/destination/edit'
   }
 ];
 
+type PageParams = {
+  id: string
+}
+
 export default function Page() {
+  const params = useParams<PageParams>();
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
   const [locations, setLocations] = useState<Location[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeStep, setActiveStep] = useState(0);
   const capturedPlaceDetails = useGoogleMapCaptureStore((state) => state.capturedPlaceDetails);
   const [disableMap, setDisableMap] = useState(false);
-  const { resetForm } = useFormikContext() ?? {};
+  const router = useRouter();
   const [resetMap, setResetMap] = useState(false);
+  const [destination, setDestination] = useState<Destination | null>();
+  const [isPending, startTransition] = useTransition();
+  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate | null>(null);
 
   const [initialInputValues, setInitialInputValues] = useState<FormDestination>({
     categories: [],
-    location: null
+    location: 0
   });
 
   useEffect(() => {
-    (async () => {
-      const [locationResult, categoryResult] = await Promise.all([
+    startTransition(async () => {
+      const [locationResult, categoryResult, destinationResult] = await Promise.all([
         handleServerAction(getLocationList),
-        handleServerAction(getAllCategories)
+        handleServerAction(getAllCategories),
+        handleServerAction<Destination>(() => getDestinationDetails(params.id))
       ]);
-      
+
+      const destination = destinationResult.data as Destination;
+
       setLocations(locationResult.data ?? []);
       setCategories(categoryResult.data ?? []);
-    })();
+      setDestination(destination)
+      
+      setInitialInputValues({
+        categories: destination.categories.map(cate => cate.id),
+        location: destination.location.id as number
+      });
+
+      setSelectedCoordinate({
+        lat: destination.latitude,
+        lng: destination.longitude,
+        placeId: destination.placeId
+      })
+    });
   }, []);
   
   const onFormSubmit = async (values: FormDestination): Promise<void> => {
@@ -84,7 +109,7 @@ export default function Page() {
     setDisableMap(true);
     setServerResponse(null);
 
-    const responseState = await handleServerAction(() => createDestination({
+    const responseState = await handleServerAction(() => updateDestination({
       name: capturedPlaceDetails?.placeName ?? 'N/A',
       categoryIds: initialInputValues.categories,
       locationId: initialInputValues.location ?? 0,
@@ -100,24 +125,17 @@ export default function Page() {
       email: '',
       isPopular: 1,
       status: 1
-    }));
+    }, String(destination?.id)));
 
     setDisableMap(false);
     setServerResponse(responseState);
 
-    if (responseState.success) {
-      setInitialInputValues({
-        categories: [],
-        location: null
-      });
-      setActiveStep(0);
-      resetForm();
-      setResetMap(true);
-    }
+    if (!responseState.success) return;
+    router.push('/admin/destinations')
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Create New Destination'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Destination'>
       <Stepper sx={{ paddingBottom: 5 }} activeStep={activeStep}>
         <Step>
           <StepLabel>Setup Destination information</StepLabel>
@@ -127,8 +145,8 @@ export default function Page() {
         </Step>
       </Stepper>
       {activeStep === 0 && 
-        <Formik initialValues={initialInputValues} onSubmit={onFormSubmit} validationSchema={validationSchema}>
-          {({ values }) => (
+        <Formik initialValues={initialInputValues} onSubmit={onFormSubmit} validationSchema={validationSchema} enableReinitialize>
+          {() => (
             <Form>
               <Grid container spacing={2} width={600} maxWidth='100%' marginX='auto' marginTop={4}>
                 {/* locations */}
@@ -187,13 +205,18 @@ export default function Page() {
           </Button>
         </Box>
         <Box>
-          <GooglePlaceCapture key={'create'} apiKey={GOOGLE_MAP_KEY ?? ''} disableInteraction={disableMap} resetState={resetMap} />
+          <GooglePlaceCapture
+            key={'edit'} 
+            apiKey={GOOGLE_MAP_KEY ?? ''} 
+            disableInteraction={disableMap} 
+            resetState={resetMap} 
+            initialMarkers={selectedCoordinate}
+          />
         </Box>
       </Box>
       {/* alert */}
-      {serverResponse && 
-        <Toast success={serverResponse.success || false} message={serverResponse.message} />
-      }
+      {serverResponse && <Toast success={serverResponse.success} message={serverResponse.message} />}
+      <CustomBackdrop open={isPending} />
     </DashboardContainer>
   )
 }

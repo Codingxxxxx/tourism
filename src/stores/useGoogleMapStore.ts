@@ -15,7 +15,8 @@ export type PlaceDetails = {
   placeIcon?: string,
   geometry?: google.maps.places.PlaceGeometry,
   website?: string,
-  placeId: string
+  placeId: string,
+  formattedAddress?: string
 }
 
 type GoogleMapStore = {
@@ -47,6 +48,7 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
           'user_ratings_total',
           'geometry',
           'website',
+          'formatted_address'
         ]
       };
       placeService.getDetails(reqPayload, (result, status) => {
@@ -64,7 +66,8 @@ export const useGoogleMapStore = create<GoogleMapStore>((set, get) => ({
           totalRating: result?.user_ratings_total,
           geometry: result?.geometry,
           placeId: marker.placeId,
-          website: result?.website
+          website: result?.website,
+          formattedAddress: result?.formatted_address
         })
       });
 

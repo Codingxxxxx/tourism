@@ -9,7 +9,7 @@ type Props = {
   onCancelledDelete?: () => void
 }
 
-export function ButtonAction({ editFormLink, onConfirmDelete, onCancelledDelete }: Props) {
+export default function ButtonAction({ editFormLink, onConfirmDelete, onCancelledDelete }: Props) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 1  }}>
       <ButtonEdit href={editFormLink} LinkComponent={Link} />
