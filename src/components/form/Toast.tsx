@@ -19,7 +19,7 @@ export default function Toast({ success = false, message,  ...props }: Props) {
       open={open}
       slots={{ transition: SlideTransition }}
       key={SlideTransition.name}
-      autoHideDuration={10000}
+      autoHideDuration={5000}
       onClose={() => setOpen(false)}
       anchorOrigin={{
         vertical: 'top',

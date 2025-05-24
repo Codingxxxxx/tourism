@@ -44,6 +44,24 @@ export async function createLocation(payload: FormCreateLocation): Promise<Serve
   })
 }
 
+export async function editLocation(payload: FormCreateLocation, id: number): Promise<ServerResponse> {
+  const { isOk, unauthorized, message } = await HttpClient.request({
+    method: 'PUT',
+    url: ApiEndpont.LOCATOIN_EDIT + '/' + id,
+    data: payload
+  });
+
+  if (!isOk) return buildResponse({
+    isUnauthorized: unauthorized,
+    message
+  })
+
+  return buildResponse({
+    success: true,
+    message: 'Location is updated'
+  })
+}
+
 export async function getLocationList(): Promise<ServerResponse<Location[]>> {
   const { isOk, unauthorized, data, message } = await HttpClient.request({
     method: 'GET',
@@ -60,4 +78,31 @@ export async function getLocationList(): Promise<ServerResponse<Location[]>> {
     data,
     success: true
   })  
+}
+
+export async function getLocationById(id: string): Promise<ServerResponse<Location>> {
+  const { isOk, message, unauthorized, data } = await HttpClient.request<Location>({
+    method: 'GET',
+    url: ApiEndpont.LOCATION_BY_ID + '/' + id  
+  });
+
+  return buildResponse<Location>({
+    isUnauthorized: unauthorized,
+    success: isOk,
+    data,
+    message
+  })
+} 
+
+export async function deleteLocation(id: number): Promise<ServerResponse> {
+  const { isOk, unauthorized, message } = await HttpClient.request({
+    method: 'DELETE',
+    url: ApiEndpont.LOCATION_DELETE + '/' + id
+  });
+
+  return buildResponse({
+    isUnauthorized: unauthorized,
+     success: isOk,
+     message: isOk ? 'Record has been deleted!' : message
+  })
 }

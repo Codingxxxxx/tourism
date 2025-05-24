@@ -18,7 +18,7 @@ export type ApiResponse<T = any> = {
 
 export type ApiRequestOptions = {
   url: string,
-  method: 'GET' | 'POST' | 'DELETE' | 'UPDATE',
+  method: 'GET' | 'POST' | 'DELETE' | 'PUT',
   data?: Record<string, any> | FormData | null,
   forWeb?: boolean
 }
