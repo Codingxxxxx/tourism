@@ -9,11 +9,10 @@ export type MultiItems = {
 
 type DropDownProps = SelectProps & {
   items: MultiItems[],
-  defaultSelectValue?: string | number,
   required?: boolean
 }
 
-export default function CustomGroupDropdown ({ required = false, items, name, label, defaultSelectValue, ...props }: DropDownProps) {
+export default function CustomGroupDropdown ({ required = false, items, name, label, ...props }: DropDownProps) {
   const [field, meta] = useField(name);
   const error = Boolean(meta.touched && meta.error);
 

@@ -41,7 +41,8 @@ export type Destination = Meta & {
   contactNumber?: string,
   isPopular: number,
   ratingScore: number,
-  categories: Category[]
+  categories: Category[],
+  location: Location
 }
 
 export type PaginationMeta = {

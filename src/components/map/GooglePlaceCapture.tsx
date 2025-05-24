@@ -7,7 +7,8 @@ type Props = {
   onCaptured?: (event:  google.maps.MapMouseEvent) => void,
   apiKey: string,
   disableInteraction: boolean,
-  resetState: boolean
+  resetState: boolean,
+  initialMarkers: SelectedCoordinate | null
 }
 
 export type MapEvent =  {
@@ -51,19 +52,33 @@ function getPlaceId(lat: number, lng: number): Promise<string> {
 };
 
 
-export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, ...props }: Props) {
-  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate>();
+export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, initialMarkers = null,  ...props }: Props) {
+  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate | null>();
   const searchBoxRef = useRef<google.maps.places.Autocomplete | null>(null); // Ref for search box
   const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
   const getMarker = useGoogleMapStore((state) => state.getMarker);
   const setCapturedPlaceDetails = useGoogleMapCaptureStore((state) => state.setCapturedPlaceDetails);
   const [googleMap, setGoogleMap] = useState<google.maps.Map>();
   const [googleMapOptions, setGoogleMapOptions] = useState<google.maps.MapOptions>();
+  const inputBoxRef = useRef<HTMLInputElement>(null);
 
-  function onMapLoaded(map: google.maps.Map) {
+  async function onMapLoaded(map: google.maps.Map) {
     const service = new window.google.maps.places.PlacesService(map);
     setPlaceService(service);
     setGoogleMap(map);
+    
+    if (!initialMarkers) return;
+    setSelectedCoordinate(initialMarkers);
+    const placeDetails = await getMarker({
+      latLng: {
+        lat: initialMarkers.lat,
+        lng: initialMarkers.lng
+      },
+      placeId: initialMarkers.placeId ?? ''
+    }, service);
+
+    if (!inputBoxRef.current) return;
+    inputBoxRef.current.value = placeDetails.placeName as string;
   }
 
   async function onMapClick(event: MapEvent) {
@@ -112,6 +127,10 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
       setCapturedPlaceDetails(placeDetails);
       googleMap?.setZoom(15);
       googleMap?.panTo(selectedCoordinate);
+
+      if (!inputBoxRef.current) return;
+
+      inputBoxRef.current.value = placeDetails.placeName ?? '';
     };
 
     captureLocation();
@@ -165,6 +184,7 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
           
         >
           <input
+            ref={inputBoxRef}
             disabled={disableInteraction}
             type='text'
             placeholder='Search for a location'
