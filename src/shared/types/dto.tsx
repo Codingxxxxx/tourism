@@ -104,6 +104,14 @@ export type FormCreateUser = {
   roleIds: number[]
 }
 
+export type FormUpdateUser = {
+  firstName: string,
+  lastName: string,
+  username: string,
+  email: string,
+  roleIds: number[]
+}
+
 export type Role = {
   id: number,
   name: string

@@ -20,6 +20,7 @@ export const ApiEndpont = {
   DESTINATION_RESOURCE: '/listing',
   USER_LIST: '/users',
   USER_CREATE: '/users',
+  USER_RESOURCE: '/users',
   WEB_LISTING_CATEGORY: '/category',
   WEB_LISTING_SUB_CATEGORY: '/category/child',
   WEB_LISTING_DESTINATION: '/listing/cat',
