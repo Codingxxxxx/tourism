@@ -99,7 +99,7 @@ export default function PageCategory() {
           rows={stat.data?.locations}
           paginationMode='server'
           rowCount={stat.data?.meta?.total} 
-          loading={isPending} 
+          loading={false} 
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
         />

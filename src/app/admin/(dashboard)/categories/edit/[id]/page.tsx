@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Button, Grid2 as Grid } from '@mui/material';
+import { Backdrop, Button, Grid2 as Grid } from '@mui/material';
 import { Formik, Form, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
@@ -8,23 +8,31 @@ import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import CustomCheckBox from '@/components/form/CustomCheckBox';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
-import FileInput from '@/components/form/FileInput';
+import FileInput, { type FileObject } from '@/components/form/FileInput';
 import { yupFiles } from '@/shared/yubAddons';
 import { uploadImage } from '@/server/actions/upload';
-import { createCategory, getAllCategories, getCategories } from '@/server/actions/category';
+import { updateCategoryById, getAllCategories, getCategoryById } from '@/server/actions/category';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Category } from '@/shared/types/dto';
 import CustomDropdown from '@/components/form/CustomDropdown';
 import Toast from '@/components/form/Toast';
 import { handleServerAction } from '@/shared/utils/apiUtils';
+import { useParams } from 'next/navigation';
+import { CustomBackdrop } from '@/components/Backdrop';
+import { getImagePath } from '@/shared/utils/fileUtils';
+import { useRouter } from 'next/navigation';
 
 type FormCategoryStats = {
   categoryName: string
-  image: File[],
+  image: FileObject[],
   isEmbedVideo: boolean,
   video: string,
-  parent?: number
+  parent: number | null
+}
+
+type PageParams = {
+  id: string
 }
 
 const validationSchema = Yub.object({
@@ -51,8 +59,12 @@ const validationSchema = Yub.object({
 });
 
 export default function Page() {
+  const router = useRouter();
+  const params = useParams<PageParams>();
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [category, setCategory] = useState<Category>();
+  const [isPending, startTransition] = useTransition();
 
   const breadcrumbs: Breadcrumb[] = [
     {
@@ -64,24 +76,51 @@ export default function Page() {
       path: '/admin/categories'
     },
     {
-      title: 'New Category',
-      path: '/admin/categories/new'
+      title: 'Edit Category',
+      path: '/admin/categories/edit'
     }
   ];
 
-  const initialInputValues: FormCategoryStats = {
-      categoryName: '',
-      image: [],
-      isEmbedVideo: false,
-      video: '',
-      parent: 0
-    };
+  const [initialInputValues, setInitialInputValuess] = useState<FormCategoryStats>({
+    categoryName: '',
+    image: [],
+    isEmbedVideo: false,
+    video: '',
+    parent: 0
+  });
 
   useEffect(() => {
-    (async () => {
-      const { data } = await handleServerAction(() => getAllCategories());
-      setCategories(data || [])
-    })();
+    startTransition(async () => {
+      const [responseCategory, responseCategoryDetails] = await Promise.all([
+        handleServerAction<Category[]>(() => getAllCategories()),
+        handleServerAction<Category>(() =>getCategoryById(params.id))
+      ]);
+
+      if (!responseCategory.success) return setServerResponse(responseCategory);
+      if (!responseCategoryDetails.success) return setServerResponse(responseCategoryDetails);
+
+      const categories = responseCategory.data ?? [];
+      const category = responseCategoryDetails.data as Category;
+
+      setCategories(categories)
+      setCategory(category);
+
+      const isVideo = Boolean(category.video);
+      const image: FileObject = {
+        filename: '',
+        size: 0,
+        mimetype: 'image/jpg',
+        url: getImagePath(category.photo)
+      }
+
+      setInitialInputValuess({
+        categoryName: category.name,
+        image: isVideo ? [] : [image],
+        isEmbedVideo: isVideo,
+        parent: category.parentId,
+        video: category.video ?? ''
+      });
+    });
   }, []);
   
   const onFormSubmit = async (values: FormCategoryStats, helper: FormikHelpers<FormCategoryStats>): Promise<void> => {
@@ -90,26 +129,34 @@ export default function Page() {
       let sourceUrl = ''; // can be image url or video url
 
       if (!values.isEmbedVideo) {
-        // upload image
-        const formData = new FormData();
-        const file = values.image[0];
-        formData.set('file', file, file.name);
-        const result = await uploadImage(formData);
-        sourceUrl = result?.data?.url
+        // if user didn't select new file, then just use existing url
+
+        if (getImagePath(category?.photo ?? '') === values.image[0].url) {
+          sourceUrl = category?.photo as string
+        } else {
+          // upload image
+          const formData = new FormData();
+          const file = values.image[0].file as File;
+          formData.set('file', file, file.name);
+          const result = await uploadImage(formData);
+          sourceUrl = result?.data?.url
+        }
       } else {
         sourceUrl = values.video
       }
 
-      // create category
+      // update category
       const serverResponse = await handleServerAction(() => 
-        createCategory({
+        updateCategoryById({
           name: values.categoryName,
           nameKH: values.categoryName,
-          photo: values.isEmbedVideo ? undefined : sourceUrl,
-          video: values.isEmbedVideo ? sourceUrl : undefined,
-          parentId: Number(values.parent ?? 0)
-        })
+          photo: values.isEmbedVideo ? '' : sourceUrl,
+          video: values.isEmbedVideo ? sourceUrl : '',
+          parentId: values.parent ?? 0
+        }, String(category?.id))
       );
+
+      if (serverResponse.success) return router.push('/admin/categories');
 
       setServerResponse(serverResponse);
 
@@ -124,8 +171,8 @@ export default function Page() {
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Create New Category'>
-      <Formik initialValues={initialInputValues} onSubmit={onFormSubmit} validationSchema={validationSchema}>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Category'>
+      <Formik initialValues={initialInputValues} onSubmit={onFormSubmit} validationSchema={validationSchema} enableReinitialize>
         {({ isSubmitting, values }) => (
           <Form>
             <Grid container spacing={2} width={600} maxWidth='100%' marginX='auto' marginTop={4}>
@@ -149,7 +196,8 @@ export default function Page() {
                     label='Parent Category'
                     name='parent'
                     items={categories.map(category => ({ text: category.name, value: category.id }))}
-                    
+                    defaultSelectValue={category?.parentId ?? 0}
+                    datatype='number'
                   />
                   <CustomErrorMessage name='parent' />
                 </FormGroup>
@@ -203,9 +251,8 @@ export default function Page() {
         )}
       </Formik>
       {/* alert */}
-      {serverResponse && 
-        <Toast success={serverResponse.success || false} message={serverResponse.message} />
-      }
+      {serverResponse && <Toast success={serverResponse.success || false} message={serverResponse.message} />}
+      <CustomBackdrop open={isPending} />
     </DashboardContainer>
   )
 }

@@ -72,3 +72,44 @@ export async function getAllCategories(): Promise<ServerResponse> {
     data
   });
 }
+
+export async function getCategoryById(id: string): Promise<ServerResponse<Category>> {
+  const { isOk, message, data, unauthorized } = await HttpClient.request({
+    method: 'GET',
+    url: ApiEndpont.CATEGORY_RESOURCE + '/' + id
+  });
+
+  return buildResponse<Category>({
+    isUnauthorized: unauthorized,
+    success: isOk,
+    data,
+    message
+  })
+}
+
+export async function updateCategoryById(paylaod: FormCreateCateogry, id: string): Promise<ServerResponse> {
+  const { isOk, message, unauthorized } = await HttpClient.request({
+    method: 'PUT',
+    url: ApiEndpont.CATEGORY_RESOURCE + '/' + id,
+    data: paylaod
+  });
+
+  return buildResponse({
+    success: isOk,
+    isUnauthorized: unauthorized,
+    message: isOk ? 'Category has been updated!' : message
+  })
+}
+
+export async function deleteCategory(id: string) {
+  const { isOk, message, unauthorized } = await HttpClient.request({
+    method: 'DELETE',
+    url: ApiEndpont.CATEGORY_RESOURCE + '/' + id
+  });
+
+  return buildResponse({
+    isUnauthorized: unauthorized,
+    success: isOk,
+    message: isOk ? 'Record has been deleted' : message
+  })
+}

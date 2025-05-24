@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import { FormControl, InputLabel, MenuItem, Select, SelectProps } from '@mui/material';
+import { useState } from 'react';
 
 type Item = {
   value: string | number,
@@ -8,7 +9,7 @@ type Item = {
 
 type DropDownProps = SelectProps & {
   items: Item[],
-  defaultSelectValue?: string | number,
+  defaultSelectValue?: string | number | null,
   required?: boolean
 }
 
@@ -20,13 +21,15 @@ export default function CustomDropdown ({ required = false, items, name, label, 
     <FormControl>
       <InputLabel required={required} htmlFor={props.id}>{label}</InputLabel>
       <Select 
+        displayEmpty
         label={label}
-        {...field}
         {...props}
+        {...field}
         error={error}
         fullWidth
+        
         >
-          <MenuItem key={defaultSelectValue} value={defaultSelectValue} defaultValue={defaultSelectValue}>Please Select</MenuItem>
+          <MenuItem value={0}>Please Select</MenuItem>
           {items.map(item => <MenuItem key={item.value} value={item.value}>{item.text}</MenuItem>)}
         </Select>
     </FormControl>
