@@ -8,13 +8,24 @@ type Item = {
 
 type DropDownProps = SelectProps & {
   items: Item[],
-  defaultSelectValue?: string | number,
-  required?: boolean
+  defaultSelectValue?: string | number | null,
+  required?: boolean,
+  datatype: 'array' | 'number' | 'string'
 }
 
-export default function CustomDropdown ({ required = false, items, name, label, defaultSelectValue, ...props }: DropDownProps) {
+export default function CustomDropdown ({ required = false, items, name, label, defaultSelectValue, datatype = 'string', ...props }: DropDownProps) {
   const [field, meta] = useField(name);
   const error = Boolean(meta.touched && meta.error);
+  console.log(defaultSelectValue)
+  let defaultValueOption: any;
+
+  if (datatype == 'array') {
+    defaultValueOption = []
+  } else if (datatype == 'number') {
+    defaultValueOption = 0
+  } else {
+    defaultValueOption = '';
+  }
 
   return (
     <FormControl>
@@ -25,9 +36,10 @@ export default function CustomDropdown ({ required = false, items, name, label, 
         {...props}
         error={error}
         fullWidth
+        value={defaultSelectValue}
         >
-          <MenuItem key={defaultSelectValue} value={defaultSelectValue} defaultValue={defaultSelectValue}>Please Select</MenuItem>
-          {items.map(item => <MenuItem key={item.value} value={item.value}>{item.text}</MenuItem>)}
+          <MenuItem key={defaultValueOption} selected={defaultValueOption  === defaultSelectValue} value={defaultValueOption} defaultValue={defaultValueOption}>Please Select</MenuItem>
+          {items.map(item => <MenuItem key={item.value} selected={item.value === defaultSelectValue} value={item.value} defaultValue={item.value}>{item.text}</MenuItem>)}
         </Select>
     </FormControl>
   );

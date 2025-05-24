@@ -4,6 +4,7 @@ export function convertByteToMB(bytes: number) {
   return Number(bytes / 1048576).toFixed(1);
 }
 
-export function getImagePath(image_path: string) {
-    return SERVER_IMAGE + image_path;
+export function getImagePath(imageUrl: string) {
+  if (!imageUrl) return '';
+  return SERVER_IMAGE + imageUrl;
 }

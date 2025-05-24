@@ -57,14 +57,16 @@ export class HttpClient {
           method,
           body: JSON.stringify(data),
           headers,
-          mode: 'cors'
+          mode: 'cors',
+          signal: AbortSignal.timeout(10000)
         })
       } else {
         request = new Request(requestUrl, {
           method,
           body: data,
           headers,
-          mode: 'cors'
+          mode: 'cors',
+          signal: AbortSignal.timeout(10000)
         })
       }
       

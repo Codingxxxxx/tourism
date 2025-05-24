@@ -4,7 +4,8 @@ import { Paper } from '@mui/material'
 export function withDefaultFlex(columns: readonly GridColDef<any>[]): GridColDef<any>[] {
   return columns.map(col => ({ 
     ...col, 
-    flex: col.flex ?? 1, 
+    flex: col.width ? undefined : 1,
+    width: col.width ? col.width : undefined,
     hideable: false, 
     sortable: false, 
     filterable: false ,

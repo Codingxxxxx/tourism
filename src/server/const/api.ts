@@ -7,6 +7,7 @@ export const ApiEndpont = {
   CATEGORY_LIST: '/category',
   CATEGORY_CREATE: '/category',
   CATEGORY_ALL: '/category/list',
+  CATEGORY_RESOURCE: '/category',
   UPLOAD_IMAGE: '/upload/image',
   LOCATION_LIST: '/location',
   LOCATOIN_CREATE: '/location',
