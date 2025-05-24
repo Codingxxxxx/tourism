@@ -20,6 +20,7 @@ export default function DataGrid({ rows, columns, loading, ...props }: Props) {
   return (
     <Paper sx={{ width: '100%' }}>
       <Datatable
+        style={{ minHeight: 360 }}
         loading={loading}
         rows={rows}
         columns={withDefaultFlex(columns)}
