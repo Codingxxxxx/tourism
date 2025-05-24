@@ -1,21 +1,21 @@
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
 import { GoogleMap, LoadScript, Marker, Autocomplete } from '@react-google-maps/api';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 
 type Props = {
   onCaptured?: (event:  google.maps.MapMouseEvent) => void,
   apiKey: string,
   disableInteraction: boolean,
   resetState: boolean,
-  initialMarkers: SelectedCoordinate | null
+  initialMarkers?: SelectedCoordinate | null
 }
 
 export type MapEvent =  {
   placeId?: string
 } & google.maps.MapMouseEvent
 
-type SelectedCoordinate = {
+export type SelectedCoordinate = {
   lat: number,
   lng: number,
   placeId?: string
@@ -53,7 +53,7 @@ function getPlaceId(lat: number, lng: number): Promise<string> {
 
 
 export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, initialMarkers = null,  ...props }: Props) {
-  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate | null>();
+  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate>();
   const searchBoxRef = useRef<google.maps.places.Autocomplete | null>(null); // Ref for search box
   const [placeService, setPlaceService] = useState<google.maps.places.PlacesService>();
   const getMarker = useGoogleMapStore((state) => state.getMarker);
@@ -61,6 +61,7 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
   const [googleMap, setGoogleMap] = useState<google.maps.Map>();
   const [googleMapOptions, setGoogleMapOptions] = useState<google.maps.MapOptions>();
   const inputBoxRef = useRef<HTMLInputElement>(null);
+  const [_, startTransition] = useTransition();
 
   async function onMapLoaded(map: google.maps.Map) {
     const service = new window.google.maps.places.PlacesService(map);
@@ -76,9 +77,6 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
       },
       placeId: initialMarkers.placeId ?? ''
     }, service);
-
-    if (!inputBoxRef.current) return;
-    inputBoxRef.current.value = placeDetails.placeName as string;
   }
 
   async function onMapClick(event: MapEvent) {
@@ -106,6 +104,23 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
       });
     }
   }
+
+  useEffect(() => {
+    if (!initialMarkers || !placeService) return;
+    startTransition(async () => {
+      const placeDetails = await getMarker({
+        latLng: {
+          lat: initialMarkers.lat,
+          lng: initialMarkers.lng
+        },
+        placeId: initialMarkers.placeId ?? ''
+      }, placeService);
+
+      if (!inputBoxRef.current) return;
+      inputBoxRef.current.value = placeDetails.placeName ?? '';
+      setSelectedCoordinate(initialMarkers);
+    });
+  }, [initialMarkers, placeService])
 
   // handle on user clicked on any location
   useEffect(() => {

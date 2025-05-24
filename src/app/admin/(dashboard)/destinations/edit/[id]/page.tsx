@@ -16,7 +16,7 @@ import { getLocationList } from '@/server/actions/location';
 import { Destination, type Category, type Location } from '@/shared/types/dto';
 import { getAllCategories } from '@/server/actions/category';
 import { handleServerAction, withServerHandler } from '@/shared/utils/apiUtils';
-import GooglePlaceCapture from '@/components/map/GooglePlaceCapture';
+import GooglePlaceCapture, { SelectedCoordinate } from '@/components/map/GooglePlaceCapture';
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { ArrowBack, AddLocation } from '@mui/icons-material';
 import { createDestination, getDestinationDetails, updateDestination } from '@/server/actions/destination';
@@ -66,6 +66,7 @@ export default function Page() {
   const [resetMap, setResetMap] = useState(false);
   const [destination, setDestination] = useState<Destination | null>();
   const [isPending, startTransition] = useTransition();
+  const [selectedCoordinate, setSelectedCoordinate] = useState<SelectedCoordinate | null>(null);
 
   const [initialInputValues, setInitialInputValues] = useState<FormDestination>({
     categories: [],
@@ -90,6 +91,12 @@ export default function Page() {
         categories: destination.categories.map(cate => cate.id),
         location: destination.location.id as number
       });
+
+      setSelectedCoordinate({
+        lat: destination.latitude,
+        lng: destination.longitude,
+        placeId: destination.placeId
+      })
     });
   }, []);
   
@@ -198,17 +205,13 @@ export default function Page() {
           </Button>
         </Box>
         <Box>
-          {destination && <GooglePlaceCapture 
+          <GooglePlaceCapture
+            key={'edit'} 
             apiKey={GOOGLE_MAP_KEY ?? ''} 
             disableInteraction={disableMap} 
             resetState={resetMap} 
-            initialMarkers={{
-              lat: destination?.latitude ?? 0,
-              lng: destination?.longitude ?? 0,
-              placeId: destination?.placeId ?? ''
-            }} 
+            initialMarkers={selectedCoordinate}
           />
-          }
         </Box>
       </Box>
       {/* alert */}

@@ -187,7 +187,7 @@ export default function Page() {
           </Button>
         </Box>
         <Box>
-          <GooglePlaceCapture apiKey={GOOGLE_MAP_KEY ?? ''} disableInteraction={disableMap} resetState={resetMap} />
+          <GooglePlaceCapture key={'create'} apiKey={GOOGLE_MAP_KEY ?? ''} disableInteraction={disableMap} resetState={resetMap} />
         </Box>
       </Box>
       {/* alert */}
