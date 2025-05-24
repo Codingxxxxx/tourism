@@ -88,7 +88,7 @@ export default function Page() {
             <header className='p-4 bg-blue-500 text-white rounded-bl'>
               <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
             </header>
-            {subCategories.length >= 1 && listing.length > 0 && 
+            {subCategories.length >= 1 && 
               <Box sx={{ width: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                   <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value)} aria-label="Destination category">
@@ -118,7 +118,7 @@ export default function Page() {
               </Box>
             }
             {/* if not found */}
-            {!isPending && subCategories.length <= 1 && listing.length === 0 && 
+            {!isPending && listing.length === 0 && 
               <Box sx={{ marginTop: 3 }}>
                 <Typography className='text-slate-700'>No any destinations found</Typography>
               </Box>
