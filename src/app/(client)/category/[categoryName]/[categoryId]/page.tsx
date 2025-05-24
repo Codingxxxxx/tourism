@@ -99,7 +99,7 @@ export default function Page() {
                   <ul className="grid grid-cols-3 gap-x-4 gap-y-4 mt-5">
                     {listing.map((destination) => (
                     <li key={destination.id} className='g-white'>
-                      <Link href={`/destination/${encodeURIComponent(destination.name)}/${destination.id}`}>
+                      <Link href={`/destination/category/${params.categoryName}/${params.categoryId}/${encodeURIComponent(destination.name)}/${destination.id}`}>
                         <Box className='relative aspect-[16/9] rounded overflow-hidden shadow-lg border border-slate-300'>
                           <Image 
                             src={destination.cover ? `/cdn?photoUrl=${encodeURIComponent(destination.cover)}` : NO_IMAGE} 
