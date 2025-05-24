@@ -86,7 +86,7 @@ export default function Page() {
     image: [],
     isEmbedVideo: false,
     video: '',
-    parent: null
+    parent: 0
   });
 
   useEffect(() => {
@@ -130,8 +130,9 @@ export default function Page() {
 
       if (!values.isEmbedVideo) {
         // if user didn't select new file, then just use existing url
-        if (category?.photo === values.image[0].url) {
-          sourceUrl = category.photo
+
+        if (getImagePath(category?.photo ?? '') === values.image[0].url) {
+          sourceUrl = category?.photo as string
         } else {
           // upload image
           const formData = new FormData();

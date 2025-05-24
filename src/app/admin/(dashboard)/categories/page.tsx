@@ -105,6 +105,8 @@ export default function PageCategory() {
     ...MetaColumns,
     {
       field: 'id',
+      align: 'center',
+      headerAlign: 'center',
       headerName: 'Actions',
       renderCell: ({ value }) => {
         return <ButtonAction editFormLink={`/admin/categories/edit/${value}`} onConfirmDelete={() => onConfirmedDelete(value)} />
@@ -124,7 +126,6 @@ export default function PageCategory() {
           rows={stat.data?.categories}
           paginationMode='server'
           rowCount={stat.data?.meta?.total} 
-          loading={isPending} 
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
         />

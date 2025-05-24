@@ -15,7 +15,9 @@ export const MetaColumns: GridColDef[] = [
   {
     field: 'createdAt',
     headerName: 'Created At',
-    flex: 1,
+    width: 200,
+    headerAlign: 'center',
+    align: 'center',
     renderCell: ({ value }) => {
       if (!value) return 'N/A';
       return formatDate(value, 'yyyy-mm-dd hh:mm a');

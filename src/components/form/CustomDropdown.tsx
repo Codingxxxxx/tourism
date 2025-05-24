@@ -1,5 +1,6 @@
 import { useField } from 'formik';
 import { FormControl, InputLabel, MenuItem, Select, SelectProps } from '@mui/material';
+import { useState } from 'react';
 
 type Item = {
   value: string | number,
@@ -9,37 +10,27 @@ type Item = {
 type DropDownProps = SelectProps & {
   items: Item[],
   defaultSelectValue?: string | number | null,
-  required?: boolean,
-  datatype: 'array' | 'number' | 'string'
+  required?: boolean
 }
 
-export default function CustomDropdown ({ required = false, items, name, label, defaultSelectValue, datatype = 'string', ...props }: DropDownProps) {
+export default function CustomDropdown ({ required = false, items, name, label, defaultSelectValue, ...props }: DropDownProps) {
   const [field, meta] = useField(name);
   const error = Boolean(meta.touched && meta.error);
-  console.log(defaultSelectValue)
-  let defaultValueOption: any;
-
-  if (datatype == 'array') {
-    defaultValueOption = []
-  } else if (datatype == 'number') {
-    defaultValueOption = 0
-  } else {
-    defaultValueOption = '';
-  }
 
   return (
     <FormControl>
       <InputLabel required={required} htmlFor={props.id}>{label}</InputLabel>
       <Select 
+        displayEmpty
         label={label}
-        {...field}
         {...props}
+        {...field}
         error={error}
         fullWidth
-        value={defaultSelectValue}
+        
         >
-          <MenuItem key={defaultValueOption} selected={defaultValueOption  === defaultSelectValue} value={defaultValueOption} defaultValue={defaultValueOption}>Please Select</MenuItem>
-          {items.map(item => <MenuItem key={item.value} selected={item.value === defaultSelectValue} value={item.value} defaultValue={item.value}>{item.text}</MenuItem>)}
+          <MenuItem value={0}>Please Select</MenuItem>
+          {items.map(item => <MenuItem key={item.value} value={item.value}>{item.text}</MenuItem>)}
         </Select>
     </FormControl>
   );

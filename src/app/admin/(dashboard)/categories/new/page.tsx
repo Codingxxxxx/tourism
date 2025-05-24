@@ -24,7 +24,7 @@ type FormCategoryStats = {
   image: File[],
   isEmbedVideo: boolean,
   video: string,
-  parent: number
+  parent?: number
 }
 
 const validationSchema = Yub.object({
@@ -107,7 +107,7 @@ export default function Page() {
           nameKH: values.categoryName,
           photo: values.isEmbedVideo ? undefined : sourceUrl,
           video: values.isEmbedVideo ? sourceUrl : undefined,
-          parentId: values.parent
+          parentId: Number(values.parent ?? 0)
         })
       );
 
@@ -149,7 +149,7 @@ export default function Page() {
                     label='Parent Category'
                     name='parent'
                     items={categories.map(category => ({ text: category.name, value: category.id }))}
-                    defaultSelectValue={0}
+                    
                   />
                   <CustomErrorMessage name='parent' />
                 </FormGroup>
