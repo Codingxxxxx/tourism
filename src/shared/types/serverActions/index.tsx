@@ -3,7 +3,7 @@ import type { PaginationMeta, Location, Category, User } from '../dto';
 export type ServerResponse<T = any> = {
   message?: string;
   success?: boolean;
-  data?: T;
+  data?: T | null;
   isUnauthorized?: boolean;
 };
 
