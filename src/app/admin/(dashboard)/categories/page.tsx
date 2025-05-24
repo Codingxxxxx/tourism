@@ -83,7 +83,7 @@ export default function PageCategory() {
     {
       field: 'photo',
       headerName: 'Cover Photo',
-      renderCell: ({ _, row }) => {
+      renderCell: ({ value, row }) => {
         if (!row) return;
 
         const cate = row as Category;
