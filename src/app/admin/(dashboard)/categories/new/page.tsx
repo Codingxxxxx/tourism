@@ -8,7 +8,7 @@ import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import CustomCheckBox from '@/components/form/CustomCheckBox';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
-import FileInput from '@/components/form/FileInput';
+import FileInput, { FileObject } from '@/components/form/FileInput';
 import { yupFiles } from '@/shared/yubAddons';
 import { uploadImage } from '@/server/actions/upload';
 import { createCategory, getAllCategories, getCategories } from '@/server/actions/category';
@@ -21,7 +21,7 @@ import { handleServerAction } from '@/shared/utils/apiUtils';
 
 type FormCategoryStats = {
   categoryName: string
-  image: File[],
+  image: FileObject[],
   isEmbedVideo: boolean,
   video: string,
   parent?: number
@@ -92,7 +92,7 @@ export default function Page() {
       if (!values.isEmbedVideo) {
         // upload image
         const formData = new FormData();
-        const file = values.image[0];
+        const file = values.image[0].file as File;
         formData.set('file', file, file.name);
         const result = await uploadImage(formData);
         sourceUrl = result?.data?.url
