@@ -15,7 +15,7 @@ import { Category, PaginationParamters } from "@/shared/types/dto";
 import { handleServerAction, withServerHandler } from "@/shared/utils/apiUtils";
 import Image from 'next/image';
 import { getImagePath } from '@/shared/utils/fileUtils';
-import { ButtonAction } from '@/components/datagrid/ButtonAction';
+import ButtonAction from '@/components/datagrid/ButtonAction';
 import { CustomBackdrop } from '@/components/Backdrop';
 import { useTransition, } from 'react';
 import Toast from '@/components/form/Toast';
