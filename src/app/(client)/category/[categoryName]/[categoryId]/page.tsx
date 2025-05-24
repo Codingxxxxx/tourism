@@ -1,0 +1,132 @@
+'use client'
+import Image from 'next/image';
+import Link from 'next/link'
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css'
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useParams } from 'next/navigation';
+import { getListingBySubCategoryId, getSubCategories } from '@/server/actions/web/home';
+import { Category, Destination } from '@/shared/types/dto';
+import TabPanel, { a11yProps } from '@/components/TabPanel';
+import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { CustomBackdrop } from '@/components/Backdrop';
+
+type PageParams = {
+  categoryName: string,
+  categoryId: string
+}
+
+const caches: Record<string, Destination[]> = {};
+const NO_IMAGE = '/no_category.jpg';
+
+export default function Page() {
+  const params = useParams<PageParams>();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const [subCategories, setSubCategories] = useState<Category[]>([]);
+  const [listing, setListing] = useState<Destination[]>([]);
+  const [isPending, startTransition] = useTransition();
+  
+
+  const [activeTab, setActiveTab] = useState(0);
+
+  const onTabChange = (categoryId: number, tabIdx: number) => {
+    if (caches[tabIdx] && Array.isArray(caches[tabIdx]) && caches[tabIdx].length > 0) return setListing([ ...caches[tabIdx] ]);
+    
+    startTransition(async () => {
+      const { data } = await getListingBySubCategoryId(String(categoryId))
+      caches[categoryId] = data ?? []
+      setListing(data ?? []);
+    })
+  }
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videojs(videoRef.current, {
+        autoplay: false,
+        controls: true,
+        preload: true,
+        aspectRatio: '9:16'
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    startTransition(async () => {
+      const response = await getSubCategories(params.categoryId)
+      const data = response.data ?? [];
+
+      setSubCategories(data);
+
+      if (data.length === 0) return;
+
+      // auto select first category
+      onTabChange((data[0] as Category).id, 0);
+    })
+  }, []);
+
+  return (
+    <div className="min-h-screen">
+      {/* Main Container with 100vh */}
+      <div className="container-full h-[100vh] flex flex-col">
+        {/* Main Layout */}
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+          {/* Left Hero Section - 100vh height with 9:16 ratio */}
+          <div
+            className="bg-blue-500 shadow-lg relative flex items-center justify-center text-white w-full md:w-[56.25vh]"
+            style={{
+              height: '100vh',
+              minHeight: '100vh',
+            }}
+          >
+          {/* Right Side Grid (Smaller Cards) */}
+            <video ref={videoRef} className="video-js">
+              <source src='/samples/hotel.mp4' type="video/mp4" />
+            </video>
+          </div>
+          <div className="flex-1 pl-2 overflow-auto">
+            <header className='p-4 bg-blue-500 text-white rounded-bl'>
+              <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
+            </header>
+            {subCategories.length >= 1 && listing.length > 0 && 
+              <Box sx={{ width: '100%' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value)} aria-label="Destination category">
+                    {subCategories?.map((cate, idx) => <Tab key={cate.id} onClick={() => onTabChange(cate.id, idx)} label={cate.name} {...a11yProps(0)} />)}
+                  </Tabs>
+                </Box>
+                <Box>
+                  <ul className="grid grid-cols-3 gap-x-4 gap-y-4 mt-5">
+                    {listing.map((destination) => (
+                    <li key={destination.id} className='g-white'>
+                      <Link href={`/destination/${encodeURIComponent(destination.name)}/${destination.id}`}>
+                        <Box className='relative aspect-[16/9] rounded overflow-hidden shadow-lg border border-slate-300'>
+                          <Image 
+                            src={destination.cover ? `/cdn?photoUrl=${encodeURIComponent(destination.cover)}` : NO_IMAGE} 
+                            alt={destination.name} 
+                            fill 
+                            style={{ objectFit: 'cover' }}  
+                            onError={evt => evt.currentTarget.src = NO_IMAGE}
+                          />
+                        </Box>
+                        <span className='block text-slate-700 mt-2'>{destination.name}</span>
+                      </Link>
+                    </li>
+                    ))}
+                  </ul>
+                </Box>
+              </Box>
+            }
+            {/* if not found */}
+            {!isPending && subCategories.length <= 1 && listing.length === 0 && 
+              <Box sx={{ marginTop: 3 }}>
+                <Typography className='text-slate-700'>No any destinations found</Typography>
+              </Box>
+            }
+          </div>
+        </div>
+      </div>
+      <CustomBackdrop open={isPending} />
+    </div>
+  )
+}

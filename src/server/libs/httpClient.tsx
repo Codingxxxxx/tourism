@@ -6,11 +6,11 @@ import { ServerResponse } from "@/shared/types/serverActions";
 const API_BASE = process.env.API_BASE;
 const WEB_API_BASE = process.env.WEB_API_BASE;
 
-export type ApiResponse = {
+export type ApiResponse<T = any> = {
   code: number,
   statusName: string,
   message: string,
-  data?: object | any,
+  data?: T,
   isOk: boolean,
   meta?: PaginationMeta,
   unauthorized: boolean
@@ -26,12 +26,12 @@ export type ApiRequestOptions = {
 type ResponseOptions<T = any> = {
   message?: string;
   success?: boolean;
-  data?: T;
+  data?: T | null;
   isUnauthorized?: boolean;
 };
 
 export class HttpClient {
-  static request({ url, data, method, forWeb = false }: ApiRequestOptions): Promise<ApiResponse> {
+  static request<T = any>({ url, data, method, forWeb = false }: ApiRequestOptions): Promise<ApiResponse<T>> {
     console.debug('Request payload: ', [url, method, data]);
     return new Promise(async (resolve) => {
       let accessToken = '';
