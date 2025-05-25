@@ -37,7 +37,7 @@ export async function decrypt(session: string | undefined = '') {
 }
 
 export async function createSession(sessionPayload: SessionPayload) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  const expiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
 
   sessionPayload.expiresAt = expiresAt;
 
@@ -50,7 +50,7 @@ export async function createSession(sessionPayload: SessionPayload) {
     expires: expiresAt,
     sameSite: 'lax',
     path: '/admin',
-  })
+  });
 }
 
 export async function getSessionData(): Promise<SessionPayload> {
@@ -88,4 +88,12 @@ export async function getAdminDisplaySession(): Promise<AdminSession> {
 export async function deleteSession() {
   const cookieStore = await cookies()
   cookieStore.delete('session')
+}
+
+export async function updateToken(accessToken: string, refreshToken: string) {
+  const payload = await getSessionData();
+  payload.accessToken = accessToken;
+  payload.refreshToken = refreshToken;
+
+  await createSession(payload);
 }
