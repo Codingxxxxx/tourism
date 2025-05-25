@@ -26,11 +26,12 @@ export default function Page() {
   const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [listing, setListing] = useState<Destination[]>([]);
   const [isPending, startTransition] = useTransition();
-  
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number>(0  );  
 
   const [activeTab, setActiveTab] = useState(0);
 
   const onTabChange = (categoryId: number, tabIdx: number) => {
+    setSelectedSubCategoryId(categoryId);
     if (caches[tabIdx] && Array.isArray(caches[tabIdx]) && caches[tabIdx].length > 0) return setListing([ ...caches[tabIdx] ]);
     
     startTransition(async () => {
@@ -95,11 +96,12 @@ export default function Page() {
                     {subCategories?.map((cate, idx) => <Tab key={cate.id} onClick={() => onTabChange(cate.id, idx)} label={cate.name} {...a11yProps(0)} />)}
                   </Tabs>
                 </Box>
-                <Box>
-                  <ul className="grid grid-cols-3 gap-x-4 gap-y-4 mt-5">
+                <Box sx={{ marginTop: 4 }}>
+                  <ul className="grid grid-cols-3 gap-3">
                     {listing.map((destination) => (
-                    <li key={destination.id} className='g-white'>
-                      <Link href={`/destination/category/${params.categoryName}/${params.categoryId}/${encodeURIComponent(destination.name)}/${destination.id}`}>
+                    <li key={destination.id}>
+
+                      <Link href={`/destination/category/${params.categoryName}/${params.categoryId}/${selectedSubCategoryId}/${encodeURIComponent(destination.name)}/${destination.id}`}>
                         <Box className='relative aspect-[16/9] rounded overflow-hidden shadow-lg border border-slate-300'>
                           <Image 
                             src={destination.cover ? `/cdn?photoUrl=${encodeURIComponent(destination.cover)}` : NO_IMAGE} 

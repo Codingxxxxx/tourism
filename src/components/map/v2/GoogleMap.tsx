@@ -24,7 +24,6 @@ type CustomMarkerIcon = {
 }
 
 const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => {
-  console.log(markers);
   const { getMarker } = useGoogleMapStore();
   const mapRef = useRef<HTMLDivElement>(null);
   
