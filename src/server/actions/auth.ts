@@ -1,10 +1,15 @@
 'use server'
 
-import { ServerResponse } from "@/shared/types/serverActions";import { type SessionPayload, createSession, deleteSession } from '@/server/libs/session';
+import { ServerResponse } from "@/shared/types/serverActions";import { type SessionPayload, createSession, deleteSession, getRefreshToken } from '@/server/libs/session';
 import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/types/api';
 import { AdminSession } from "@/shared/adminSession";
+
+type RefreshToken = {
+  accessToken: string,
+  refreshToken: string
+}
 
 export async function login(formData: FormData): Promise<ServerResponse<AdminSession>> {
   const email = formData.get('email')?.toString() || '';
@@ -55,4 +60,21 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
 
 export async function logout() {
   await deleteSession()
+}
+
+export async function refreshToken() {
+  const refreshToken = await getRefreshToken();
+  const { isOk, message, data } = await HttpClient.request<RefreshToken>({
+    url: ApiEndpont.REFRESH_TOKEN,
+    method: 'POST',
+    data: {
+      refreshToken
+    }
+  });
+
+  return {
+    isOk,
+    data,
+    message
+  }
 }
