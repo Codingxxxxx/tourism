@@ -44,7 +44,7 @@ export default function Home() {
     <>
     <div className="bg-gray-300 min-h-screen">
       {/* Main Container with 100vh */}
-      <div className="container-full h-[100vh] flex flex-col">
+      <div className="container-full h-screen flex flex-col">
         {/* Main Layout */}
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
           {/* Left Hero Section - 100vh height with 9:16 ratio */}
@@ -61,26 +61,33 @@ export default function Home() {
           </div>
 
           {/* Right Side Grid (Smaller Cards) */}
-          <div className="flex-1 pl-[.125rem] overflow-auto">
-            <div className="grid grid-rows-auto  grid-cols-1 md:grid-cols-3 gap-[.125rem]">
-                {serverResponse?.data?.categories.filter(category => !category.isFront).map((category, idx) => (
+          <div className="flex-1 pl-[.025rem] overflow-auto h-screen">
+            <div className="grid grid-cols-3 grid-rows-2 gap-[.025rem] h-full">
+              {serverResponse?.data?.categories
+                .filter(category => !category.isFront)
+                .slice(0, 6)
+                .map((category, idx) => (
                   <Link key={idx} href={`/category/${encodeURIComponent(category.name)}/${category.id}`}>
-                    <Box sx={{ position: 'relative' }}>
-                      <div className='relative aspect-[16/9] overflow-hidden shadow filter brightness-70'>
-                        <Image 
-                          style={{ objectFit: 'cover' }} 
-                          src={category.photo ?  getImagePath(category.photo): NO_IMAGE} 
-                          alt={category.name} 
-                          fill
-                          onError={evt => evt.currentTarget.src = NO_IMAGE}
-                        />
-                      </div>
-                      <h3 className="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md" dangerouslySetInnerHTML={{ __html: category.name.replace(/\n/g, '<br>') }}></h3>
-                    </Box>
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={category.photo ? getImagePath(category.photo) : NO_IMAGE}
+                        alt={category.name}
+                        fill
+                        className="object-cover brightness-60"
+                        onError={(e) => (e.currentTarget.src = NO_IMAGE)}
+                      />
+                      <h3
+                        className="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-white text-center shadow-md drop-shadow-lg"
+                        dangerouslySetInnerHTML={{
+                          __html: category.name.replace(/\n/g, '<br>'),
+                        }}
+                      />
+                    </div>
                   </Link>
                 ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>
