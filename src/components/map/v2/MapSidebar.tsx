@@ -1,22 +1,20 @@
 import PlacePhoto from './../PlacePhoto'
 import { PlaceDetails } from '@/stores/useGoogleMapStore';
-import { Box, Typography, Rating, Divider } from '@mui/material';
+import { Box, Typography, Rating, Divider, Button } from '@mui/material';
 import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined } from '@mui/icons-material';
 import { formatOpeningHours } from '@/utils/openHourFormatter';
 import Image from 'next/image';
+import { useState } from 'react';
+import DestinationDirection from '@/components/map/DestinationDirection';
 
 export type MapSidebarProps = {
   placeDetails: PlaceDetails,
 }
 
-export default function MapSidebar({ placeDetails }: MapSidebarProps) {
-  let travelUrl = '';
+const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-  if (placeDetails.geometry && placeDetails.geometry.location) {
-    const lat = placeDetails.geometry?.location?.lat();
-    const lng = placeDetails.geometry?.location?.lng();
-    travelUrl =`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(placeDetails.placeName || '')}&destination_ll=${lat},${lng}&travelmode=driving`;
-  }
+export default function MapSidebar({ placeDetails }: MapSidebarProps) {
+  const [openDialog, setOpenDialog] = useState(false);
 
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
@@ -38,7 +36,7 @@ export default function MapSidebar({ placeDetails }: MapSidebarProps) {
           {/* Place types */}
           {placeDetails.placeIcon && <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 1 }}>
             <Box sx={{ position: 'relative' }}>
-              <Image src={placeDetails.placeIcon} fill alt='' />
+              <Image src={placeDetails.placeIcon} fill alt='' loading='lazy' />
             </Box>
           </Box>
           }
@@ -72,10 +70,22 @@ export default function MapSidebar({ placeDetails }: MapSidebarProps) {
         </Box>
         {/* Direction */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-          <DirectionsOutlined color='primary' sx={{ marginRight: 2 }} />
-            {placeDetails.geometry ? <a className='text-blue-600 hover:text-blue-800 hover:underline' href={travelUrl} rel='noreferrer nofollow' target='_blank'>Travel Destination</a> : 'N/A'}
+            {placeDetails.geometry && <Button type='button' startIcon={<DirectionsOutlined />} onClick={() => setOpenDialog(true)} >Travel direction</Button> }
         </Box>
       </Box>
+      {openDialog &&
+        <DestinationDirection
+          apiKey={GOOGLE_MAP_KEY ?? ''}
+          lat={placeDetails.geometry?.location?.lat() ?? 0}
+          lng={placeDetails.geometry?.location?.lng() ?? 0}
+          key={placeDetails.placeId}
+          placeId={placeDetails.placeId}
+          open={openDialog}
+          placeName={placeDetails.placeName ?? ''}
+          onClose={() => setOpenDialog(false)}
+        />
+      }     
+
     </Box>
   )
 }
