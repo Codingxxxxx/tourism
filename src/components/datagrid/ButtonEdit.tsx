@@ -10,7 +10,7 @@ export default function ButtonEdit(props: Props) {
   return (
     <Button
       color='warning'
-      variant='outlined'
+      variant='text'
       size='small'
       {...props}
       startIcon={<Edit />}

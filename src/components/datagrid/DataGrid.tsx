@@ -1,5 +1,11 @@
-import { DataGridProps, DataGrid as Datatable, type GridColDef } from '@mui/x-data-grid';
-import { Paper } from '@mui/material'
+import { DataGridProps, DataGrid as DataTable, type GridColDef } from '@mui/x-data-grid';
+import { Paper, styled } from '@mui/material'
+
+const CustomGrid = styled(DataTable)({
+  '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+    outline: 'none',
+  },
+});
 
 export function withDefaultFlex(columns: readonly GridColDef<any>[]): GridColDef<any>[] {
   return columns.map(col => ({ 
@@ -19,8 +25,10 @@ type Props = {
 export default function DataGrid({ rows, columns, loading, ...props }: Props) {
   return (
     <Paper sx={{ width: '100%' }}>
-      <Datatable
+      <CustomGrid
         style={{ minHeight: 360 }}
+        isRowSelectable={() => false}
+        isCellEditable={() => false}
         loading={loading}
         rows={rows}
         columns={withDefaultFlex(columns)}
