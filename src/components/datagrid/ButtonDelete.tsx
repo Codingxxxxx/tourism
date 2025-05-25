@@ -28,7 +28,7 @@ export default function ButtonDelete({ confirmMessage = 'Are you sure to delete 
     <Button
       size='small'
       color='error'
-      variant='contained'
+      variant='outlined'
       {...props}
       startIcon={<Delete />}
       onClick={() => onButtonClicked()}
