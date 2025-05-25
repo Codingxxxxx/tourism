@@ -93,6 +93,9 @@ async function fetchWithAuthRetry<T = any>(request: Request, forWeb = false):Pro
       data?.refreshToken ?? ''
     )
 
+    // override token with the new one
+    request.headers.set('Authorization', `Bearer ${data?.accessToken}`)
+
     resolve(fetchData<T>(request, forWeb));
   });
 }
