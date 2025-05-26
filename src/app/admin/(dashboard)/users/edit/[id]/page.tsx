@@ -9,19 +9,21 @@ import * as Yub from 'yup';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
-import { updateUser, getUserDetails } from '@/server/actions/user';
+import { updateUser, getUserDetails, getRoles } from '@/server/actions/user';
 import { useEffect, useState, useTransition } from 'react';
 import { ServerResponse } from '@/shared/types/serverActions';
-import { User } from '@/shared/types/dto';
+import { Role, User } from '@/shared/types/dto';
 import { handleServerAction } from '@/shared/utils/apiUtils';
 import { useParams, useRouter } from 'next/navigation';
 import { CustomBackdrop } from '@/components/Backdrop';
+import CustomDropdown from '@/components/form/CustomDropdown';
 
 type FormProps = {
   username: string,
   firstName: string,
   lastName: string,
-  email: string
+  email: string,
+  role: number
 }
 
 const validationSchema = Yub.object({
@@ -53,13 +55,15 @@ export default function Page() {
   const params = useParams<PageParams>();
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>(null);
   const [user, setUser] = useState<User>();
+  const [roles, setRoles] = useState<Role[]>([]);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [initialState, setInitialState] = useState<FormProps>({
     username: '',
     firstName: '',
     lastName: '',
-    email: ''
+    email: '',
+    role: 0
   });
 
   const onFormSubmit = async (value: FormProps, helpers: FormikHelpers<FormProps>) => {
@@ -72,7 +76,7 @@ export default function Page() {
           lastName: value.lastName,
           username: value.username,
           email: value.email,
-          roleIds: [1, 2, 3]
+          roleIds: [value.role]
         }, String(user?.id)));
 
         setServerResponse(serverResponse);
@@ -87,14 +91,21 @@ export default function Page() {
 
   useEffect(() => {
     startTransition(async () => {
-      const res = await handleServerAction<User>(() => getUserDetails(params.id))
-      const user = res.data as User;
+      const [resUser, resRole] = await Promise.all([
+        handleServerAction<User>(() => getUserDetails(params.id)),
+        handleServerAction<Role[]>(getRoles)
+      ])
+
+      const user = resUser.data as User;
+
       setUser(user);
+      setRoles(resRole.data ?? [])
       setInitialState({
         username: user.username,
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        role: user.roles.length > 0 ? user.roles[0].id : 0
       })
     });
   }, []);
@@ -151,6 +162,18 @@ export default function Page() {
                     required
                   />
                   <CustomErrorMessage name='email' />
+                </FormGroup>
+              </Grid>
+              {/* roles */}
+              <Grid  size={12}>
+                <FormGroup>
+                  <CustomDropdown 
+                    label='Role'
+                    name='role'
+                    items={roles.map(role => ({ value: role.id, text: role.name }))}
+                    required={true}
+                  />
+                  <CustomErrorMessage name='role' />
                 </FormGroup>
               </Grid>
               <Grid  size={12}>

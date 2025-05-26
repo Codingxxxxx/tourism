@@ -9,9 +9,13 @@ import * as Yub from 'yup';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
-import { createUser } from '@/server/actions/user';
-import { useState } from 'react';
+import { createUser, getRoles } from '@/server/actions/user';
+import { useEffect, useState, useTransition } from 'react';
 import { ServerResponse } from '@/shared/types/serverActions';
+import CustomDropdown from '@/components/form/CustomDropdown';
+import { Role } from '@/shared/types/dto';
+import { handleServerAction } from '@/shared/utils/apiUtils';
+import { CustomBackdrop } from '@/components/Backdrop';
 
 type FormProps = {
   username: string,
@@ -19,7 +23,8 @@ type FormProps = {
   lastName: string,
   password: string,
   confirmPassword: string,
-  email: string
+  email: string,
+  role: number
 }
 
 export default function Page() {
@@ -39,6 +44,8 @@ export default function Page() {
   ];
 
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>(null);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [pending, startTransition] = useTransition();
 
   const initialState: FormProps = {
     username: '',
@@ -46,7 +53,8 @@ export default function Page() {
     firstName: '',
     lastName: '',
     confirmPassword: '',
-    email: ''
+    email: '',
+    role: 0
   }
 
   const validationSchema = Yub.object({
@@ -54,6 +62,7 @@ export default function Page() {
     firstName: Yub.string().label('First Name').required().max(25),
     lastName: Yub.string().label('Last Name').required().max(25),
     password: Yub.string().label('Password').required().min(6),
+    role: Yub.number().notOneOf([0], '${label} is required').label('Role').required(),
     confirmPassword: Yub.string().label('Confirm Password').required().oneOf([Yub.ref('password')], 'Confirm Password doesn\'t match'),
     email: Yub.string().label('Email').required().email()
   });
@@ -62,14 +71,14 @@ export default function Page() {
     try {
       setServerResponse(null);
 
-      const serverResponse = await createUser({
+      const serverResponse = await handleServerAction(() => createUser({
         firstName: value.firstName,
         lastName: value.lastName,
         password: value.password,
         username: value.username,
         email: value.email,
-        roleIds: [1, 2, 3]
-      });
+        roleIds: [value.role]
+      }));
 
       setServerResponse(serverResponse);
 
@@ -81,6 +90,13 @@ export default function Page() {
       helpers.setSubmitting(false);
     }
   }
+
+  useEffect(() => {
+    startTransition(async () => {
+      const { data } = await handleServerAction<Role[]>(getRoles);
+      setRoles(data ?? []);
+    });
+  }, []);
 
   return (
     <DashboardContainer breadcrumbs={breadcrumbs} title='Create New User'>
@@ -136,6 +152,18 @@ export default function Page() {
                   <CustomErrorMessage name='email' />
                 </FormGroup>
               </Grid>
+              {/* roles */}
+              <Grid  size={12}>
+                <FormGroup>
+                  <CustomDropdown 
+                    label='Role'
+                    name='role'
+                    items={roles.map(role => ({ value: role.id, text: role.name }))}
+                    required={true}
+                  />
+                  <CustomErrorMessage name='role' />
+                </FormGroup>
+              </Grid>
               {/* Email Input */}
               <Grid width='100%'  size={6}>
                 <FormGroup>
@@ -171,6 +199,7 @@ export default function Page() {
         )}
       </Formik>
       <Toast open={serverResponse != null} success={serverResponse?.success} message={serverResponse?.message} />
+      <CustomBackdrop  open={pending} />
     </DashboardContainer>
   )
 }

@@ -48,7 +48,7 @@ export default function Login() {
 
     // init session and redirect
     if (result.success) {
-      router.push('/admin');
+      router.push(result.data.redirect);
     }
   }
 
