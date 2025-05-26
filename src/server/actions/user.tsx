@@ -2,7 +2,7 @@
 import { PaginatedUsers } from '@/shared/types/serverActions';
 import { ApiEndpont } from '../const/api';
 import { buildResponse, HttpClient } from '@/server/libs/httpClient';
-import { FormCreateUser, FormUpdateUser, PaginationParamters, User } from '@/shared/types/dto';
+import { FormCreateUser, FormUpdateUser, PaginationParamters, Role, User } from '@/shared/types/dto';
 import { ServerResponse } from '@/shared/types/serverActions';
 
 export async function getUsers(state: any, payload: PaginationParamters): Promise<ServerResponse<PaginatedUsers>> {
@@ -78,5 +78,19 @@ export async function updateUser(payload: FormUpdateUser, id: string) {
     isUnauthorized: unauthorized,
     success: isOk,
     message: isOk ? 'User record has been updated' : message
+  })
+}
+
+export async function getRoles(): Promise<ServerResponse<Role>> {
+  const { isOk, unauthorized, message, data } = await HttpClient.request({
+    method: 'GET',
+    url: ApiEndpont.ROLE_RESOURCE + '?' + new URLSearchParams({ limit: '10', offset: '0' })
+  });
+
+  return buildResponse<Role>({
+    data,
+    isUnauthorized: unauthorized,
+    message: message,
+    success: isOk
   })
 }
