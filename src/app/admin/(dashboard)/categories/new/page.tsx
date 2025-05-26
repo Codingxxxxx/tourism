@@ -105,8 +105,8 @@ export default function Page() {
         createCategory({
           name: values.categoryName,
           nameKH: values.categoryName,
-          photo: values.isEmbedVideo ? undefined : sourceUrl,
-          video: values.isEmbedVideo ? sourceUrl : undefined,
+          photo: values.isEmbedVideo ? '' : sourceUrl,
+          video: values.isEmbedVideo ? sourceUrl : '',
           parentId: Number(values.parent ?? 0)
         })
       );
