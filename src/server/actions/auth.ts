@@ -5,13 +5,14 @@ import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpC
 import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/types/api';
 import { AdminSession } from "@/shared/adminSession";
+import { getCurrentProfile } from './user';
 
 type RefreshToken = {
   accessToken: string,
   refreshToken: string
 }
 
-export async function login(formData: FormData): Promise<ServerResponse<AdminSession>> {
+export async function login(formData: FormData): Promise<ServerResponse<any>> {
   const email = formData.get('email')?.toString() || '';
   const password = formData.get('password')?.toString() || '';
   
@@ -36,10 +37,12 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
     message: res.message
   })
 
+  const user = await getCurrentProfile();
+
   const session: SessionPayload = {
-    fullname: 'Rotha',
-    role: '',
-    username: 'jsdfsf',
+    fullname: user.lastName + ' ' + user.firstName,
+    role: user.roles[0].name,
+    username: user.username,
     email: email,
     accessToken: res.data.accessToken,
     refreshToken: res.data.refreshToken
@@ -47,13 +50,10 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
 
   await createSession(session);
 
-  return buildResponse<AdminSession>({
+  return buildResponse({
     success: true,
     data: {
-      email,
-      fullname: 'Rotha',
-      role: '',
-      username: ''
+      redirect: '/admin/destinations'
     }
   })
 }

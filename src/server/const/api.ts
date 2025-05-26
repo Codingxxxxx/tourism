@@ -21,6 +21,8 @@ export const ApiEndpont = {
   USER_LIST: '/users',
   USER_CREATE: '/users',
   USER_RESOURCE: '/users',
+  USER_GET_BY_EMAIL: '/users/email',
+  USER_GET_PROFILE: '/users/profile',
   ROLE_RESOURCE: '/roles',
   WEB_LISTING_CATEGORY: '/category',
   WEB_LISTING_SUB_CATEGORY: '/category/child',

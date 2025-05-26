@@ -94,3 +94,12 @@ export async function getRoles(): Promise<ServerResponse<Role>> {
     success: isOk
   })
 }
+
+export async function getCurrentProfile(): Promise<User> {
+  const { data } = await HttpClient.request({
+    url: ApiEndpont.USER_GET_PROFILE,
+    method: 'GET'
+  });
+  
+  return data;
+}

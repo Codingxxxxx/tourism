@@ -14,11 +14,13 @@ import { getSessionData } from '@/server/actions/session';
 import { DialogsProvider } from '@toolpad/core';
 
 const NAVIGATION: Navigation = [
+  /*
   {
     segment: 'admin',
     title: 'Dashboard',
     icon: <Dashboard />
   },
+  */
   {
     segment: 'admin/destinations',
     title: 'Destinations',
@@ -53,8 +55,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const branding = {
     logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
-    title: 'MUI',
-    homeUrl: '/toolpad/core/introduction',
+    title: 'Tourism',
+    homeUrl: '/admin/destinations',
   };
 
   async function signOut() {
@@ -69,7 +71,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         setSession({
           user: {
             name: sessionData.fullname,
-            image: 'https://avatars.githubusercontent.com/u/19550456',
+            image: '/admin/user.png',
             email: sessionData.email
           }
         })
