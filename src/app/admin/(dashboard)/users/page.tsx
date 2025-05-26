@@ -1,6 +1,6 @@
 'use client';
 import DashboardContainer from "@/components/dashboard/DashboardContainer";
-import { Box, Button } from '@mui/material'
+import { Box, Button, Chip } from '@mui/material'
 import { AddCircleOutline } from '@mui/icons-material';
 import { type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
 import Link from 'next/link';
@@ -79,9 +79,10 @@ export default function Page() {
     },
     {
       field: 'roles',
-      headerName: 'Roles',
+      headerName: 'Role',
       renderCell: ({ value }) => {
-        return (value as Role[] || []).map(role => role.name).join(', ');
+        if (!value) return;
+        return (value as Role[] || []).map(role => <Chip label={role.name} variant='filled' />);
       }
     },
     ...MetaColumns,
