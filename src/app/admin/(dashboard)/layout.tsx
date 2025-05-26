@@ -4,7 +4,7 @@ import { ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import LinearProgress from '@mui/material/LinearProgress';
-import type { Authentication, Navigation, Session } from '@toolpad/core/AppProvider';
+import type { Authentication, Navigation, Session, Branding } from '@toolpad/core/AppProvider';
 import { Dashboard, Topic, PeopleAlt, Room, Restaurant } from '@mui/icons-material';
 import { logout } from '@/server/actions/auth';
 import { useRouter } from 'next/navigation';
@@ -53,8 +53,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [session, setSession] = useState<Session>();
 
-  const branding = {
-    logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
+  const branding: Branding = {
+    logo: '',
     title: 'Tourism',
     homeUrl: '/admin/destinations',
   };
