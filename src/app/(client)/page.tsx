@@ -2,15 +2,14 @@
 import Image from "next/image";
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css'
-import { startTransition, useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import type { Category, PaginationParamters } from '@/shared/types/dto';
 import { getDisplayCategories } from '@/server/actions/web/home';
-import { withServerHandler } from "@/shared/utils/apiUtils";
 import { ServerResponse, PaginatedDisplayCategories } from '@/shared/types/serverActions';
 import { CustomBackdrop } from '@/components/Backdrop';
 import { Box } from '@mui/material';
 import { getImagePath } from '@/shared/utils/fileUtils';
+import EmbedCode from '@/components/EmbedCode'
 
 
 const NO_IMAGE = '/no_category.jpg';
@@ -31,14 +30,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (isPending || !videoRef.current) return;
+    if (isPending || !videoRef.current || serverResponse?.data?.videoCategory) return;
     videojs(videoRef.current, {
       autoplay: false,
       controls: true,
       preload: true,
       aspectRatio: '9:16'
     });
-  }, [isPending, videoRef]);
+  }, [isPending, videoRef, serverResponse]);
 
   return (
     <>
@@ -55,7 +54,8 @@ export default function Home() {
               minHeight: '100vh',
             }}
           >
-            <video ref={videoRef} className="video-js">
+            {serverResponse?.data?.videoCategory?.video && <EmbedCode code={serverResponse?.data?.videoCategory?.video ?? ''} />}
+            <video ref={videoRef} className="video-js" hidden={!serverResponse?.data?.videoCategory?.video}>
               <source src={serverResponse?.data?.videoCategory?.video || DEFAULT_VIDEO} type="video/mp4" />
             </video>
           </div>

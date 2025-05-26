@@ -37,6 +37,20 @@ function fetchData<T = any>(request: Request, forWeb = false): Promise<ApiRespon
   return new Promise<ApiResponse<T>>((resolve) => {
     fetch(request)
       .then(async (res) => {
+        const serverError = res.status >= 500;
+        
+        if (serverError) {
+          console.error('API ERROR: ', await res.text());
+          resolve({
+            code: res.status,
+            isOk: false,
+            statusName: '500',
+            message: 'Failed to process the request, please try again later',
+            unauthorized: false
+          });
+          return;
+        }
+
         const resData = await res.json();
   
         console.debug('API Response: ', resData);
