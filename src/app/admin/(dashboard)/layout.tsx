@@ -39,6 +39,41 @@ const NAVIGATION: Navigation = [
   }
 ];
 
+
+const ADMIN_NAVIGATION: Navigation = [
+  /*
+  {
+    segment: 'admin',
+    title: 'Dashboard',
+    icon: <Dashboard />
+  },
+  */
+  {
+    segment: 'admin/destinations',
+    title: 'Destinations',
+    icon: <Restaurant />,
+    pattern: 'admin/destinations(/new)?'
+  },
+  {
+    segment: 'admin/categories',
+    title: 'Categories',
+    icon: <Topic />,
+    pattern: 'admin/categories(/new)?'
+  },
+  {
+    segment: 'admin/locations',
+    title: 'Locations',
+    icon: <Room />,
+    pattern: 'admin/locations(/new)?'
+  },
+  {
+    segment: 'admin/users',
+    title: 'Users',
+    icon: <PeopleAlt />,
+    pattern: 'admin/users(/new)?'
+  }
+];
+
 export async function signOut() {
   await logout();
   redirect('/admin/login');
@@ -59,15 +94,14 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     }
   }
 
-  if (sessionData.role.toLowerCase() == 'admin') {
-    NAVIGATION.push({
-      segment: 'admin/users',
-      title: 'Users',
-      icon: <PeopleAlt />,
-      pattern: 'admin/users(/new)?'
-    })
+  const userMenu ={
+    segment: 'admin/users',
+    title: 'Users',
+    icon: <PeopleAlt />,
+    pattern: 'admin/users(/new)?'
   }
 
+  const isAdmin = sessionData.role.toLowerCase() == 'admin';
 
   const branding: Branding = {
     logo: '',
@@ -82,7 +116,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <Suspense fallback={<LinearProgress />}>
-      <NextAppProvider navigation={NAVIGATION} branding={branding} session={session} authentication={authentication}>
+      <NextAppProvider navigation={isAdmin ? ADMIN_NAVIGATION : NAVIGATION} branding={branding} session={session} authentication={authentication}>
         <DashboardLayout > 
             <DialogsProvider>
               {children}
