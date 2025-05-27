@@ -161,14 +161,8 @@ export default function Page() {
   }, []);
 
   const onChangePassword = async () => {
-    await dialog.open(ChangePasswordDialog, {
-      onFormSubmit: async (values, helpers) => {
-        console.log('hi');
-        // handle password change here
-      }
-    }, 
-    { 
-      onClose: () => {},
+    await dialog.open(ChangePasswordDialog, { 
+      onClose: () => {}
     });
   };
  
