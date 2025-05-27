@@ -103,3 +103,42 @@ export async function getCurrentProfile(): Promise<User> {
   
   return data;
 }
+
+export async function myProfile(): Promise<ServerResponse<User>> {
+  const { data, unauthorized, isOk, message } = await HttpClient.request({
+    url: ApiEndpont.USER_GET_PROFILE,
+    method: 'GET'
+  });
+  
+  return buildResponse({
+    data,
+    isUnauthorized: unauthorized,
+    message,
+    success: isOk
+  });
+}
+
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<ServerResponse> {
+  const { isOk, message, unauthorized, code } = await HttpClient.request({
+    method: 'POST',
+    url: ApiEndpont.USER_CHANGE_PASSWORD,
+    data: {
+      currentPassword,
+      newPassword
+    }
+  });
+
+  if (code === 400) return buildResponse({
+    isUnauthorized: unauthorized,
+    success: false,
+    message: 'Your current password is invalid'
+  })
+
+
+  return buildResponse({
+    isUnauthorized: unauthorized,
+    success: isOk,
+    message: isOk ? 'Password has been changed' : message
+  })
+}
