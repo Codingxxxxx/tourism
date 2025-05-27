@@ -1,6 +1,6 @@
 'use client';
 import DashboardContainer from "@/components/dashboard/DashboardContainer";
-import { Box, Button,  Dialog,  DialogActions,  DialogContent,  DialogProps,  DialogTitle,  FormGroup, FormHelperTextClassKey, Grid2 as Grid } from '@mui/material'
+import { Box, Button,  Dialog,  DialogContent,  type DialogProps,  DialogTitle,  FormGroup, Grid2 as Grid } from '@mui/material'
 import { ReactNode, useEffect, useState, useTransition } from "react";
 import { ServerResponse } from "@/shared/types/serverActions";
 import { handleServerAction } from "@/shared/utils/apiUtils";
@@ -34,7 +34,7 @@ const changePasswordSchema = Yub.object({
   confirmNewPassword: Yub.string().required().label('Confirm New Password').oneOf([Yub.ref('newPassword')], 'Confirm New Password doesn\'t match').min(8),
 });
 
-export function ChangePasswordDialog({ open, onClose }: DialogProps) {
+function ChangePasswordDialog({ open, onClose }: DialogProps) {
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
   const initialValues: FormChangePasswordProps =  {
     currentPassword: '',
