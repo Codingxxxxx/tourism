@@ -23,6 +23,8 @@ export const ApiEndpont = {
   USER_RESOURCE: '/users',
   USER_GET_BY_EMAIL: '/users/email',
   USER_GET_PROFILE: '/users/profile',
+  USER_CHANGE_PASSWORD: '/auth/change-password',
+  DASHBOARD_STATISTIC: '/dashboard',
   ROLE_RESOURCE: '/roles',
   WEB_LISTING_CATEGORY: '/category',
   WEB_LISTING_SUB_CATEGORY: '/category/child',

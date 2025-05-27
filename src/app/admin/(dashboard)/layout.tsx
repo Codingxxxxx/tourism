@@ -4,21 +4,19 @@ import { ReactNode, Suspense } from 'react';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { NextAppProvider } from '@toolpad/core/nextjs';
 import LinearProgress from '@mui/material/LinearProgress';
-import type { Authentication, Navigation, Session, Branding } from '@toolpad/core/AppProvider';
-import { Dashboard, Topic, PeopleAlt, Room, Restaurant } from '@mui/icons-material';
+import type { Navigation, Session, Branding } from '@toolpad/core/AppProvider';
+import { Dashboard, Topic, PeopleAlt, Room, Restaurant, VerifiedUser } from '@mui/icons-material';
 import { logout } from '@/server/actions/auth';
 import { redirect} from 'next/navigation';
 import { getSessionData } from '@/server/actions/session';
 import { DialogsProvider } from '@toolpad/core';
 
 const NAVIGATION: Navigation = [
-  /*
   {
     segment: 'admin',
     title: 'Dashboard',
     icon: <Dashboard />
   },
-  */
   {
     segment: 'admin/destinations',
     title: 'Destinations',
@@ -36,18 +34,21 @@ const NAVIGATION: Navigation = [
     title: 'Locations',
     icon: <Room />,
     pattern: 'admin/locations(/new)?'
+  },
+  {
+    segment: 'admin/myprofile',
+    title: 'My Profile',
+    icon: <VerifiedUser />
   }
 ];
 
 
-const ADMIN_NAVIGATION: Navigation = [
-  /*
+const ADMIN_NAVIGATION: Navigation = [  
   {
     segment: 'admin',
     title: 'Dashboard',
     icon: <Dashboard />
   },
-  */
   {
     segment: 'admin/destinations',
     title: 'Destinations',
@@ -71,6 +72,11 @@ const ADMIN_NAVIGATION: Navigation = [
     title: 'Users',
     icon: <PeopleAlt />,
     pattern: 'admin/users(/new)?'
+  },
+  {
+    segment: 'admin/myprofile',
+    title: 'My Profile',
+    icon: <VerifiedUser />
   }
 ];
 
