@@ -12,13 +12,11 @@ import { getSessionData } from '@/server/actions/session';
 import { DialogsProvider } from '@toolpad/core';
 
 const NAVIGATION: Navigation = [
-  /*
   {
     segment: 'admin',
     title: 'Dashboard',
     icon: <Dashboard />
   },
-  */
   {
     segment: 'admin/destinations',
     title: 'Destinations',
@@ -45,14 +43,12 @@ const NAVIGATION: Navigation = [
 ];
 
 
-const ADMIN_NAVIGATION: Navigation = [
-  /*
+const ADMIN_NAVIGATION: Navigation = [  
   {
     segment: 'admin',
     title: 'Dashboard',
     icon: <Dashboard />
   },
-  */
   {
     segment: 'admin/destinations',
     title: 'Destinations',

@@ -125,3 +125,12 @@ export type User = {
   lastName: string,
   roles: Role[]
 }
+
+export type DashboardStatistic = {
+  category: {
+    total: number
+  },
+  listing: {
+    total: number
+  }
+}
