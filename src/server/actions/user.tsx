@@ -142,3 +142,20 @@ export async function changePassword(currentPassword: string, newPassword: strin
     message: isOk ? 'Password has been changed' : message
   })
 }
+
+export async function changeUserPassword(userId: string, newPassword: string, confirmPassword: string): Promise<ServerResponse> {
+  const { isOk, message, unauthorized } = await HttpClient.request({
+    method: 'POST',
+    url: '/users/' +  userId + '/password' ,
+    data: {
+      newPassword,
+      confirmPassword
+    }
+  });
+
+  return buildResponse({
+    message: isOk ? 'Password has been updated!' : message,
+    isUnauthorized: unauthorized,
+    success: isOk
+  })
+}
