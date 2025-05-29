@@ -1,5 +1,6 @@
 import { Button, ButtonProps } from '@mui/material';
 import { Edit } from '@mui/icons-material';
+import Link from 'next/link';
 
 
 type Props = {
@@ -13,6 +14,7 @@ export default function ButtonEdit(props: Props) {
       variant='text'
       size='small'
       {...props}
+      LinkComponent={Link}
       startIcon={<Edit />}
     >
       Edit
