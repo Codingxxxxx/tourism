@@ -6,11 +6,22 @@ export async function handleServerAction<T = any>(
 ): Promise<ServerResponse<T>> {
   const res = await action();
   
-  if (res.isUnauthorized) {
+  if (!res.isUnauthorized) return res;
+  
+  const { status } = await fetch('/admin/auth/refresh', {
+    method: 'GET'
+  });
+
+  if (status !== 200) {
     useApiHandlerStore.getState().setSessionExipred(true);
+    return {
+      isUnauthorized: true,
+      message: 'Your session is expired'
+    };
   }
 
-  return res;
+  // try request again
+  return await action();
 }
 
 export function withServerHandler<S, P, R = S>(

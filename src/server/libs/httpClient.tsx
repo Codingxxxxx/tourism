@@ -1,8 +1,8 @@
 import 'server-only'
-import { deleteSession, getAccessToken, isLoggedIn, updateToken } from '@/server/libs/session';
+import { deleteSession, getToken, isLoggedIn } from '@/server/libs/session';
 import { PaginationMeta } from '@/shared/types/dto';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { refreshToken } from '@/server/actions/auth';
+import { ApiEndpont } from '../const/api';
 
 const API_BASE = process.env.API_BASE;
 const WEB_API_BASE = process.env.WEB_API_BASE;
@@ -81,15 +81,23 @@ function fetchData<T = any>(request: Request, forWeb = false): Promise<ApiRespon
 async function fetchWithAuthRetry<T = any>(request: Request, forWeb = false):Promise<ApiResponse<T>> {
   return new Promise(async (resolve) => {
     let response = await fetchData<T>(request, forWeb);
+    resolve(response);
+    /*
     if (!response.unauthorized) return resolve(response);
 
     console.log('Token expired, refreshing session...');
-    const { isOk, data, message } = await refreshToken();
+    
+    const { isOk, data, message } = await HttpClient.request({
+      method: 'GET',
+      url: ApiEndpont.REFRESH_TOKEN,
+      data: {
+        refreshToken: await getRefreshToken()
+      }
+    })
 
-    // can't refresh, delete session and back to login
+    // can't refresh
     if (!isOk) {
       console.error('Refresh token failed', message)
-      await deleteSession();
       return resolve({
         code: 401,
         isOk: false,
@@ -99,18 +107,13 @@ async function fetchWithAuthRetry<T = any>(request: Request, forWeb = false):Pro
       });
     }
 
-    console.log('Refreshed Tokens: ', data);
-
-    // update new token to session
-    await updateToken(
-      data?.accessToken ?? '',
-      data?.refreshToken ?? ''
-    )
+    console.log('Refreshed temp Tokens: ', data);
 
     // override token with the new one
     request.headers.set('Authorization', `Bearer ${data?.accessToken}`)
 
     resolve(fetchData<T>(request, forWeb));
+    */
   });
 }
 
@@ -123,13 +126,13 @@ export class HttpClient {
       let request: Request;
       let requestUrl = '';
 
-      if (forWeb) {
+      if (forWeb) {fetchWithAuthRetry
         requestUrl = WEB_API_BASE + url; // set api for front-end
       } else {
         requestUrl = API_BASE + url; // set api for admin
 
         if (await isLoggedIn()) {
-          accessToken = await getAccessToken();
+          accessToken = (await getToken()).accessToken;
         }
               
         headers.append('Authorization', 'Bearer ' + accessToken);
