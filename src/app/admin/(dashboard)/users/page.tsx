@@ -141,8 +141,17 @@ export default function Page() {
     });
   }, [paginationModel]);
 
-  const onConfirmedDelete = (popupState: any, id: string) => {
+  const onConfirmedDelete = async (popupState: any, id: string) => {
     popupState.close();
+    const confirmed = await dialog.confirm('Are you sure to delete this record?', {
+      okText: 'Yes',
+      cancelText: 'No',
+      severity: 'error',
+      title: 'Delete confirmation'
+    });
+
+    if (!confirmed) return;
+
     startTransition(async () => {
       setServerResponse(null);
       const res = await handleServerAction(() => deleteUser(id))
