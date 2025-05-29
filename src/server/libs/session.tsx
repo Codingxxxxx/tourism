@@ -9,24 +9,22 @@ export type SessionPayload = {
   username: string,
   email: string,
   expiresAt?: Date
-  accessToken: string,
-  refreshToken: string
 }
  
 const secretKey = process.env.SESSION_SECRET
 const encodedKey = new TextEncoder().encode(secretKey)
  
-export async function encrypt(payload: SessionPayload) {
+export async function encrypt(payload: any, expiresAt = '180d') {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime(expiresAt)
     .sign(encodedKey)
 }
  
-export async function decrypt(session: string | undefined = '') {
+export async function decrypt<T = any>(session: string | undefined = '') {
   try {
-    const { payload } = await jwtVerify<SessionPayload>(session, encodedKey, {
+    const { payload } = await jwtVerify<T>(session, encodedKey, {
       algorithms: ['HS256'],
     })
     return payload
@@ -41,8 +39,8 @@ export async function createSession(sessionPayload: SessionPayload) {
 
   sessionPayload.expiresAt = expiresAt;
 
-  const session = await encrypt(sessionPayload)
-  const cookieStore = await cookies()
+  const session = await encrypt(sessionPayload);
+  const cookieStore = await cookies();
  
   cookieStore.set('session', session, {
     httpOnly: true,
@@ -59,19 +57,15 @@ export async function getSessionData(): Promise<SessionPayload> {
   return await decrypt(sessionToken);
 }
 
-export async function getAccessToken(): Promise<string> {
-  const payload = await getSessionData();
-  return payload.accessToken;
+export async function getToken(): Promise<{ accessToken: string, refreshToken: string}> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('token')?.value;
+  return await decrypt(token);
 }
 
 export async function isLoggedIn() {
   const cookieStore = await cookies()
-  return cookieStore.get('session') != undefined;
-}
-
-export async function getRefreshToken(): Promise<string> {
-  const payload = await getSessionData();
-  return payload.refreshToken;
+  return cookieStore.get('token') != undefined;
 }
 
 export async function getAdminDisplaySession(): Promise<AdminSession> {
@@ -90,10 +84,23 @@ export async function deleteSession() {
   cookieStore.delete('session')
 }
 
-export async function updateToken(accessToken: string, refreshToken: string) {
-  const payload = await getSessionData();
-  payload.accessToken = accessToken;
-  payload.refreshToken = refreshToken;
+export async function storeToken(accessToken: string, refreshToken: string) {
+  const expiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
 
-  await createSession(payload);
+  const payload = {
+    expiresAt,
+    accessToken,
+    refreshToken
+  }
+
+  const token = await encrypt(payload);
+  const cookieStore = await cookies();
+ 
+  cookieStore.set('token', token, {
+    httpOnly: true,
+    secure: true,
+    expires: expiresAt,
+    sameSite: 'lax',
+    path: '/admin',
+  });
 }

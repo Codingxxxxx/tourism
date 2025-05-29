@@ -1,16 +1,11 @@
 'use server'
 
-import { ServerResponse } from "@/shared/types/serverActions";import { type SessionPayload, createSession, deleteSession, getRefreshToken } from '@/server/libs/session';
+import { ServerResponse } from "@/shared/types/serverActions";
+import { type SessionPayload, createSession, deleteSession, storeToken } from '@/server/libs/session';
 import { HttpClient, buildResponse, type ApiResponse } from '@/server/libs/httpClient';
 import { ApiEndpont } from '@/server/const/api';
 import { ApiCode } from '@/shared/types/api';
-import { AdminSession } from "@/shared/adminSession";
 import { getCurrentProfile } from './user';
-
-type RefreshToken = {
-  accessToken: string,
-  refreshToken: string
-}
 
 export async function login(formData: FormData): Promise<ServerResponse<any>> {
   const email = formData.get('email')?.toString() || '';
@@ -36,16 +31,16 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
   if (!res.isOk) return buildResponse({
     message: res.message
   })
-
+  
+  await storeToken(res.data.accessToken, res.data.refreshToken);
+  
   const user = await getCurrentProfile();
 
   const session: SessionPayload = {
     fullname: user.lastName + ' ' + user.firstName,
     role: user.roles[0].name,
     username: user.username,
-    email: email,
-    accessToken: res.data.accessToken,
-    refreshToken: res.data.refreshToken
+    email: email
   };
 
   await createSession(session);
@@ -53,28 +48,11 @@ if (res.statusName === ApiCode.ERROR_AUTH_FAIL) {
   return buildResponse({
     success: true,
     data: {
-      redirect: '/admin/destinations'
+      redirect: '/admin'
     }
   })
 }
 
 export async function logout() {
   await deleteSession()
-}
-
-export async function refreshToken() {
-  const refreshToken = await getRefreshToken();
-  const { isOk, message, data } = await HttpClient.request<RefreshToken>({
-    url: ApiEndpont.REFRESH_TOKEN,
-    method: 'POST',
-    data: {
-      refreshToken
-    }
-  });
-
-  return {
-    isOk,
-    data,
-    message
-  }
 }

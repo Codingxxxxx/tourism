@@ -8,7 +8,7 @@ import type { Navigation, Session, Branding } from '@toolpad/core/AppProvider';
 import { Dashboard, Topic, PeopleAlt, Room, Restaurant, VerifiedUser } from '@mui/icons-material';
 import { logout } from '@/server/actions/auth';
 import { redirect} from 'next/navigation';
-import { getSessionData } from '@/server/actions/session';
+import { getSessionData } from '@/server/libs/session';
 import { DialogsProvider } from '@toolpad/core';
 
 const NAVIGATION: Navigation = [
