@@ -10,7 +10,7 @@ import { CustomBackdrop } from '@/components/Backdrop';
 import { Box } from '@mui/material';
 import { getImagePath } from '@/shared/utils/fileUtils';
 import EmbedCode from '@/components/EmbedCode'
-
+import SkeletonVideo from '@/components/SkeletonVideo';
 
 const NO_IMAGE = '/no_category.jpg';
 const DEFAULT_VIDEO = 'samples/hotel.mp4';
@@ -19,25 +19,34 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPending, startTransition] = useTransition()
   const [serverResponse, setServerResponse] = useState<ServerResponse<PaginatedDisplayCategories>>();
+  const [videoType, setVideoType] = useState('');
+  const [video, setVideo] = useState('');
  
   useEffect(() => {
     startTransition(async () => {
-      setServerResponse(await getDisplayCategories({
+      const result = await getDisplayCategories({
         limit: 15,
         offset: 0
-      }));
+      });
+
+      setServerResponse(result);
+
+      if (!result.data?.videoCategory?.video) return;
+        setVideo(result.data?.videoCategory?.video);
+        const isLink = /https?:\/\/[^\/]+\/.*\/[\w\-]+\.(mp4|webm|mov|avi)/i.test(result.data?.videoCategory?.video);
+        setVideoType(isLink ? 'VIDEO_URL' : 'EMBED_CODE')
     });
   }, []);
-
+  
   useEffect(() => {
-    if (isPending || !videoRef.current || serverResponse?.data?.videoCategory) return;
+    if (isPending || !videoRef.current || !video || videoType != 'VIDEO_URL') return;
     videojs(videoRef.current, {
       autoplay: false,
       controls: true,
       preload: true,
       aspectRatio: '9:16'
     });
-  }, [isPending, videoRef, serverResponse]);
+  }, [isPending, videoRef, video]);
 
   return (
     <>
@@ -48,16 +57,17 @@ export default function Home() {
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
           {/* Left Hero Section - 100vh height with 9:16 ratio */}
           <div
-            className="bg-blue-500 shadow-lg relative flex items-center justify-center text-white w-full md:w-[56.25vh]"
+            className="shadow-lg relative flex items-center justify-center text-white w-full md:w-[56.25vh]"
             style={{
               height: '100vh',
               minHeight: '100vh',
             }}
           >
-            {serverResponse?.data?.videoCategory?.video && <EmbedCode code={serverResponse?.data?.videoCategory?.video ?? ''} />}
-            <video ref={videoRef} className="video-js" hidden={!serverResponse?.data?.videoCategory?.video}>
-              <source src={serverResponse?.data?.videoCategory?.video || DEFAULT_VIDEO} type="video/mp4" />
+            {video && videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
+            <video ref={videoRef} className="video-js" hidden={videoType !== 'VIDEO_URL'}>
+              <source src={video} type="video/mp4" />
             </video>
+            {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
 
           {/* Right Side Grid (Smaller Cards) */}
