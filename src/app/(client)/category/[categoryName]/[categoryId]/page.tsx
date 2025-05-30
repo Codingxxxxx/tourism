@@ -100,7 +100,7 @@ export default function Page() {
             {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
           <div className="flex-1 pl-2 overflow-auto">
-            <header className='p-4 bg-blue-500 text-white rounded-bl'>
+            <header className='p-4 bg-blue-700 text-white rounded-bl'>
               <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
             </header>
             {subCategories.length >= 1 && 
