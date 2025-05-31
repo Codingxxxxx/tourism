@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: '34.60.52.162'
+      },
+      {
+        protocol: 'http',
+        hostname: 'api.kampottic.com'
       }
     ]
   },
