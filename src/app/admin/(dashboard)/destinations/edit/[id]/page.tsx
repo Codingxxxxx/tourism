@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Box, Button, Grid2 as Grid, Step, StepLabel, Stepper } from '@mui/material';
+import { Box, Button, Divider, Grid2 as Grid, ImageList, ImageListItem, InputLabel, Step, StepLabel, Stepper } from '@mui/material';
 import { Formik, Form, useFormikContext } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
@@ -28,9 +28,22 @@ type FormDestination = {
   location: number | null,
 }
 
+type FormConfirm  = {
+  placeName: string,
+  description: string,
+  phoneNumber: string,
+  rating: string,
+  address: string
+}
+
 const validationSchema = Yub.object({
   categories: Yub.array().of(Yub.number().required()).min(1, 'At least one category is required').strict().label('Categories'),
   location: Yub.number().required().label('Location').test('not-zero', '${label} is required', value => value !== 0 && value !== null)
+});
+
+const validateConfirmation = Yub.object({
+  placeName: Yub.string().required().label('Place Name').max(255),
+  description: Yub.string().label('Description').max(255)
 });
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -73,6 +86,14 @@ export default function Page() {
     location: 0
   });
 
+  const [formConfirmInitial, setFormConfirmInitial] = useState<FormConfirm>({
+    address: '',
+    description: '',
+    phoneNumber: '',
+    placeName: '',
+    rating: 'N/A'
+  });
+
   useEffect(() => {
     startTransition(async () => {
       const [locationResult, categoryResult, destinationResult] = await Promise.all([
@@ -105,21 +126,32 @@ export default function Page() {
     setActiveStep(activeStep + 1);
   }
 
-  const onLocationCaptured = async () => {
+  const onLocationCaptured = () => {
+    setActiveStep(activeStep + 1)
+    setFormConfirmInitial({
+      address: capturedPlaceDetails?.formattedAddress ?? 'N/A',
+      phoneNumber: capturedPlaceDetails?.phoneNumber ?? 'N/A',
+      placeName: destination?.name ?? capturedPlaceDetails?.placeName ?? 'N/A',
+      description: '',
+      rating: String(capturedPlaceDetails?.rating ?? 'N/A')
+    })
+  }
+
+  const onSubmitDestination = async (values: FormConfirm) => {
     setDisableMap(true);
     setServerResponse(null);
 
     const responseState = await handleServerAction(() => updateDestination({
-      name: capturedPlaceDetails?.placeName ?? 'N/A',
+      name: values.placeName ?? capturedPlaceDetails?.placeName,
       categoryIds: initialInputValues.categories,
       locationId: initialInputValues.location ?? 0,
       contactNumber: capturedPlaceDetails?.phoneNumber ?? '',
-      description: capturedPlaceDetails?.address ?? '',
+      description: values.description,
       latitude: capturedPlaceDetails?.geometry?.location?.lat() ?? 0,
       longitude: capturedPlaceDetails?.geometry?.location?.lng() ?? 0,
       placeId: capturedPlaceDetails?.placeId ?? '',
       ratingScore: capturedPlaceDetails?.rating || 0,
-      cover: Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl() : '',
+      cover: Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl({ maxHeight: 600, maxWidth: 600 }) : '',
       map: `https://www.google.com/maps/place/?q=place_id:${capturedPlaceDetails?.placeId}`,
       website: capturedPlaceDetails?.website ?? '',
       email: '',
@@ -142,6 +174,9 @@ export default function Page() {
         </Step>
         <Step>
           <StepLabel>Capture Destination on Map</StepLabel>
+        </Step>
+        <Step>
+          <StepLabel>Confirmation</StepLabel>
         </Step>
       </Stepper>
       {activeStep === 0 && 
@@ -213,6 +248,83 @@ export default function Page() {
             initialMarkers={selectedCoordinate}
           />
         </Box>
+      </Box>
+      {/* step confirmation */}
+      <Box hidden={activeStep !== 2}>
+        <Formik initialValues={formConfirmInitial} validationSchema={validateConfirmation} onSubmit={onSubmitDestination} enableReinitialize>
+          {({ isSubmitting }) => (
+            <Form>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                <Button type="button" variant="contained" color="warning" onClick={() => setActiveStep(activeStep - 1)} disabled={isSubmitting} startIcon={<ArrowBack />}>
+                  Back
+                </Button>
+                <Button type="submit" variant="contained" color="primary" loading={isSubmitting}>
+                  Confirm
+                </Button>
+              </Box>
+              <Grid container spacing={2} width={600} maxWidth='100%' marginX='auto' marginTop={6}>
+                <Grid size={12}>
+                  <CustomTextField 
+                    name='placeName'
+                    label='Place Name'
+                  />
+                  <CustomErrorMessage name='placeName' />
+                </Grid>
+                <Grid size={12}>
+                  <CustomTextField 
+                    name='description'
+                    label='Description'
+                    multiline
+                    rows={6}
+                    placeholder='Place description'
+                  />
+                  <CustomErrorMessage name='description' />
+                </Grid>
+                  <Divider sx={{ width: '100%'}} />
+                <Grid size={12}>
+                  <CustomTextField 
+                    name='phoneNumber'
+                    label='Phone Number'
+                    disabled
+                  />
+                  <CustomErrorMessage name='phoneNumber' />
+                </Grid>
+                <Grid size={12}>
+                  <CustomTextField 
+                    name='rating'
+                    label='Rating'
+                    disabled
+                  />
+                  <CustomErrorMessage name='rating' />
+                </Grid>
+                <Grid size={12}>
+                  <CustomTextField 
+                    name='address'
+                    label='address'
+                    multiline
+                    rows={2}
+                    disabled
+                  />
+                  <CustomErrorMessage name='address' />
+                </Grid>
+                <Grid size={12}>
+                  <InputLabel sx={{ marginBottom: 1 }}>Galleries</InputLabel>
+                  <ImageList cols={3} rowHeight={300}>
+                    {(capturedPlaceDetails?.photos ?? []).map((item) => (
+                      <ImageListItem key={item.getUrl({ maxWidth: 200 })}>
+                        <img
+                          srcSet={`/cdn?photoUrl=${encodeURIComponent(item.getUrl({ maxWidth: 200 }))}`}
+                          src={`/cdn?photoUrl=${encodeURIComponent(item.getUrl({ maxWidth: 200 }))}`}
+                          alt={capturedPlaceDetails?.placeName ?? ''}
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
+                </Grid>
+              </Grid>
+            </Form>
+          )}
+        </Formik>
       </Box>
       {/* alert */}
       {serverResponse && <Toast success={serverResponse.success} message={serverResponse.message} />}
