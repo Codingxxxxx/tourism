@@ -13,6 +13,7 @@ import styles from '@/app/styles/ScrollBox.module.css';
 import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
 import { AddAPhoto } from '@mui/icons-material';
 import Image from 'next/image';
+import { Destination } from '@/shared/types/dto';
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -60,6 +61,7 @@ type DestinationMetaData = {
   galleries: google.maps.places.PlacePhoto[],
   placeName: string,
   markers: MarkerProps[],
+  destination: Destination
 }
 
 export default function Page() {
@@ -67,12 +69,14 @@ export default function Page() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<MarkerProps[]>([]);
+  const [selectedDestination, setSelectedDestination] = useState<Destination>();
   const [isPending, startTransition] = useTransition();
-  const [destinationMeta, setDestinationMeata] = useState<DestinationMetaData[]>([]);
+  const [destinationMeta, setDestinationMeta] = useState<DestinationMetaData[]>([]);
   const { getMarker } = useGoogleMapStore();
 
-  const onLocationClicked = (destination: DestinationMetaData) => {
-    setMarkers(destination.markers);
+  const onLocationClicked = ({ markers, destination }: DestinationMetaData) => {
+    setMarkers(markers);
+    setSelectedDestination(destination);
   }
 
   // load google map API script
@@ -122,7 +126,8 @@ export default function Page() {
               resolve({
                 galleries: data.photos,
                 markers: [marker],
-                placeName: destination.name
+                placeName: destination.name,
+                destination
               })
             }).catch((error) => {
               reject(error);
@@ -131,7 +136,7 @@ export default function Page() {
         });
 
         const destinationMeta = await Promise.all(googleMapPromisesData);
-        setDestinationMeata(destinationMeta); 
+        setDestinationMeta(destinationMeta); 
 
         // select first one as default
         setMarkers([
@@ -143,6 +148,7 @@ export default function Page() {
             placeId: firstDestination.placeId
           }
         ]);
+        setSelectedDestination(firstDestination);
       });
     };    
 
@@ -206,6 +212,7 @@ export default function Page() {
             ref={mapRef} 
             mapInstance={mapInstance} 
             markers={markers}
+            destination={selectedDestination}
           />}
         </Box>
       </div>
