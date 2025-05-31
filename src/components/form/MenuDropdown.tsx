@@ -1,12 +1,6 @@
 import { Box, Button, Menu, MenuItem } from '@mui/material';
-import Link from 'next/link';
-import { Edit } from '@mui/icons-material';
 import { useState } from 'react';
 import ButtonEdit from '../datagrid/ButtonEdit';
-
-type Props = {
-
-}
 
 export function MenuDropdown() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

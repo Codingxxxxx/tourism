@@ -76,8 +76,7 @@ export default function Page() {
       path: '/admin/categories'
     },
     {
-      title: 'Edit Category',
-      path: '/admin/categories/edit'
+      title: 'Update Category'
     }
   ];
 
@@ -171,7 +170,7 @@ export default function Page() {
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Category'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Update Category'>
       <Formik initialValues={initialInputValues} onSubmit={onFormSubmit} validationSchema={validationSchema} enableReinitialize>
         {({ isSubmitting, values }) => (
           <Form>

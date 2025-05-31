@@ -48,7 +48,7 @@ export default function Page() {
       path: '/admin/users'
     },
     {
-      title: 'Edit User'
+      title: 'Update User'
     }
   ];
 
@@ -111,7 +111,7 @@ export default function Page() {
   }, []);
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit User'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Update User'>
       <Formik initialValues={initialState} onSubmit={onFormSubmit} validationSchema={validationSchema} enableReinitialize>
         {({ isSubmitting }) => (
           <Form>

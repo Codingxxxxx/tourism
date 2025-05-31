@@ -58,8 +58,7 @@ const breadcrumbs: Breadcrumb[] = [
     path: '/admin/destinations'
   },
   {
-    title: 'Edit Destination',
-    path: '/admin/destination/edit'
+    title: 'Update Destination'
   }
 ];
 
@@ -167,7 +166,7 @@ export default function Page() {
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Destination'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Update Destination'>
       <Stepper sx={{ paddingBottom: 5 }} activeStep={activeStep}>
         <Step>
           <StepLabel>Setup Destination information</StepLabel>
