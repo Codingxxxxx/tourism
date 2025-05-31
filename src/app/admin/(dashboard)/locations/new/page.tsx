@@ -11,6 +11,7 @@ import { ServerResponse } from "@/shared/types/serverActions";
 import { useState } from 'react';
 import Toast from '@/components/form/Toast';
 import { createLocation } from '@/server/actions/location';
+import { useRouter } from 'next/navigation';
 
 type FormLocation = {
   name: string,
@@ -24,6 +25,7 @@ const validationSchema = Yub.object({
 
 export default function Page() {
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
+  const router = useRouter();
 
   const breadcrumbs: Breadcrumb[] = [
     {
@@ -57,7 +59,7 @@ export default function Page() {
       setServerResponse(serverResponse);
 
       if (serverResponse.success) {
-        helper.resetForm();
+        router.push('/admin/locations');
       }
 
     } catch (error) {
