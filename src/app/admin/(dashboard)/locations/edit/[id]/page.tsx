@@ -48,8 +48,7 @@ export default function Page() {
       path: '/admin/locations'
     },
     {
-      title: 'Edit Location',
-      path: '/admin/locations/edit'
+      title: 'Update Location'
     }
   ];
 
@@ -98,7 +97,7 @@ export default function Page() {
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Location'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Update Location'>
       <Formik initialValues={initialValues} onSubmit={onFormSubmit} validationSchema={validationSchema} enableReinitialize>
         {({ isSubmitting }) => (
           <Form>
@@ -131,7 +130,7 @@ export default function Page() {
               {/* submit btn */}
               <Grid  size={12}>
                 <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large' loading={isSubmitting}>
-                  Submit
+                  Save
                 </Button>
               </Grid>
             </Grid>

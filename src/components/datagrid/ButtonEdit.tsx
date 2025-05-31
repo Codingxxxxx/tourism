@@ -10,8 +10,8 @@ type Props = {
 export default function ButtonEdit(props: Props) {
   return (
     <Button
-      color='warning'
-      variant='text'
+      color='primary'
+      variant='outlined'
       size='small'
       {...props}
       LinkComponent={Link}

@@ -58,8 +58,7 @@ const breadcrumbs: Breadcrumb[] = [
     path: '/admin/destinations'
   },
   {
-    title: 'Edit Destination',
-    path: '/admin/destination/edit'
+    title: 'Update Destination'
   }
 ];
 
@@ -167,7 +166,7 @@ export default function Page() {
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Destination'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Update Destination'>
       <Stepper sx={{ paddingBottom: 5 }} activeStep={activeStep}>
         <Step>
           <StepLabel>Setup Destination information</StepLabel>
@@ -259,7 +258,7 @@ export default function Page() {
                   Back
                 </Button>
                 <Button type="submit" variant="contained" color="primary" loading={isSubmitting}>
-                  Confirm
+                  Save
                 </Button>
               </Box>
               <Grid container spacing={2} width={600} maxWidth='100%' marginX='auto' marginTop={6}>

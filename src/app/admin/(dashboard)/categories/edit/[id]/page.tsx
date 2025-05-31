@@ -76,8 +76,7 @@ export default function Page() {
       path: '/admin/categories'
     },
     {
-      title: 'Edit Category',
-      path: '/admin/categories/edit'
+      title: 'Update Category'
     }
   ];
 
@@ -171,7 +170,7 @@ export default function Page() {
   }
 
   return (
-    <DashboardContainer breadcrumbs={breadcrumbs} title='Edit Category'>
+    <DashboardContainer breadcrumbs={breadcrumbs} title='Update Category'>
       <Formik initialValues={initialInputValues} onSubmit={onFormSubmit} validationSchema={validationSchema} enableReinitialize>
         {({ isSubmitting, values }) => (
           <Form>
@@ -242,7 +241,7 @@ export default function Page() {
               {/* submit btn */}
               <Grid  size={12}>
                 <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large' loading={isSubmitting}>
-                  Submit
+                  Save
                 </Button>
               </Grid>
             </Grid>
