@@ -241,7 +241,7 @@ export default function Page() {
               {/* submit btn */}
               <Grid  size={12}>
                 <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large' loading={isSubmitting}>
-                  Submit
+                  Save
                 </Button>
               </Grid>
             </Grid>

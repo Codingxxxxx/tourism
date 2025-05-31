@@ -190,7 +190,7 @@ export default function Page() {
               </Grid>
               <Grid  size={12}>
                 <Button type="submit" fullWidth variant="contained" color="primary" loading={isSubmitting} size='large'>
-                  Submit
+                  Save
                 </Button>
               </Grid>
             </Grid>

@@ -258,7 +258,7 @@ export default function Page() {
                   Back
                 </Button>
                 <Button type="submit" variant="contained" color="primary" loading={isSubmitting}>
-                  Confirm
+                  Save
                 </Button>
               </Box>
               <Grid container spacing={2} width={600} maxWidth='100%' marginX='auto' marginTop={6}>
