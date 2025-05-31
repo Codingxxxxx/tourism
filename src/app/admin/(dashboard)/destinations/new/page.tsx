@@ -20,6 +20,7 @@ import GooglePlaceCapture from '@/components/map/GooglePlaceCapture';
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { ArrowBack, AddLocation, CategorySharp, Label } from '@mui/icons-material';
 import { createDestination } from '@/server/actions/destination';
+import { useRouter } from 'next/navigation';
 
 type FormDestination = {
   categories: number[],
@@ -70,6 +71,7 @@ export default function Page() {
   const [disableMap, setDisableMap] = useState(false);
   const { resetForm, submitForm } = useFormikContext() ?? {};
   const [resetMap, setResetMap] = useState(false);
+  const router = useRouter();
 
   const [initialInputValues, setInitialInputValues] = useState<FormDestination>({
     categories: [],
@@ -138,13 +140,7 @@ export default function Page() {
     setServerResponse(responseState);
 
     if (responseState.success) {
-      setInitialInputValues({
-        categories: [],
-        location: 0
-      });
-      setActiveStep(0);
-      resetForm();
-      setResetMap(true);
+      router.push('/admin/destinations');
     }
   }
 

@@ -16,6 +16,7 @@ import CustomDropdown from '@/components/form/CustomDropdown';
 import { Role } from '@/shared/types/dto';
 import { handleServerAction } from '@/shared/utils/apiUtils';
 import { CustomBackdrop } from '@/components/Backdrop';
+import { useRouter } from 'next/navigation';
 
 type FormProps = {
   username: string,
@@ -46,6 +47,7 @@ export default function Page() {
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
 
   const initialState: FormProps = {
     username: '',
@@ -83,7 +85,7 @@ export default function Page() {
       setServerResponse(serverResponse);
 
       if (serverResponse.success) {
-        helpers.resetForm();
+        router.push('/admin/users');
       }
     } catch (error) {
       console.error(error);
