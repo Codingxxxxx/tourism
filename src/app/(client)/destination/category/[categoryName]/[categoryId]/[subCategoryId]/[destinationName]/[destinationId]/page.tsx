@@ -162,7 +162,7 @@ export default function Page() {
       {/* Main Container with 100vh */}
       <div className="container-full h-[100vh] flex flex-col overflow-hidden">
         {/* header */}
-        <Breadcrumbs aria-label="breadcrumb" className='p-4 bg-blue-500' separator={<span className="text-slate-100">/</span>}>
+        <Breadcrumbs aria-label="breadcrumb" className='p-4 bg-blue-700' separator={<span className="text-slate-100">/</span>}>
           <MuiLink sx={{ display: 'flex', alignItems: 'center', color: 'primary' }} underline='hover' href='/'>
             <HomeIcon className='text-slate-100' sx={{ mr: 1 }} />
             <span className='text-slate-100'>Home</span>

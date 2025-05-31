@@ -10,6 +10,9 @@ import { Category, Destination } from '@/shared/types/dto';
 import TabPanel, { a11yProps } from '@/components/TabPanel';
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { CustomBackdrop } from '@/components/Backdrop';
+import EmbedCode from '@/components/EmbedCode';
+import SkeletonVideo from '@/components/SkeletonVideo';
+import { ServerResponse } from '@/shared/types/serverActions';
 
 type PageParams = {
   categoryName: string,
@@ -22,12 +25,13 @@ const NO_IMAGE = '/no_category.jpg';
 export default function Page() {
   const params = useParams<PageParams>();
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
+  const [serverResponse, setServerResponse] = useState<ServerResponse>();
   const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [listing, setListing] = useState<Destination[]>([]);
   const [isPending, startTransition] = useTransition();
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number>(0  );  
-
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number>(0);  
+  const [videoType, setVideoType] = useState('');
+  const [video, setVideo] = useState('');
   const [activeTab, setActiveTab] = useState(0);
 
   const onTabChange = (categoryId: number, tabIdx: number) => {
@@ -57,12 +61,21 @@ export default function Page() {
       const response = await getSubCategories(params.categoryId)
       const data = response.data ?? [];
 
+      setServerResponse(response);
       setSubCategories(data);
 
       if (data.length === 0) return;
 
       // auto select first category
       onTabChange((data[0] as Category).id, 0);
+
+      const videoCategory = data.find(cate => cate.isFront);
+
+      if (!videoCategory) return;
+
+      setVideo(videoCategory.video);
+      const isLink = /https?:\/\/[^\/]+\/.*\/[\w\-]+\.(mp4|webm|mov|avi)/i.test(videoCategory.video);
+      setVideoType(isLink ? 'VIDEO_URL' : 'EMBED_CODE')
     })
   }, []);
 
@@ -80,13 +93,14 @@ export default function Page() {
               minHeight: '100vh',
             }}
           >
-          {/* Right Side Grid (Smaller Cards) */}
-            <video ref={videoRef} className="video-js">
-              <source src='/samples/hotel.mp4' type="video/mp4" />
+            {video && videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
+            <video ref={videoRef} className="video-js" hidden={videoType !== 'VIDEO_URL'}>
+              <source src={video} type="video/mp4" />
             </video>
+            {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
           <div className="flex-1 pl-2 overflow-auto">
-            <header className='p-4 bg-blue-500 text-white rounded-bl'>
+            <header className='p-4 bg-blue-700 text-white rounded-bl'>
               <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
             </header>
             {subCategories.length >= 1 && 
