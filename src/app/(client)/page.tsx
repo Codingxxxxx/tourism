@@ -1,22 +1,20 @@
 'use client';
 import Image from "next/image";
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css'
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { getDisplayCategories } from '@/server/actions/web/home';
 import { ServerResponse, PaginatedDisplayCategories } from '@/shared/types/serverActions';
 import { CustomBackdrop } from '@/components/Backdrop';
-import { Box } from '@mui/material';
 import { getImagePath } from '@/shared/utils/fileUtils';
 import EmbedCode from '@/components/EmbedCode'
 import SkeletonVideo from '@/components/SkeletonVideo';
+import EmbedVideo from '@/components/EmbedVideo';
+import EmbedIframe from '@/components/EmbedIframe';
 
 const NO_IMAGE = '/no_category.jpg';
 const DEFAULT_VIDEO = 'samples/hotel.mp4';
 
 export default function Home() {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPending, startTransition] = useTransition()
   const [serverResponse, setServerResponse] = useState<ServerResponse<PaginatedDisplayCategories>>();
   const [videoType, setVideoType] = useState('');
@@ -32,21 +30,19 @@ export default function Home() {
       setServerResponse(result);
 
       if (!result.data?.videoCategory?.video) return;
-        setVideo(result.data?.videoCategory?.video);
-        const isLink = /https?:\/\/[^\/]+\/.*\/[\w\-]+\.(mp4|webm|mov|avi)/i.test(result.data?.videoCategory?.video);
-        setVideoType(isLink ? 'VIDEO_URL' : 'EMBED_CODE')
+
+      const isLink = /https?:\/\/[^\/]+\/.*\/[\w\-]+\.(mp4|webm|mov|avi)/i.test(result.data?.videoCategory?.video);
+
+      if (isLink) {
+        setVideoType('VIDEO_URL');
+      } else if (result.data?.videoCategory?.video) {
+        setVideoType('EMBED_URL');
+      } else {
+        setVideoType('EMBED_CODE');
+      }
     });
   }, []);
-  
-  useEffect(() => {
-    if (isPending || !videoRef.current || !video || videoType != 'VIDEO_URL') return;
-    videojs(videoRef.current, {
-      autoplay: false,
-      controls: true,
-      preload: true,
-      aspectRatio: '9:16'
-    });
-  }, [isPending, videoRef, video]);
+
 
   return (
     <>
@@ -64,9 +60,8 @@ export default function Home() {
             }}
           >
             {video && videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
-            <video ref={videoRef} className="video-js" hidden={videoType !== 'VIDEO_URL'}>
-              <source src={video} type="video/mp4" />
-            </video>
+            {video && videoType === 'EMBED_URL' && <EmbedIframe url={video} />}
+            {video && videoType === 'VIDEO_URL' && <EmbedVideo videoUrl={video} />}
             {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
 

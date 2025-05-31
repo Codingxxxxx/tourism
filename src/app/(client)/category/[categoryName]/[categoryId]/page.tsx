@@ -1,18 +1,18 @@
 'use client'
 import Image from 'next/image';
 import Link from 'next/link'
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css'
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useParams } from 'next/navigation';
 import { getListingBySubCategoryId, getSubCategories } from '@/server/actions/web/home';
 import { Category, Destination } from '@/shared/types/dto';
-import TabPanel, { a11yProps } from '@/components/TabPanel';
+import { a11yProps } from '@/components/TabPanel';
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { CustomBackdrop } from '@/components/Backdrop';
 import EmbedCode from '@/components/EmbedCode';
 import SkeletonVideo from '@/components/SkeletonVideo';
 import { ServerResponse } from '@/shared/types/serverActions';
+import EmbedIframe from '@/components/EmbedIframe';
+import EmbedVideo from '@/components/EmbedVideo';
 
 type PageParams = {
   categoryName: string,
@@ -21,10 +21,10 @@ type PageParams = {
 
 const caches: Record<string, Destination[]> = {};
 const NO_IMAGE = '/no_category.jpg';
+const URL_REGEX = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?(\?[^\s]*)?$/;
 
 export default function Page() {
   const params = useParams<PageParams>();
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [serverResponse, setServerResponse] = useState<ServerResponse>();
   const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [listing, setListing] = useState<Destination[]>([]);
@@ -46,17 +46,6 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (videoRef.current) {
-      videojs(videoRef.current, {
-        autoplay: false,
-        controls: true,
-        preload: true,
-        aspectRatio: '9:16'
-      });
-    }
-  }, []);
-
-  useEffect(() => {
     startTransition(async () => {
       const response = await getSubCategories(params.categoryId)
       const data = response.data ?? [];
@@ -74,8 +63,16 @@ export default function Page() {
       if (!videoCategory) return;
 
       setVideo(videoCategory.video);
+
       const isLink = /https?:\/\/[^\/]+\/.*\/[\w\-]+\.(mp4|webm|mov|avi)/i.test(videoCategory.video);
-      setVideoType(isLink ? 'VIDEO_URL' : 'EMBED_CODE')
+
+      if (isLink) {
+        setVideoType('VIDEO_URL');
+      } else if (URL_REGEX.test(videoCategory.video)) {
+        setVideoType('EMBED_URL');
+      } else {
+        setVideoType('EMBED_CODE');
+      }
     })
   }, []);
 
@@ -94,9 +91,8 @@ export default function Page() {
             }}
           >
             {video && videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
-            <video ref={videoRef} className="video-js" hidden={videoType !== 'VIDEO_URL'}>
-              <source src={video} type="video/mp4" />
-            </video>
+            {video && videoType === 'EMBED_URL' && <EmbedIframe url={video} />}
+            {video && videoType === 'VIDEO_URL' && <EmbedVideo videoUrl={video} />}
             {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
           <div className="flex-1 pl-2 overflow-auto">
