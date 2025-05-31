@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Button, Grid2 as Grid } from '@mui/material';
+import { Box, Button, Grid2 as Grid } from '@mui/material';
 import { Formik, Form, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
@@ -18,18 +18,21 @@ import { Category } from '@/shared/types/dto';
 import CustomDropdown from '@/components/form/CustomDropdown';
 import Toast from '@/components/form/Toast';
 import { handleServerAction } from '@/shared/utils/apiUtils';
+import { useRouter } from 'next/navigation';
 
 type FormCategoryStats = {
   categoryName: string
   image: FileObject[],
   isEmbedVideo: boolean,
   video: string,
-  parent?: number
+  parent?: number,
+  isFront: boolean
 }
 
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
   isEmbedVideo: Yub.bool(),
+  isFront: Yub.bool(),
   video: Yub
     .string()
     .label('Video URL or Embed Code')
@@ -53,6 +56,7 @@ const validationSchema = Yub.object({
 export default function Page() {
   const [serverResponse, setServerResponse] = useState<ServerResponse | null>();
   const [categories, setCategories] = useState<Category[]>([]);
+  const router = useRouter();
 
   const breadcrumbs: Breadcrumb[] = [
     {
@@ -74,7 +78,8 @@ export default function Page() {
       image: [],
       isEmbedVideo: false,
       video: '',
-      parent: 0
+      parent: 0,
+      isFront: false
     };
 
   useEffect(() => {
@@ -100,6 +105,8 @@ export default function Page() {
         sourceUrl = values.video
       }
 
+      console.log(values.isEmbedVideo ? Number(values.isFront) : 0);
+
       // create category
       const serverResponse = await handleServerAction(() => 
         createCategory({
@@ -107,16 +114,16 @@ export default function Page() {
           nameKH: values.categoryName,
           photo: values.isEmbedVideo ? '' : sourceUrl,
           video: values.isEmbedVideo ? sourceUrl : '',
-          parentId: Number(values.parent ?? 0)
+          parentId: Number(values.parent ?? 0),
+          isFront: values.isEmbedVideo ? Number(values.isFront) : 0
         })
       );
 
       setServerResponse(serverResponse);
 
       if (serverResponse.success) {
-        helper.resetForm();
+        router.push('/admin/categories');
       }
-
     } catch (error) {
       helper.setSubmitting(false);
       console.log(error);
@@ -190,6 +197,15 @@ export default function Page() {
                   name='isEmbedVideo' 
                   checked={values.isEmbedVideo}
                 />
+                {/* show in home page */}
+                <Box hidden={!values.isEmbedVideo}>
+                  <CustomCheckBox 
+                    id='isFront' 
+                    label='Show video in home page' 
+                    name='isFront'
+                    checked={values.isFront}
+                  />
+                </Box>
               </Grid>
               {/* submit btn */}
               <Grid  size={12}>

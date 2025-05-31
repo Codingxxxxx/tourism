@@ -1,6 +1,6 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Backdrop, Button, Grid2 as Grid } from '@mui/material';
+import { Backdrop, Box, Button, Grid2 as Grid } from '@mui/material';
 import { Formik, Form, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
@@ -28,7 +28,8 @@ type FormCategoryStats = {
   image: FileObject[],
   isEmbedVideo: boolean,
   video: string,
-  parent: number | null
+  parent: number | null,
+  isFront: boolean
 }
 
 type PageParams = {
@@ -85,7 +86,8 @@ export default function Page() {
     image: [],
     isEmbedVideo: false,
     video: '',
-    parent: 0
+    parent: 0,
+    isFront: false
   });
 
   useEffect(() => {
@@ -117,7 +119,8 @@ export default function Page() {
         image: isVideo ? [] : [image],
         isEmbedVideo: isVideo,
         parent: category.parentId,
-        video: category.video ?? ''
+        video: category.video ?? '',
+        isFront: Boolean(category.isFront)
       });
     });
   }, []);
@@ -151,7 +154,8 @@ export default function Page() {
           nameKH: values.categoryName,
           photo: values.isEmbedVideo ? '' : sourceUrl,
           video: values.isEmbedVideo ? sourceUrl : '',
-          parentId: values.parent ?? 0
+          parentId: values.parent ?? 0,
+          isFront: values.isEmbedVideo ? Number(values.isFront) : 0
         }, String(category?.id))
       );
 
@@ -237,6 +241,15 @@ export default function Page() {
                   name='isEmbedVideo' 
                   checked={values.isEmbedVideo}
                 />
+                {/* show in home page */}
+                <Box hidden={!values.isEmbedVideo}>
+                  <CustomCheckBox 
+                    id='isFront' 
+                    label='Show video in home page' 
+                    name='isFront'
+                    checked={values.isFront}
+                  />
+                </Box>
               </Grid>
               {/* submit btn */}
               <Grid  size={12}>

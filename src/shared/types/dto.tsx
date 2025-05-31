@@ -64,7 +64,8 @@ export type FormCreateCateogry = {
   description?: string,
   video?: string,
   photo?: string,
-  parentId: number
+  parentId: number,
+  isFront: number
 }
 
 export type FormCreateLocation = {

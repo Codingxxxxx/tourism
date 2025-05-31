@@ -110,7 +110,9 @@ export default function PageCategory() {
       headerName: 'Actions',
       renderCell: ({ value }) => {
         return <ButtonAction editFormLink={`/admin/categories/edit/${value}`} onConfirmDelete={() => onConfirmedDelete(value)} />
-      }
+      },
+      width: 200,
+      minWidth: 200
     }
   ]
 
