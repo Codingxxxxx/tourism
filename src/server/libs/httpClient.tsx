@@ -57,7 +57,7 @@ function fetchData<T = any>(request: Request, forWeb = false): Promise<ApiRespon
   
         resolve({
           code: res.status,
-          message: resData.code === 0 ? resData.message : 'Failed to process the request, please try again later',
+          message: res.status === 401 || res.status >= 500 ? 'Failed to process the request, please try again later' : resData.message,
           statusName: resData.statusName || '',
           data: resData.data || null,
           isOk: resData.code === 0,
