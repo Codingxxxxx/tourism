@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle, RefObject } from 'react';
 import { useGoogleMapStore, PlaceDetails } from '@/stores/useGoogleMapStore';
 import MapSidebar from './MapSidebar';
+import { Destination } from '@/shared/types/dto';
 
 export type MarkerProps = {
   placeId: string;
@@ -10,7 +11,8 @@ export type MarkerProps = {
 
 type GoogleMapProps = {
   markers?: MarkerProps[],
-  mapInstance: RefObject<google.maps.Map | null>
+  mapInstance: RefObject<google.maps.Map | null>,
+  destination?: Destination
 }
 
 type SelectedMarker = {
@@ -23,7 +25,7 @@ type CustomMarkerIcon = {
   scaledSize: google.maps.Size
 }
 
-const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => {
+const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapProps, ref) => {
   const { getMarker } = useGoogleMapStore();
   const mapRef = useRef<HTMLDivElement>(null);
   
@@ -85,7 +87,7 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
           const marker = new google.maps.Marker({
             position: markerPosition,
             map: mapInstance.current,
-            title: placeDetails.placeName,
+            title: destination?.name,
             icon: unselectedMarkerIcon
           });
 
@@ -185,7 +187,7 @@ const GoogleMap = forwardRef(({ markers, mapInstance }: GoogleMapProps, ref) => 
           height: 'calc(100% - 10px)'
           }}
         >
-        <MapSidebar placeDetails={selectedPlaceDetails} />
+        <MapSidebar placeDetails={selectedPlaceDetails} destination={destination} />
       </Box>
       }
       {/* Map reference  */}

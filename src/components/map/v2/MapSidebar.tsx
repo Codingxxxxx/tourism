@@ -1,19 +1,21 @@
 import PlacePhoto from './../PlacePhoto'
 import { PlaceDetails } from '@/stores/useGoogleMapStore';
 import { Box, Typography, Rating, Divider, Button } from '@mui/material';
-import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined } from '@mui/icons-material';
+import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined, TypeSpecimen } from '@mui/icons-material';
 import { formatOpeningHours } from '@/utils/openHourFormatter';
 import Image from 'next/image';
 import { useState } from 'react';
 import DestinationDirection from '@/components/map/DestinationDirection';
+import { Destination } from '@/shared/types/dto';
 
 export type MapSidebarProps = {
   placeDetails: PlaceDetails,
+  destination?: Destination
 }
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-export default function MapSidebar({ placeDetails }: MapSidebarProps) {
+export default function MapSidebar({ placeDetails, destination }: MapSidebarProps) {
   const [openDialog, setOpenDialog] = useState(false);
 
   return (
@@ -24,7 +26,7 @@ export default function MapSidebar({ placeDetails }: MapSidebarProps) {
       {/* Place Main Info */}
       <Box sx={{ padding: 2 }}>
         {/* Place name */}
-        <Typography variant='h6' fontWeight={500}>{placeDetails.placeName}</Typography>
+        <Typography variant='h6' fontWeight={500}>{destination?.name ?? placeDetails.placeName}</Typography>
         {/* Place information */}
         <Box className='text-slate-600 text-sm'>
           {/* Rating */}
@@ -72,6 +74,10 @@ export default function MapSidebar({ placeDetails }: MapSidebarProps) {
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
             {placeDetails.geometry && <Button type='button' startIcon={<DirectionsOutlined />} onClick={() => setOpenDialog(true)} >Travel direction</Button> }
         </Box>
+        {/* description */}
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
+            <Typography variant='body2' dangerouslySetInnerHTML={{ __html: destination?.description ?? ''}} />
+        </Box>
       </Box>
       {openDialog &&
         <DestinationDirection
@@ -81,7 +87,7 @@ export default function MapSidebar({ placeDetails }: MapSidebarProps) {
           key={placeDetails.placeId}
           placeId={placeDetails.placeId}
           open={openDialog}
-          placeName={placeDetails.placeName ?? ''}
+          placeName={destination?.name ?? ''}
           onClose={() => setOpenDialog(false)}
         />
       }     
