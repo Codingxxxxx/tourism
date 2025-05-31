@@ -30,6 +30,11 @@ export default function DashboardContainer({ children, breadcrumbs, title }: Das
     <PageContainer 
       slotProps={{ header: { title, breadcrumbs: breadcrumbs } }} 
       slots={{ header: CustomHeader }}
+      maxWidth={false} 
+      sx={{
+        maxWidth: '100%',
+        width: '100%'
+      }}
     >
       <Box sx={{ marginTop: 2 }}>
         {children}
