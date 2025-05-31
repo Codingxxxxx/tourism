@@ -44,7 +44,6 @@ export async function createSession(sessionPayload: SessionPayload) {
  
   cookieStore.set('session', session, {
     httpOnly: true,
-    secure: true,
     expires: expiresAt,
     sameSite: 'lax',
     path: '/admin',
@@ -98,7 +97,6 @@ export async function storeToken(accessToken: string, refreshToken: string) {
  
   cookieStore.set('token', token, {
     httpOnly: true,
-    secure: true,
     expires: expiresAt,
     sameSite: 'lax',
     path: '/admin',
