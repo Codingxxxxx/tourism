@@ -15,12 +15,16 @@ import { useRouter } from 'next/navigation';
 
 type FormLocation = {
   name: string,
-  remark: string
+  remark: string,
+  lat: string,
+  long: string
 }
 
 const validationSchema = Yub.object({
   name: Yub.string().required().max(25).label('Location Name'),
-  remark: Yub.string().max(50).required().label('Description')
+  remark: Yub.string().max(50).required().label('Description'),
+  lat: Yub.number().max(85).typeError('${label} must be a number').required().label('Latitude'),
+  long: Yub.number().max(180).typeError('${label} must be a number').required().label('Longitude')
 });
 
 export default function Page() {
@@ -44,7 +48,9 @@ export default function Page() {
 
   const initialInputValues: FormLocation = {
     name: '',
-    remark: ''
+    remark: '',
+    lat: '',
+    long: ''
   };
   
   const onFormSubmit = async (values: FormLocation, helper: FormikHelpers<FormLocation>): Promise<void> => {
@@ -53,7 +59,9 @@ export default function Page() {
 
       const serverResponse = await createLocation({
         name: values.name,
-        remark: values.remark
+        remark: values.remark,
+        latitude: Number(values.lat),
+        longitude: Number(values.long)
       })
 
       setServerResponse(serverResponse);
@@ -97,7 +105,30 @@ export default function Page() {
                   <CustomErrorMessage name='remark' />
                 </FormGroup>
               </Grid>
-
+              {/* lat */}
+              <Grid size={6}>
+                <FormGroup>
+                  <CustomTextField
+                    id='lat'
+                    label='Latitude'
+                    name='lat'
+                    required
+                  />
+                  <CustomErrorMessage name='lat' />
+                </FormGroup>
+              </Grid>
+              {/* lng */}
+              <Grid size={6}>
+                <FormGroup>
+                  <CustomTextField
+                    id='long'
+                    label='Longitude'
+                    name='long'
+                    required
+                  />
+                  <CustomErrorMessage name='long' />
+                </FormGroup>
+              </Grid>
               {/* submit btn */}
               <Grid  size={12}>
                 <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large' loading={isSubmitting}>
