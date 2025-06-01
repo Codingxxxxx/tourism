@@ -132,7 +132,8 @@ export default function Page() {
             {/* if not found */}
             {!isPending && listing.length === 0 && 
               <Box sx={{ marginTop: 3 }}>
-                <Typography className='text-slate-700'>No any destinations found</Typography>
+                <Image className='mx-auto' src='/not_found.svg' width={600} height={400} alt='not found' />
+                <Typography align='center' className='text-slate-700'>No destinations found</Typography>
               </Box>
             }
           </div>
