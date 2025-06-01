@@ -26,7 +26,6 @@ import { useRouter } from 'next/navigation';
 type FormCategoryStats = {
   categoryName: string
   image: FileObject[],
-  isEmbedVideo: boolean,
   video: string,
   parent: number | null,
   isFront: boolean
@@ -84,7 +83,6 @@ export default function Page() {
   const [initialInputValues, setInitialInputValuess] = useState<FormCategoryStats>({
     categoryName: '',
     image: [],
-    isEmbedVideo: false,
     video: '',
     parent: 0,
     isFront: false
@@ -116,8 +114,7 @@ export default function Page() {
 
       setInitialInputValuess({
         categoryName: category.name,
-        image: isVideo ? [] : [image],
-        isEmbedVideo: isVideo,
+        image: category.photo ? [image] : [],
         parent: category.parentId,
         video: category.video ?? '',
         isFront: Boolean(category.isFront)
@@ -130,21 +127,15 @@ export default function Page() {
       setServerResponse(null);
       let sourceUrl = ''; // can be image url or video url
 
-      if (!values.isEmbedVideo) {
-        // if user didn't select new file, then just use existing url
-
-        if (getImagePath(category?.photo ?? '') === values.image[0].url) {
-          sourceUrl = category?.photo as string
-        } else {
-          // upload image
-          const formData = new FormData();
-          const file = values.image[0].file as File;
-          formData.set('file', file, file.name);
-          const result = await uploadImage(formData);
-          sourceUrl = result?.data?.url
-        }
+      if (getImagePath(category?.photo ?? '') === values.image[0].url) {
+        sourceUrl = category?.photo as string
       } else {
-        sourceUrl = values.video
+        // upload image
+        const formData = new FormData();
+        const file = values.image[0].file as File;
+        formData.set('file', file, file.name);
+        const result = await uploadImage(formData);
+        sourceUrl = result?.data?.url
       }
 
       // update category
@@ -152,10 +143,10 @@ export default function Page() {
         updateCategoryById({
           name: values.categoryName,
           nameKH: values.categoryName,
-          photo: values.isEmbedVideo ? '' : sourceUrl,
-          video: values.isEmbedVideo ? sourceUrl : '',
+          photo: sourceUrl,
+          video: values.video,
           parentId: values.parent ?? 0,
-          isFront: values.isEmbedVideo ? Number(values.isFront) : 0
+          isFront: Number(values.isFront)
         }, String(category?.id))
       );
 
@@ -218,38 +209,27 @@ export default function Page() {
                 </Grid>
               }
               {/* Embed video */}
-              {values.isEmbedVideo && 
-                <Grid size={12}>
-                  <FormGroup sx={{ marginLeft: 'auto' }}>
-                    <CustomTextField
-                      id='video'
-                      label='Video URL or Embed Code'
-                      name='video'
-                      multiline
-                      rows={10}
-                      required
-                    />
-                    <CustomErrorMessage name='video' />
-                  </FormGroup>
-                </Grid>
-              }
+              <Grid size={12}>
+                <FormGroup sx={{ marginLeft: 'auto' }}>
+                  <CustomTextField
+                    id='video'
+                    label='Video URL or Embed Code'
+                    name='video'
+                    multiline
+                    rows={10}
+                    required
+                  />
+                  <CustomErrorMessage name='video' />
+                </FormGroup>
+              </Grid>
               {/* check if embed video */}
               <Grid size={12}>
                 <CustomCheckBox 
-                  id='isEmbedVideo' 
-                  label='Enable embed video' 
-                  name='isEmbedVideo' 
-                  checked={values.isEmbedVideo}
-                />
-                {/* show in home page */}
-                <Box hidden={!values.isEmbedVideo}>
-                  <CustomCheckBox 
                     id='isFront' 
                     label='Show video in home page' 
                     name='isFront'
                     checked={values.isFront}
                   />
-                </Box>
               </Grid>
               {/* submit btn */}
               <Grid  size={12}>

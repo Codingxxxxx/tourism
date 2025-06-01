@@ -23,7 +23,6 @@ import { useRouter } from 'next/navigation';
 type FormCategoryStats = {
   categoryName: string
   image: FileObject[],
-  isEmbedVideo: boolean,
   video: string,
   parent?: number,
   isFront: boolean
@@ -31,25 +30,15 @@ type FormCategoryStats = {
 
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
-  isEmbedVideo: Yub.bool(),
   isFront: Yub.bool(),
   video: Yub
     .string()
+    .max(500)
     .label('Video URL or Embed Code')
-    .when('isEmbedVideo', {
-      is: true,
-      then: (schema) => schema.required(),
-      otherwise: (schema) => schema.notRequired()
-    })
     ,
-  image: Yub
-    .mixed()
-    .when('isEmbedVideo', ([isEmbedVideo], schema) => {
-      if (isEmbedVideo) return Yub.mixed().notRequired();
-      return yupFiles({
-        formats: ['image/png', 'image/jpg', 'image/jpeg'],
-        min: 1
-      })
+  image: yupFiles({
+      formats: ['image/png', 'image/jpg', 'image/jpeg'],
+      min: 1
     })
 });
 
@@ -76,7 +65,6 @@ export default function Page() {
   const initialInputValues: FormCategoryStats = {
       categoryName: '',
       image: [],
-      isEmbedVideo: false,
       video: '',
       parent: 0,
       isFront: false
@@ -94,28 +82,24 @@ export default function Page() {
       setServerResponse(null);
       let sourceUrl = ''; // can be image url or video url
 
-      if (!values.isEmbedVideo) {
+      if (values.image.length > 0) {
         // upload image
         const formData = new FormData();
         const file = values.image[0].file as File;
         formData.set('file', file, file.name);
         const result = await uploadImage(formData);
         sourceUrl = result?.data?.url
-      } else {
-        sourceUrl = values.video
       }
-
-      console.log(values.isEmbedVideo ? Number(values.isFront) : 0);
 
       // create category
       const serverResponse = await handleServerAction(() => 
         createCategory({
-          name: values.categoryName,
+          name: values.categoryName,  
           nameKH: values.categoryName,
-          photo: values.isEmbedVideo ? '' : sourceUrl,
-          video: values.isEmbedVideo ? sourceUrl : '',
+          photo: sourceUrl,
+          video: values.video,
           parentId: Number(values.parent ?? 0),
-          isFront: values.isEmbedVideo ? Number(values.isFront) : 0
+          isFront: Number(values.isFront)
         })
       );
 
@@ -162,50 +146,36 @@ export default function Page() {
                 </FormGroup>
               </Grid>
               {/* File input */}
-              {!values.isEmbedVideo && 
-                <Grid size={12}>
-                  <FileInput
-                    id='image'
-                    name='image'
-                    accept='image/*'
-                    maxsize={2.5}
-                  />
-                  <CustomErrorMessage name='image' />
-                </Grid>
-              }
+              <Grid size={12}>
+                <FileInput
+                  id='image'
+                  name='image'
+                  accept='image/*'
+                  maxsize={2.5}
+                />
+                <CustomErrorMessage name='image' />
+              </Grid>
               {/* Embed video */}
-              {values.isEmbedVideo && 
-                <Grid size={12}>
-                  <FormGroup sx={{ marginLeft: 'auto' }}>
-                    <CustomTextField
-                      id='video'
-                      label='Video URL or Embed Code'
-                      name='video'
-                      multiline
-                      rows={10}
-                      required
-                    />
-                    <CustomErrorMessage name='video' />
-                  </FormGroup>
-                </Grid>
-              }
+              <Grid size={12}>
+                <FormGroup sx={{ marginLeft: 'auto' }}>
+                  <CustomTextField
+                    id='video'
+                    label='Video URL or Embed Code'
+                    name='video'
+                    multiline
+                    rows={10}
+                  />
+                  <CustomErrorMessage name='video' />
+                </FormGroup>
+              </Grid>
               {/* check if embed video */}
               <Grid size={12}>
                 <CustomCheckBox 
-                  id='isEmbedVideo' 
-                  label='Enable embed video' 
-                  name='isEmbedVideo' 
-                  checked={values.isEmbedVideo}
+                  id='isFront' 
+                  label='Show video in home page' 
+                  name='isFront'
+                  checked={values.isFront}
                 />
-                {/* show in home page */}
-                <Box hidden={!values.isEmbedVideo}>
-                  <CustomCheckBox 
-                    id='isFront' 
-                    label='Show video in home page' 
-                    name='isFront'
-                    checked={values.isFront}
-                  />
-                </Box>
               </Grid>
               {/* submit btn */}
               <Grid  size={12}>
