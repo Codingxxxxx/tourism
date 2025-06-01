@@ -13,6 +13,8 @@ import EmbedIframe from '@/components/EmbedIframe';
 
 const NO_IMAGE = '/no_category.jpg';
 const DEFAULT_VIDEO = 'samples/hotel.mp4';
+const URL_REGEX = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?(\?[^\s]*)?$/;
+
 
 export default function Home() {
   const [isPending, startTransition] = useTransition()
@@ -35,14 +37,17 @@ export default function Home() {
 
       if (isLink) {
         setVideoType('VIDEO_URL');
-      } else if (result.data?.videoCategory?.video) {
+      } else if (URL_REGEX.test(result.data?.videoCategory?.video)) {
         setVideoType('EMBED_URL');
       } else {
         setVideoType('EMBED_CODE');
       }
+
+      setVideo(result.data?.videoCategory?.video);
     });
   }, []);
 
+  console.log(video, videoType);
 
   return (
     <>
@@ -59,10 +64,10 @@ export default function Home() {
               minHeight: '100vh',
             }}
           >
-            {video && videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
-            {video && videoType === 'EMBED_URL' && <EmbedIframe url={video} />}
-            {video && videoType === 'VIDEO_URL' && <EmbedVideo videoUrl={video} />}
-            {serverResponse && !isPending && !video && <SkeletonVideo />}
+            {videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
+            {videoType === 'EMBED_URL' && <EmbedIframe url={video} />}
+            {videoType === 'VIDEO_URL' && <EmbedVideo videoUrl={video} />}
+            {(serverResponse && !isPending) || !video && <SkeletonVideo />}
           </div>
 
           {/* Right Side Grid (Smaller Cards) */}
