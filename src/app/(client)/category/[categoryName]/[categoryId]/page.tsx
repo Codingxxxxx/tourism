@@ -58,7 +58,7 @@ export default function Page() {
       // auto select first category
       onTabChange((data[0] as Category).id, 0);
 
-      const videoCategory = data.find(cate => cate.isFront);
+      const videoCategory = data.find(cate => cate.isFront && cate.video);
 
       if (!videoCategory) return;
 
