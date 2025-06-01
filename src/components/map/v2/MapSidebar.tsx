@@ -51,7 +51,7 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
         {/* Address */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
           <LocationOnOutlined color='primary' sx={{ marginRight: 2, alignSelf: 'baseline' }} />
-          {placeDetails.address ? <Typography variant='inherit'  dangerouslySetInnerHTML={{__html: placeDetails.address }} /> : 'N/A'}
+          {placeDetails.formattedAddress ? <Typography variant='inherit'  dangerouslySetInnerHTML={{__html: placeDetails.formattedAddress }} /> : 'N/A'}
         </Box>
         {/* business open hour */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
