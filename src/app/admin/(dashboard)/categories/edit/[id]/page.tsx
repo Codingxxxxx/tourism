@@ -37,25 +37,16 @@ type PageParams = {
 
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
-  isEmbedVideo: Yub.bool(),
+  isFront: Yub.bool(),
   video: Yub
     .string()
+    .max(500)
     .label('Video URL or Embed Code')
-    .when('isEmbedVideo', {
-      is: true,
-      then: (schema) => schema.required(),
-      otherwise: (schema) => schema.notRequired()
-    })
     ,
-  image: Yub
-    .mixed()
-    .when('isEmbedVideo', ([isEmbedVideo], schema) => {
-      if (isEmbedVideo) return Yub.mixed().notRequired();
-      return yupFiles({
-        formats: ['image/png', 'image/jpg', 'image/jpeg'],
-        min: 1
-      })
-    })
+  image: yupFiles({
+    formats: ['image/png', 'image/jpg', 'image/jpeg'],
+    min: 1
+  })
 });
 
 export default function Page() {
@@ -197,17 +188,15 @@ export default function Page() {
                 </FormGroup>
               </Grid>
               {/* File input */}
-              {!values.isEmbedVideo && 
-                <Grid size={12}>
-                  <FileInput
-                    id='image'
-                    name='image'
-                    accept='image/*'
-                    maxsize={2.5}
-                  />
-                  <CustomErrorMessage name='image' />
-                </Grid>
-              }
+              <Grid size={12}>
+                <FileInput
+                  id='image'
+                  name='image'
+                  accept='image/*'
+                  maxsize={2.5}
+                />
+                <CustomErrorMessage name='image' />
+              </Grid>
               {/* Embed video */}
               <Grid size={12}>
                 <FormGroup sx={{ marginLeft: 'auto' }}>

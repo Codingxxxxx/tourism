@@ -37,9 +37,9 @@ const validationSchema = Yub.object({
     .label('Video URL or Embed Code')
     ,
   image: yupFiles({
-      formats: ['image/png', 'image/jpg', 'image/jpeg'],
-      min: 1
-    })
+    formats: ['image/png', 'image/jpg', 'image/jpeg'],
+    min: 1
+  })
 });
 
 export default function Page() {
