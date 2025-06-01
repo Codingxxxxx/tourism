@@ -77,8 +77,8 @@ export default function Page() {
       setInitialValues({
         name: location.name,
         remark: location.remark,
-        lat: '',
-        long: ''
+        lat: location.latitude ?? '',
+        long: location.longitude ?? ''
       });
     })
   }, []);
