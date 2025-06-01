@@ -16,8 +16,9 @@ import EditButton from '@/components/datagrid/ButtonEdit';
 import DeleteButton from '@/components/datagrid/ButtonDelete';
 import { CustomBackdrop } from '@/components/Backdrop';
 import Toast from '@/components/form/Toast';
+import { Location } from '@/shared/types/dto';
 
-export default function PageCategory() {
+export default function Page() {
   const initialState: ServerResponse<PaginatedLocations> = {
     data: {
       locations: [],
@@ -70,6 +71,15 @@ export default function PageCategory() {
     {
       field: 'remark',
       headerName: 'Description'
+    },
+    {
+      field: 'latitude',
+      headerName: 'Lat & Long',
+      renderCell: ({ row }) => {
+        if (!row) return 'N/A';
+        const location = row as Location;
+        return (location.latitude ?? 'N/A') + ', ' + (location.longitude ?? 'N/A');
+      }
     },
     ...MetaColumns,
     {

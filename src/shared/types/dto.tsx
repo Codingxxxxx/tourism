@@ -71,7 +71,9 @@ export type FormCreateCateogry = {
 export type FormCreateLocation = {
   id?: number,
   name: string,
-  remark?:string
+  remark?:string,
+  latitude: number,
+  longitude: number
 }
 
 export type UploadImageResult = {
