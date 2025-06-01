@@ -16,7 +16,7 @@ import { getLocationList } from '@/server/actions/location';
 import { type Category, type Location } from '@/shared/types/dto';
 import { getAllCategories } from '@/server/actions/category';
 import { handleServerAction, withServerHandler } from '@/shared/utils/apiUtils';
-import GooglePlaceCapture from '@/components/map/GooglePlaceCapture';
+import GooglePlaceCapture, { SelectedCoordinate } from '@/components/map/GooglePlaceCapture';
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { ArrowBack, AddLocation, CategorySharp, Label } from '@mui/icons-material';
 import { createDestination } from '@/server/actions/destination';
@@ -72,6 +72,7 @@ export default function Page() {
   const { resetForm, submitForm } = useFormikContext() ?? {};
   const [resetMap, setResetMap] = useState(false);
   const router = useRouter();
+  const [selectedCordinate, setSelectedCordinate] = useState<google.maps.LatLngLiteral>();
 
   const [initialInputValues, setInitialInputValues] = useState<FormDestination>({
     categories: [],
@@ -99,6 +100,14 @@ export default function Page() {
   }, []);
   
   const onFormSubmit = async (values: FormDestination): Promise<void> => {
+    const location = locations.find(location => location.id === values.location);
+
+    if (location?.latitude && location.longitude) {
+      setSelectedCordinate({
+        lat: Number(location?.latitude),
+        lng: Number(location?.longitude)
+      });
+    }
     setInitialInputValues(values);
     setActiveStep(activeStep + 1);
   }
@@ -219,7 +228,7 @@ export default function Page() {
           </Button>
         </Box>
         <Box>
-          <GooglePlaceCapture key={'create'} apiKey={GOOGLE_MAP_KEY ?? ''} disableInteraction={disableMap} resetState={resetMap} />
+          <GooglePlaceCapture defaultCenterMap={selectedCordinate} key={'create'} apiKey={GOOGLE_MAP_KEY ?? ''} disableInteraction={disableMap} resetState={resetMap} />
         </Box>
       </Box>
       {/* step confirmation */}

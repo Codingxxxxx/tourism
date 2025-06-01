@@ -8,7 +8,8 @@ type Props = {
   apiKey: string,
   disableInteraction: boolean,
   resetState: boolean,
-  initialMarkers?: SelectedCoordinate | null
+  initialMarkers?: SelectedCoordinate | null,
+  defaultCenterMap?: google.maps.LatLng | google.maps.LatLngLiteral
 }
 
 export type MapEvent =  {
@@ -27,12 +28,12 @@ const containerStyle = {
   marginBottom: '4rem'
 };
 
-const defaultCenterMap = { 
+const DEFAULT_CENTER_MAP = { 
   lat: 11.5564, 
   lng: 104.9282
 };
 
-const DEFAULT_ZOOM = 10;
+const DEFAULT_ZOOM = 12;
 const libraries: Libraries = ['places'];
 
 // query place id by lat and lng
@@ -53,7 +54,7 @@ function getPlaceId(lat: number, lng: number): Promise<string> {
 };
 
 
-export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, initialMarkers = null,  ...props }: Props) {
+export default function GooglePlaceCapture({ disableInteraction = false, resetState = false, initialMarkers = null, defaultCenterMap,  ...props }: Props) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: props.apiKey,
@@ -69,6 +70,7 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
   const [googleMapOptions, setGoogleMapOptions] = useState<google.maps.MapOptions>();
   const inputBoxRef = useRef<HTMLInputElement>(null);
   const [_, startTransition] = useTransition();
+  
 
   async function onMapLoaded(map: google.maps.Map) {
     const service = new window.google.maps.places.PlacesService(map);
@@ -161,7 +163,7 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
 
   useEffect(() => {
     if (!resetState) return;
-    googleMap?.setCenter(defaultCenterMap);
+    googleMap?.setCenter(DEFAULT_CENTER_MAP);
     googleMap?.setZoom(DEFAULT_ZOOM);
   }, [resetState,])
 
@@ -179,7 +181,7 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
     <GoogleMap
       mapContainerStyle={containerStyle}
       zoom={DEFAULT_ZOOM}
-      center={defaultCenterMap}
+      center={defaultCenterMap ?? DEFAULT_CENTER_MAP}
       onClick={onMapClick}
       onLoad={onMapLoaded}
       options={googleMapOptions}
