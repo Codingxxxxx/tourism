@@ -90,9 +90,9 @@ export default function Page() {
               minHeight: '100vh',
             }}
           >
-            {video && videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
-            {video && videoType === 'EMBED_URL' && <EmbedIframe url={video} />}
-            {video && videoType === 'VIDEO_URL' && <EmbedVideo videoUrl={video} />}
+            {videoType === 'EMBED_CODE' && <EmbedCode code={video} />}
+            {videoType === 'EMBED_URL' && <EmbedIframe url={video} />}
+            {videoType === 'VIDEO_URL' && <EmbedVideo videoUrl={video} />}
             {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
           <div className="flex-1 pl-2 overflow-auto">
