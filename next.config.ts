@@ -21,23 +21,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'http',
-        hostname: 'localhost'
-      },
-      {
-        protocol: 'https',
-        hostname: 'tourism-woad.vercel.app'
-      },
-      {
-        protocol: 'http',
-        hostname: '34.60.52.162'
+        hostname: '34.60.52.162',
+        port: '',
+        pathname: '/**'
       },
       {
         protocol: 'http',
-        hostname: 'api.kampottic.com'
-      },
-      {
-        protocol: 'http',
-        hostname: 'kampottic.com'
+        hostname: 'api.kampottic.com',
+        port: '',
+        pathname: '/**'
       }
     ]
   },
