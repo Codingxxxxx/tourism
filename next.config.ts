@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
         pathname: '/**'
       },
       {
-        protocol: 'http',
+        protocol: 'https',
         hostname: 'api.kampottic.com',
         port: '',
         pathname: '/**'
