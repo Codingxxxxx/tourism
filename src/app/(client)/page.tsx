@@ -74,7 +74,6 @@ export default function Home() {
           <div className="flex-1 pl-[.025rem] overflow-auto h-screen">
             <div className="grid grid-cols-3 grid-rows-2 gap-[.025rem] h-full">
               {serverResponse?.data?.categories
-                .filter(category => !category.isFront)
                 .slice(0, 6)
                 .map((category, idx) => (
                   <Link key={idx} href={`/category/${encodeURIComponent(category.name)}/${category.id}`}>
