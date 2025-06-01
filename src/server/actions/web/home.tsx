@@ -15,9 +15,9 @@ export async function getDisplayCategories(payload: PaginationParamters): Promis
 
   return buildResponse({
     data: {
-      categories: (data as Category[] || []).filter(cate => !cate.isFront || !cate.video),
+      categories: data,
       meta: meta || null,
-      videoCategory: (data as Category[] || []).find(cate => cate.isFront)
+      videoCategory: (data as Category[] || []).find(cate => cate.isFront && cate.video)
     },
     success: isOk,
     message
