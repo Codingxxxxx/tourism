@@ -103,11 +103,11 @@ export default function Page() {
               <Box sx={{ width: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                   <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value)} aria-label="Destination category">
-                    {subCategories?.map((cate, idx) => <Tab key={cate.id} onClick={() => onTabChange(cate.id, idx)} label={cate.name} {...a11yProps(0)} />)}
+                    {subCategories?.map((cate, idx) => <Tab key={cate.id} onClick={() => onTabChange(cate.id, idx)} label={<Typography variant='body1' fontWeight={500}>{cate.name} ({cate.listingCount ?? 0})</Typography>} {...a11yProps(0)} />)}
                   </Tabs>
                 </Box>
                 <Box sx={{ marginTop: 4 }}>
-                  <ul className="grid grid-cols-3 gap-3">
+                  <ul className="grid grid-cols-5 gap-3">
                     {listing.map((destination) => (
                     <li key={destination.id}>
 

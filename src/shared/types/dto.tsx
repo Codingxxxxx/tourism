@@ -16,7 +16,8 @@ export type Category = Meta & {
   video: string,
   isFeatured: boolean,
   isFront: boolean,
-  child: Category[]
+  child: Category[],
+  listingCount: number
 }
 
 export type Location = Meta & {
