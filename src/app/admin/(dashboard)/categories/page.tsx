@@ -101,7 +101,7 @@ export default function PageCategory() {
       headerName: 'Ordering',
       field: 'ordering',
       renderCell: ({ value }) => {
-        if (value) return 0;
+        if (!value) return 0;
         return value;
       }
     },
