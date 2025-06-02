@@ -85,6 +85,19 @@ export default function PageCategory() {
     {
       align: 'center',
       headerAlign: 'center',
+      field: 'type',
+      headerName: 'Type',
+      renderCell: ({ row }) => {
+        if (!row) return 'N/A';
+        const category = row as Category;
+        if (category.parentId  === 0) return <Chip label='Main Category' variant='outlined' color='secondary' />;
+        return <Chip label='Sub Category' variant='outlined' color='success' />
+      },
+      width: 150
+    },
+    {
+      align: 'center',
+      headerAlign: 'center',
       field: 'photo',
       headerName: 'Cover Photo',
       renderCell: ({ row }) => {
@@ -94,19 +107,6 @@ export default function PageCategory() {
         if (cate.parent) return '';
 
         if (cate.photo) return <Image className='m-auto' src={getImagePath(cate.photo)} style={{ objectFit: 'cover' }} width={60} height={60} alt={cate.name} />;
-      },
-      width: 150
-    },
-    {
-      align: 'center',
-      headerAlign: 'center',
-      field: 'type',
-      headerName: 'Type',
-      renderCell: ({ row }) => {
-        if (!row) return 'N/A';
-        const category = row as Category;
-        if (category.parentId  === 0) return <Chip label='Main Category' variant='outlined' color='error' />;
-        return <Chip label='Sub Category' variant='outlined' color='success' />
       },
       width: 150
     },
