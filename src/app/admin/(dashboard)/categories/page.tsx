@@ -1,7 +1,7 @@
 'use client';
 import DashboardContainer from "@/components/dashboard/DashboardContainer";
 import { Box, Button, Chip, Link as MuiLink } from '@mui/material'
-import { AddCircleOutline } from '@mui/icons-material';
+import { AddCircleOutline, CategoryOutlined } from '@mui/icons-material';
 import { type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
 import Link from 'next/link';
 import DataGrid from '@/components/datagrid/DataGrid';
@@ -56,8 +56,10 @@ export default function PageCategory() {
 
   const onConfirmedDelete = (id: string) => {
     startTransition(async () => {
-      const respones = await handleServerAction(() => deleteCategory(id));
+      setServerResponse(null);
 
+      const respones = await handleServerAction(() => deleteCategory(id));
+      console.log(respones);
       setServerResponse(respones);
 
       if (respones.success) return setPaginationModel({
@@ -71,7 +73,7 @@ export default function PageCategory() {
   const columns: GridColDef[] = [
     {
       field: 'name',
-      headerName: 'Cateogry EN',
+      headerName: 'Category',
       renderCell: ({ value, row }) => {
         if (!value) return;
         const category = row as Category;
@@ -81,26 +83,42 @@ export default function PageCategory() {
       }
     },
     {
+      align: 'center',
+      headerAlign: 'center',
       field: 'photo',
       headerName: 'Cover Photo',
-      renderCell: ({ value, row }) => {
+      renderCell: ({ row }) => {
         if (!row) return;
-
         const cate = row as Category;
-        if (cate.photo) return <Image src={getImagePath(cate.photo)} style={{ objectFit: 'cover' }} width={60} height={60} alt={cate.name} />;
-        if (cate.video) return <MuiLink href={cate.video} component={Link}>View video</MuiLink>
-        return;
+
+        if (cate.parent) return '';
+
+        if (cate.photo) return <Image className='m-auto' src={getImagePath(cate.photo)} style={{ objectFit: 'cover' }} width={60} height={60} alt={cate.name} />;
       },
-      width: 200
+      width: 150
     },
     {
-      field: 'video',
+      align: 'center',
+      headerAlign: 'center',
+      field: 'type',
       headerName: 'Type',
-      renderCell: ({ value }) => {
-        if (value) return <Chip label='Video' variant='outlined' color='error' />;
-        return <Chip label='Image' variant='outlined' color='success' />
+      renderCell: ({ row }) => {
+        if (!row) return 'N/A';
+        const category = row as Category;
+        if (category.parentId  === 0) return <Chip label='Main Category' variant='outlined' color='error' />;
+        return <Chip label='Sub Category' variant='outlined' color='success' />
       },
-      width: 100
+      width: 150
+    },
+    { 
+      field: 'parent',
+      headerName: 'Parent Category',
+      renderCell: ({ row }) => {
+        if (!row) return;
+        const category = row as Category;
+        if (!category.parent) return;
+        return <Chip label={category.parent.name} variant='outlined' />;  
+      }
     },
     ...MetaColumns,
     {
@@ -133,7 +151,7 @@ export default function PageCategory() {
         />
       </Box>
       <CustomBackdrop open={isPendingDelete} />
-      {serverResponse && <Toast success={serverResponse.success} message={serverResponse.message} />}
+      {serverResponse && <Toast open={true} success={serverResponse.success} message={serverResponse.message} />}
     </DashboardContainer>
   )
 } 

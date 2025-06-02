@@ -10,6 +10,7 @@ export type Category = Meta & {
   name: string,
   nameKH: string,
   parentId: number,
+  parent: Category | null,
   description:  string,
   photo: string,
   video: string,
