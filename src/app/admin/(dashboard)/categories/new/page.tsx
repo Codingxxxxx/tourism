@@ -83,7 +83,7 @@ export default function Page() {
     video: '',
     parent: 0,
     isFront: false,
-    ordering: 0
+    ordering: 1
   };
 
   useEffect(() => {
