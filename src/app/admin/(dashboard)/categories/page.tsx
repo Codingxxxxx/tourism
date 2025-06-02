@@ -98,6 +98,16 @@ export default function PageCategory() {
     {
       align: 'center',
       headerAlign: 'center',
+      headerName: 'Ordering',
+      field: 'ordering',
+      renderCell: ({ value }) => {
+        if (value) return 0;
+        return value;
+      }
+    },
+    {
+      align: 'center',
+      headerAlign: 'center',
       field: 'photo',
       headerName: 'Cover Photo',
       renderCell: ({ row }) => {

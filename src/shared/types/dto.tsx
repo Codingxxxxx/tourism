@@ -17,7 +17,8 @@ export type Category = Meta & {
   isFeatured: boolean,
   isFront: boolean,
   child: Category[],
-  listingCount: number
+  listingCount: number,
+  ordering: number
 }
 
 export type Location = Meta & {
@@ -67,7 +68,8 @@ export type FormCreateCateogry = {
   video?: string,
   photo?: string,
   parentId: number,
-  isFront: number
+  isFront: number,
+  ordering: number
 }
 
 export type FormCreateLocation = {
