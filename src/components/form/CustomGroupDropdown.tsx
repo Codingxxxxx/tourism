@@ -72,11 +72,11 @@ export default function CustomGroupDropdown({
 
           ...(item.children?.map((child) => (
             <MenuItem
-              key={item.value}
-              value={item.value}
+              key={child.value}
+              value={child.value}
             >
-              <ListItemText primary={item.text} />
-              {isSelected(item.value) && <CheckIcon color="success" fontSize="small" />}
+              <ListItemText primary={child.text} />
+              {isSelected(child.value) && <CheckIcon color="success" fontSize="small" />}
             </MenuItem>
           )) ?? []),
         ])}
