@@ -17,5 +17,5 @@ export function isGoogleImage(imageUrl: string) {
 export function getGoogleImageLiink(cdnUrl: string) {
   const queryString = cdnUrl.split('?')[1];
   const params = new URLSearchParams(queryString);
-  return decodeURIComponent(params.get('photoUrl') ?? '');
+  return decodeURI(params.get('photoUrl') ?? '');
 }
