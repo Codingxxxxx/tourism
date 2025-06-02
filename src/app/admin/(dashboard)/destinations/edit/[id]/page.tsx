@@ -131,7 +131,7 @@ export default function Page() {
       address: capturedPlaceDetails?.formattedAddress ?? 'N/A',
       phoneNumber: capturedPlaceDetails?.phoneNumber ?? 'N/A',
       placeName: destination?.name ?? capturedPlaceDetails?.placeName ?? 'N/A',
-      description: '',
+      description: destination?.description ?? '',
       rating: String(capturedPlaceDetails?.rating ?? 'N/A')
     })
   }
