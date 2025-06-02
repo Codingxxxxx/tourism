@@ -14,6 +14,7 @@ import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
 import { AddAPhoto } from '@mui/icons-material';
 import Image from 'next/image';
 import { Destination } from '@/shared/types/dto';
+import { getImagePath } from '@/shared/utils/fileUtils';
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -63,6 +64,8 @@ type DestinationMetaData = {
   markers: MarkerProps[],
   destination: Destination
 }
+
+const NO_IMAGE = '/no_category.jpg';
 
 export default function Page() {
   const params = useParams<PageParams>();
@@ -183,12 +186,14 @@ export default function Page() {
         <Box sx={{ display: 'flex', overflow: 'hidden', flexGrow: 1, padding: 1, gap: 2 }}>
           <ul className={`flex flex-col shrink-0 gap-5 overflow-auto ${styles.scrollable}`}>
             {destinationMeta.map((meta, idx) => {
+              const cover = meta.destination.cover ? getImagePath(meta.destination.cover) : NO_IMAGE;
+
               return (
                 <li key={idx}>
                   <button className='position-relative cursor-pointer border rounded-lg shadow-md border-slate-300' onClick={() => onLocationClicked(meta)}>
                     {/* Place images */}
                     <Box className='w-[320px] aspect-[16/9] w-100' sx={{ position: 'relative' }}>
-                      <Image className='rounded-t-lg' src={meta.galleries![0].getUrl({ maxWidth: 350 })} style={{ objectFit: 'cover' }} alt={meta.placeName} fill />
+                      <Image className='rounded-t-lg' src={cover} style={{ objectFit: 'cover' }} alt={meta.placeName} fill  onError={(evt) => evt.currentTarget.src = NO_IMAGE}/>
                       {/* Photo count */}
                       <Box
                         className='bottom-2 right-2 bg-slate-50 rounded-lg p-1 opacity-75 text-slate-800' 
