@@ -37,16 +37,38 @@ type PageParams = {
 
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
+  parent: Yub.number(),
   isFront: Yub.bool(),
-  video: Yub
-    .string()
-    .max(500)
-    .label('Video URL or Embed Code')
-    ,
+  video: Yub.string().label('Video URL or Embed Code').when('parent', {
+    is: 0,
+    then: (schema) => schema.test(
+      'at-least-one',
+      'At least video or image is required',
+      function (value, context) {
+        const { image } = context.parent;
+        const hasVideo = !!value;
+        const hasImage = !!image && image.length > 0;
+        return hasVideo || hasImage;
+      }
+    ),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   image: yupFiles({
-    formats: ['image/png', 'image/jpg', 'image/jpeg'],
-    min: 1
-  })
+    formats: ['image/png', 'image/jpg', 'image/jpeg']
+  }).when('parent', {
+    is: 0,
+    then: (schema) => schema.test(
+      'at-least-one',
+      'At least video or image is required',
+      function (value, context) {
+        const { video } = context.parent;
+        const hasVideo = !!video;
+        const hasImage = !!value && value.length > 0;
+        return hasVideo || hasImage;
+      }
+    ),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 export default function Page() {
@@ -95,7 +117,6 @@ export default function Page() {
       setCategories(categories)
       setCategory(category);
 
-      const isVideo = Boolean(category.video);
       const image: FileObject = {
         filename: '',
         size: 0,
@@ -106,7 +127,7 @@ export default function Page() {
       setInitialInputValuess({
         categoryName: category.name,
         image: category.photo ? [image] : [],
-        parent: category.parentId,
+        parent: category.parentId ?? 0,
         video: category.video ?? '',
         isFront: Boolean(category.isFront)
       });
@@ -120,7 +141,7 @@ export default function Page() {
 
       if (getImagePath(category?.photo ?? '') === values.image[0].url) {
         sourceUrl = category?.photo as string
-      } else {
+      } else if (values.image && values.image.length > 0) {
         // upload image
         const formData = new FormData();
         const file = values.image[0].file as File;
@@ -187,39 +208,25 @@ export default function Page() {
                   <CustomErrorMessage name='parent' />
                 </FormGroup>
               </Grid>
-              {/* File input */}
-              <Grid size={12}>
-                <FileInput
-                  id='image'
-                  name='image'
-                  accept='image/*'
-                  maxsize={2.5}
-                />
-                <CustomErrorMessage name='image' />
-              </Grid>
-              {/* Embed video */}
-              <Grid size={12}>
-                <FormGroup sx={{ marginLeft: 'auto' }}>
-                  <CustomTextField
-                    id='video'
-                    label='Video URL or Embed Code'
-                    name='video'
-                    multiline
-                    rows={10}
-                    required
-                  />
-                  <CustomErrorMessage name='video' />
-                </FormGroup>
-              </Grid>
-              {/* check if embed video */}
-              <Grid size={12}>
-                <CustomCheckBox 
-                    id='isFront' 
-                    label='Show video in home page' 
-                    name='isFront'
-                    checked={values.isFront}
-                  />
-              </Grid>
+              {values.parent === 0 && (
+                <Grid size={12}>
+                  <FileInput id="image" name="image" accept="image/*" maxsize={2.5} />
+                  <CustomErrorMessage name='image' />
+                </Grid>
+              )}
+              {values.parent === 0 && (
+                <Grid size={12}>
+                  <FormGroup sx={{ marginLeft: 'auto' }}>
+                    <CustomTextField id="video" label="Video URL or Embed Code" name="video" multiline rows={10} />
+                    <CustomErrorMessage name='video' />
+                  </FormGroup>
+                </Grid>
+              )}
+              {values.parent === 0 && (
+                <Grid size={12}>
+                  <CustomCheckBox id="isFront" label="Show video in home page" name="isFront" checked={values.isFront} />
+                </Grid>
+              )}
               {/* submit btn */}
               <Grid  size={12}>
                 <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting} size='large' loading={isSubmitting}>
