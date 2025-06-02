@@ -1,12 +1,13 @@
 import PlacePhoto from './../PlacePhoto'
 import { PlaceDetails } from '@/stores/useGoogleMapStore';
 import { Box, Typography, Rating, Divider, Button } from '@mui/material';
-import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined, TypeSpecimen } from '@mui/icons-material';
+import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined, TypeSpecimen, KeyboardBackspace, Close } from '@mui/icons-material';
 import { formatOpeningHours } from '@/utils/openHourFormatter';
 import Image from 'next/image';
 import { useState } from 'react';
 import DestinationDirection from '@/components/map/DestinationDirection';
 import { Destination } from '@/shared/types/dto';
+import { useRouter } from 'next/navigation';
 
 export type MapSidebarProps = {
   placeDetails: PlaceDetails,
@@ -17,6 +18,7 @@ const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 export default function MapSidebar({ placeDetails, destination }: MapSidebarProps) {
   const [openDialog, setOpenDialog] = useState(false);
+  const router = useRouter();
 
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
@@ -31,7 +33,7 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
         <Box className='text-slate-600 text-sm'>
           {/* Rating */}
           <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 1 }}>
-            <Typography>{Number(placeDetails.rating).toFixed(1)}</Typography>
+            <Typography>{Number(placeDetails.rating ?? 0).toFixed(1)}</Typography>
             <Rating readOnly size="small" value={placeDetails.rating} sx={{ marginX: 1 }} />
             <Typography className='text-sm' variant='inherit'>(Reviews {placeDetails.totalRating})</Typography>
           </Box>
@@ -77,6 +79,9 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
         {/* description */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
             <Typography variant='body2' dangerouslySetInnerHTML={{ __html: destination?.description ?? ''}} />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' , marginTop: 4}}>
+          <Button size='small' color='error' variant='text' startIcon={<Close />} onClick={() => router.back()}>Close</Button>
         </Box>
       </Box>
       {openDialog &&

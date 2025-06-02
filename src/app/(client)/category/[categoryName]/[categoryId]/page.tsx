@@ -6,13 +6,15 @@ import { useParams } from 'next/navigation';
 import { getListingBySubCategoryId, getSubCategories } from '@/server/actions/web/home';
 import { Category, Destination } from '@/shared/types/dto';
 import { a11yProps } from '@/components/TabPanel';
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Button, IconButton, Tab, Tabs, Typography } from '@mui/material';
 import { CustomBackdrop } from '@/components/Backdrop';
 import EmbedCode from '@/components/EmbedCode';
 import SkeletonVideo from '@/components/SkeletonVideo';
 import { ServerResponse } from '@/shared/types/serverActions';
 import EmbedIframe from '@/components/EmbedIframe';
 import EmbedVideo from '@/components/EmbedVideo';
+import { KeyboardBackspace } from '@mui/icons-material';
+import { getImagePath } from '@/shared/utils/fileUtils';
 
 type PageParams = {
   categoryName: string,
@@ -96,8 +98,11 @@ export default function Page() {
             {serverResponse && !isPending && !video && <SkeletonVideo />}
           </div>
           <div className="flex-1 pl-2 overflow-auto">
-            <header className='p-4 bg-blue-700 text-white rounded-bl'>
-              <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
+            <header className='flex justify-between items-center p-4 bg-blue-700 text-white rounded-bl'>
+              <Box>
+                <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
+              </Box>
+              <Button size='small' LinkComponent={Link} href='/' color='warning' variant='contained' startIcon={<KeyboardBackspace />}>Back</Button>
             </header>
             {subCategories.length >= 1 && 
               <Box sx={{ width: '100%' }}>
@@ -114,7 +119,7 @@ export default function Page() {
                       <Link href={`/destination/category/${params.categoryName}/${params.categoryId}/${selectedSubCategoryId}/${encodeURIComponent(destination.name)}/${destination.id}`}>
                         <Box className='relative aspect-[16/9] rounded overflow-hidden shadow-lg border border-slate-300'>
                           <Image 
-                            src={destination.cover ? `/cdn?photoUrl=${encodeURIComponent(destination.cover)}` : NO_IMAGE} 
+                            src={destination.cover ? getImagePath(destination.cover) : NO_IMAGE} 
                             alt={destination.name} 
                             fill 
                             style={{ objectFit: 'cover' }}  
