@@ -1,14 +1,14 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Box, Button, Divider, Grid2 as Grid, ImageList, ImageListItem, Step, StepLabel, Stepper, InputLabel } from '@mui/material';
-import { Formik, Form, useFormikContext } from 'formik';
+import { Box, Button, Divider, Grid2 as Grid, ImageList, ImageListItem, Step, StepLabel, Stepper, InputLabel, Typography } from '@mui/material';
+import { Formik, Form, useFormikContext, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
 import CustomTextField from '@/components/form/CustomField';
 import DashboardContainer from '@/components/dashboard/DashboardContainer';
 import { ServerResponse } from "@/shared/types/serverActions";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Toast from '@/components/form/Toast';
 import CustomDropdown from '@/components/form/CustomDropdown';
 import CustomGroupDropdown, { type MultiItems }  from '@/components/form/CustomGroupDropdown';
@@ -21,6 +21,10 @@ import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { ArrowBack, AddLocation, CategorySharp, Label } from '@mui/icons-material';
 import { createDestination } from '@/server/actions/destination';
 import { useRouter } from 'next/navigation';
+import FileInput, { FileObject } from '@/components/form/FileInput';
+import { uploadImage } from '@/server/actions/upload';
+import { CustomBackdrop } from '@/components/Backdrop';
+import { getGoogleImageLiink, getImagePath, isGoogleImage } from '@/shared/utils/fileUtils';
 
 type FormDestination = {
   categories: number[],
@@ -32,7 +36,8 @@ type FormConfirm  = {
   description: string,
   phoneNumber: string,
   rating: string,
-  address: string
+  address: string,
+  cover: FileObject[]
 }
 
 const validationSchema = Yub.object({
@@ -73,7 +78,7 @@ export default function Page() {
   const [resetMap, setResetMap] = useState(false);
   const router = useRouter();
   const [selectedCordinate, setSelectedCordinate] = useState<google.maps.LatLngLiteral>();
-
+  const [pending, startTransition] = useTransition();
   const [initialInputValues, setInitialInputValues] = useState<FormDestination>({
     categories: [],
     location: 0
@@ -84,7 +89,8 @@ export default function Page() {
     description: '',
     phoneNumber: '',
     placeName: '',
-    rating: 'N/A'
+    rating: 'N/A',
+    cover: []
   });
 
   useEffect(() => {
@@ -113,44 +119,76 @@ export default function Page() {
   }
 
   const onLocationCaptured = () => {
+    const googleImage = Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl({ maxWidth: 600, maxHeight: 600 }) : ''
+    let cover: FileObject[] = [];
+    if (googleImage) {
+      cover = [{
+        filename: '',
+        mimetype: 'image/jpg',
+        size: 0,
+        url: getImagePath(googleImage)
+      }];
+    }
+
     setActiveStep(activeStep + 1)
     setFormConfirmInitial({
       address: capturedPlaceDetails?.formattedAddress ?? 'N/A',
       phoneNumber: capturedPlaceDetails?.phoneNumber ?? 'N/A',
       placeName: capturedPlaceDetails?.placeName ?? '',
       description: '',
-      rating: String(capturedPlaceDetails?.rating ?? 'N/A')
+      rating: String(capturedPlaceDetails?.rating ?? 'N/A'),
+      cover
     })
   }
 
-  const onSubmitDestination = async (values: FormConfirm) => {
-    setDisableMap(true);
-    setServerResponse(null);
-
-    const responseState = await handleServerAction(() => createDestination({
-      name: values.placeName ?? capturedPlaceDetails?.placeName,
-      categoryIds: initialInputValues.categories,
-      locationId: initialInputValues.location ?? 0,
-      contactNumber: capturedPlaceDetails?.phoneNumber ?? '',
-      latitude: capturedPlaceDetails?.geometry?.location?.lat() ?? 0,
-      longitude: capturedPlaceDetails?.geometry?.location?.lng() ?? 0,
-      placeId: capturedPlaceDetails?.placeId ?? '',
-      ratingScore: capturedPlaceDetails?.rating || 0,
-      cover: Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl({ maxWidth: 600, maxHeight: 600 }) : '',
-      map: `https://www.google.com/maps/place/?q=place_id:${capturedPlaceDetails?.placeId}`,
-      website: capturedPlaceDetails?.website ?? '',
-      email: '',
-      isPopular: 1,
-      status: 1,
-      description: values.description
-    }));
-
-    setDisableMap(false);
-    setServerResponse(responseState);
-
-    if (responseState.success) {
-      router.push('/admin/destinations');
-    }
+  const onSubmitDestination = (values: FormConfirm, helpers: FormikHelpers<FormConfirm>) => {
+    startTransition(async () => {
+      try {
+        setDisableMap(true);
+        setServerResponse(null);
+    
+        let sourceUrl = '';
+        
+        // check if should upload image
+        if (values.cover && values.cover.length > 0 && !isGoogleImage(values.cover[0].url)) {
+          const formData = new FormData();
+          const file = values.cover[0].file as File;
+          formData.set('file', file, file.name);
+          const result = await uploadImage(formData);
+          sourceUrl = result?.data?.url;
+        } else if (values.cover && values.cover.length > 0 && isGoogleImage(values.cover[0].url)) {
+          sourceUrl = getGoogleImageLiink(values.cover[0].url);
+        }
+    
+        const responseState = await handleServerAction(() => createDestination({
+          name: values.placeName ?? capturedPlaceDetails?.placeName,
+          categoryIds: initialInputValues.categories,
+          locationId: initialInputValues.location ?? 0,
+          contactNumber: capturedPlaceDetails?.phoneNumber ?? '',
+          latitude: capturedPlaceDetails?.geometry?.location?.lat() ?? 0,
+          longitude: capturedPlaceDetails?.geometry?.location?.lng() ?? 0,
+          placeId: capturedPlaceDetails?.placeId ?? '',
+          ratingScore: capturedPlaceDetails?.rating || 0,
+          cover: sourceUrl,
+          map: `https://www.google.com/maps/place/?q=place_id:${capturedPlaceDetails?.placeId}`,
+          website: capturedPlaceDetails?.website ?? '',
+          email: '',
+          isPopular: 1,
+          status: 1,
+          description: values.description
+        }));
+    
+        setDisableMap(false);
+        setServerResponse(responseState);
+    
+        if (responseState.success) {
+          router.push('/admin/destinations');
+        }
+      } catch (error) { 
+        helpers.setSubmitting(false);
+        console.error(error);
+      }
+    });
   }
 
   return (
@@ -245,6 +283,7 @@ export default function Page() {
                 </Button>
               </Box>
               <Grid container spacing={2} width={600} maxWidth='100%' marginX='auto' marginTop={6}>
+                {/* place name */}
                 <Grid size={12}>
                   <CustomTextField 
                     name='placeName'
@@ -252,6 +291,7 @@ export default function Page() {
                   />
                   <CustomErrorMessage name='placeName' />
                 </Grid>
+                {/* description */}
                 <Grid size={12}>
                   <CustomTextField 
                     name='description'
@@ -261,6 +301,17 @@ export default function Page() {
                     placeholder='Place description'
                   />
                   <CustomErrorMessage name='description' />
+                </Grid>
+                {/* photo */}
+                <Grid size={12}>
+                  <FileInput 
+                    name="cover" 
+                    accept="image/*" 
+                    maxsize={1} 
+                    label='Upload destination cover photo'
+                  />
+                  <Typography color='textSecondary' sx={{ marginTop: 1 }}>Note: If you don't upload the cover photo, an image from google will be used</Typography>
+                  <CustomErrorMessage name='cover' />
                 </Grid>
                  <Divider sx={{ width: '100%'}} />
                 <Grid size={12}>
@@ -312,6 +363,7 @@ export default function Page() {
       {serverResponse && 
         <Toast success={serverResponse.success || false} message={serverResponse.message} />
       }
+      <CustomBackdrop open={pending} />
     </DashboardContainer>
   )
 }
