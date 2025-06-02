@@ -6,7 +6,7 @@ import { type GridColDef, type GridPaginationModel } from '@mui/x-data-grid';
 import Link from 'next/link';
 import DataGrid from '@/components/datagrid/DataGrid';
 import { MetaColumns } from '@/components/datagrid/defaultColumns';
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { getPageOffset } from '@/shared/utils/paginationUtils';
 import { PaginateDestination, ServerResponse } from "@/shared/types/serverActions";
 import { handleServerAction, withServerHandler } from "@/shared/utils/apiUtils";
@@ -17,6 +17,7 @@ import ButtonAction from '@/components/datagrid/ButtonAction';
 import { useTransition } from 'react';
 import { CustomBackdrop } from '@/components/Backdrop';
 import Toast from '@/components/form/Toast';
+import { getImagePath } from '@/shared/utils/fileUtils';
 
 const NO_IMAGE = '/admin/no_place_image.jpg'
 
@@ -93,7 +94,7 @@ export default function PageCategory() {
           <Image 
             objectFit='cover' 
             className='rounded p-1' 
-            src={value ? `/cdn?photoUrl=${encodeURIComponent(value)}` : NO_IMAGE} 
+            src={value ? getImagePath(value) : NO_IMAGE} 
             alt={value ? row.name : 'No Image'} 
             onError={(e) => {
               e.currentTarget.src = NO_IMAGE

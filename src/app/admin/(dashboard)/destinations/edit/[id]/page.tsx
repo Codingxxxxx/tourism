@@ -1,7 +1,7 @@
 'use client';
 import { Breadcrumb } from '@toolpad/core';
-import { Box, Button, Divider, Grid2 as Grid, ImageList, ImageListItem, InputLabel, Step, StepLabel, Stepper } from '@mui/material';
-import { Formik, Form, useFormikContext } from 'formik';
+import { Box, Button, Divider, Grid2 as Grid, ImageList, ImageListItem, InputLabel, Step, StepLabel, Stepper, Typography } from '@mui/material';
+import { Formik, Form, useFormikContext, FormikHelpers } from 'formik';
 import FormGroup from '@/components/form/FormGroup';
 import * as Yub from 'yup';
 import CustomErrorMessage from '@/components/form/ErrorMessage';
@@ -18,10 +18,13 @@ import { getAllCategories } from '@/server/actions/category';
 import { handleServerAction, withServerHandler } from '@/shared/utils/apiUtils';
 import GooglePlaceCapture, { SelectedCoordinate } from '@/components/map/GooglePlaceCapture';
 import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
-import { ArrowBack, AddLocation } from '@mui/icons-material';
+import { ArrowBack, AddLocation, ErrorRounded } from '@mui/icons-material';
 import { createDestination, getDestinationDetails, updateDestination } from '@/server/actions/destination';
 import { useParams, useRouter } from 'next/navigation';
 import { CustomBackdrop } from '@/components/Backdrop';
+import FileInput, { FileObject } from '@/components/form/FileInput';
+import { getGoogleImageLiink, getImagePath, isGoogleImage } from '@/shared/utils/fileUtils';
+import { uploadImage } from '@/server/actions/upload';
 
 type FormDestination = {
   categories: number[],
@@ -33,7 +36,8 @@ type FormConfirm  = {
   description: string,
   phoneNumber: string,
   rating: string,
-  address: string
+  address: string,
+  cover: FileObject[]
 }
 
 const validationSchema = Yub.object({
@@ -90,7 +94,8 @@ export default function Page() {
     description: '',
     phoneNumber: '',
     placeName: '',
-    rating: 'N/A'
+    rating: 'N/A',
+    cover: []
   });
 
   useEffect(() => {
@@ -125,44 +130,80 @@ export default function Page() {
     setActiveStep(activeStep + 1);
   }
 
+  
   const onLocationCaptured = () => {
+    const googleImage = Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl({ maxWidth: 600, maxHeight: 600 }) : '';
+
+    let cover: FileObject[] = [{
+      filename: '',
+      mimetype: 'image/jpg',
+      url: getImagePath(destination?.cover ?? googleImage),
+      size: 0
+    }];
+
     setActiveStep(activeStep + 1)
     setFormConfirmInitial({
       address: capturedPlaceDetails?.formattedAddress ?? 'N/A',
       phoneNumber: capturedPlaceDetails?.phoneNumber ?? 'N/A',
       placeName: destination?.name ?? capturedPlaceDetails?.placeName ?? 'N/A',
       description: destination?.description ?? '',
-      rating: String(capturedPlaceDetails?.rating ?? 'N/A')
+      rating: String(capturedPlaceDetails?.rating ?? 'N/A'),
+      cover
     })
   }
 
-  const onSubmitDestination = async (values: FormConfirm) => {
-    setDisableMap(true);
-    setServerResponse(null);
+  const onSubmitDestination = async (values: FormConfirm, helpers: FormikHelpers<FormConfirm>) => {
+    startTransition(async () => {
+      try {
+        setDisableMap(true);
+        setServerResponse(null);
 
-    const responseState = await handleServerAction(() => updateDestination({
-      name: values.placeName ?? capturedPlaceDetails?.placeName,
-      categoryIds: initialInputValues.categories,
-      locationId: initialInputValues.location ?? 0,
-      contactNumber: capturedPlaceDetails?.phoneNumber ?? '',
-      description: values.description,
-      latitude: capturedPlaceDetails?.geometry?.location?.lat() ?? 0,
-      longitude: capturedPlaceDetails?.geometry?.location?.lng() ?? 0,
-      placeId: capturedPlaceDetails?.placeId ?? '',
-      ratingScore: capturedPlaceDetails?.rating || 0,
-      cover: Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl({ maxHeight: 600, maxWidth: 600 }) : '',
-      map: `https://www.google.com/maps/place/?q=place_id:${capturedPlaceDetails?.placeId}`,
-      website: capturedPlaceDetails?.website ?? '',
-      email: '',
-      isPopular: 1,
-      status: 1
-    }, String(destination?.id)));
+        let sourceUrl = '';
 
-    setDisableMap(false);
-    setServerResponse(responseState);
+        // get source from google if sourceUrl is empty
+        if (values.cover.length > 0 && isGoogleImage(values.cover[0].url)) {
+          sourceUrl = getGoogleImageLiink(values.cover[0].url);
+        } else if (values.cover.length > 0 && !values.cover[0].url.includes(destination?.cover ?? '')) {
+          const formData = new FormData();
+          const file = values.cover[0].file as File;
+          formData.set('file', file, file.name);
+          const result = await uploadImage(formData);
+          sourceUrl = result?.data?.url;
+        } else if (values.cover.length > 0) {
+          sourceUrl = destination?.cover ?? '';
+        } else if (capturedPlaceDetails && capturedPlaceDetails?.photos?.length > 0) {
+          sourceUrl = capturedPlaceDetails?.photos[0].getUrl({ maxWidth: 600, maxHeight: 600 });
+        }
 
-    if (!responseState.success) return;
-    router.push('/admin/destinations')
+
+        const responseState = await handleServerAction(() => updateDestination({
+          name: values.placeName ?? capturedPlaceDetails?.placeName,
+          categoryIds: initialInputValues.categories,
+          locationId: initialInputValues.location ?? 0,
+          contactNumber: capturedPlaceDetails?.phoneNumber ?? '',
+          description: values.description,
+          latitude: capturedPlaceDetails?.geometry?.location?.lat() ?? 0,
+          longitude: capturedPlaceDetails?.geometry?.location?.lng() ?? 0,
+          placeId: capturedPlaceDetails?.placeId ?? '',
+          ratingScore: capturedPlaceDetails?.rating || 0,
+          cover: sourceUrl,
+          map: `https://www.google.com/maps/place/?q=place_id:${capturedPlaceDetails?.placeId}`,
+          website: capturedPlaceDetails?.website ?? '',
+          email: '',
+          isPopular: 1,
+          status: 1
+        }, String(destination?.id)));
+
+        setDisableMap(false);
+        setServerResponse(responseState);
+
+        if (!responseState.success) return;
+        router.push('/admin/destinations');
+      } catch (error) {
+        helpers.setSubmitting(false);
+        console.error(error);
+      }
+    });
   }
 
   return (
@@ -279,7 +320,18 @@ export default function Page() {
                   />
                   <CustomErrorMessage name='description' />
                 </Grid>
-                  <Divider sx={{ width: '100%'}} />
+                {/* photo */}
+                <Grid size={12}>
+                  <FileInput
+                    name="cover" 
+                    accept="image/*" 
+                    maxsize={1} 
+                    label='Upload destination cover photo'
+                  />
+                  <Typography color='textSecondary' sx={{ marginTop: 1 }}>Note: If you don't upload the cover photo, an image from google will be used</Typography>
+                  <CustomErrorMessage name='cover' />
+                </Grid>
+                <Divider sx={{ width: '100%'}} />
                 <Grid size={12}>
                   <CustomTextField 
                     name='phoneNumber'

@@ -72,7 +72,7 @@ export default function FileInput({ label, maxsize = 2.5, defaultFiles = [], ...
     await setTouched({ [field.name]: true });
     await validateField(field.name);
   }
-  console.log('VALUE', field.value)
+
   return (
     <Box className={`border-2 border-dashed rounded-[var(--mui-shape-borderRadius)] transition-[border-color] duration-[50] ${isInvalidAndTouched ? ERROR_BORDER_CLASS : NORMAL_BORDER_CLASSS}`}>
       <input
