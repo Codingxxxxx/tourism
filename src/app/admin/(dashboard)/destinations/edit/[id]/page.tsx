@@ -328,7 +328,6 @@ export default function Page() {
                     maxsize={1} 
                     label='Upload destination cover photo'
                   />
-                  <Typography color='textSecondary' sx={{ marginTop: 1 }}>Note: If you don't upload the cover photo, an image from google will be used</Typography>
                   <CustomErrorMessage name='cover' />
                 </Grid>
                 <Divider sx={{ width: '100%'}} />
