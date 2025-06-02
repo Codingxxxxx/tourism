@@ -28,7 +28,8 @@ type FormCategoryStats = {
   image: FileObject[],
   video: string,
   parent: number | null,
-  isFront: boolean
+  isFront: boolean,
+  ordering: number
 }
 
 type PageParams = {
@@ -38,6 +39,7 @@ type PageParams = {
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
   parent: Yub.number(),
+  ordering: Yub.number().required().label('Ordering').typeError('${label} must be a number').max(99999),
   isFront: Yub.bool(),
   video: Yub.string().label('Video URL or Embed Code').when('parent', {
     is: 0,
@@ -98,7 +100,8 @@ export default function Page() {
     image: [],
     video: '',
     parent: 0,
-    isFront: false
+    isFront: false,
+    ordering: 0
   });
 
   useEffect(() => {
@@ -129,7 +132,8 @@ export default function Page() {
         image: category.photo ? [image] : [],
         parent: category.parentId ?? 0,
         video: category.video ?? '',
-        isFront: Boolean(category.isFront)
+        isFront: Boolean(category.isFront),
+        ordering: category.ordering
       });
     });
   }, []);
@@ -139,7 +143,7 @@ export default function Page() {
       setServerResponse(null);
       let sourceUrl = ''; // can be image url or video url
 
-      if (getImagePath(category?.photo ?? '') === values.image[0].url) {
+      if (values.image.length > 0 && getImagePath(category?.photo ?? '') === values.image[0].url) {
         sourceUrl = category?.photo as string
       } else if (values.image && values.image.length > 0) {
         // upload image
@@ -158,7 +162,8 @@ export default function Page() {
           photo: sourceUrl,
           video: values.video,
           parentId: values.parent ?? 0,
-          isFront: Number(values.isFront)
+          isFront: Number(values.isFront),
+          ordering: Number(values.ordering)
         }, String(category?.id))
       );
 
@@ -206,6 +211,13 @@ export default function Page() {
                     datatype='number'
                   />
                   <CustomErrorMessage name='parent' />
+                </FormGroup>
+              </Grid>
+              {/* ordering */}
+              <Grid size={12}>
+                <FormGroup>
+                  <CustomTextField label="Ordering" name="ordering" required />
+                  <CustomErrorMessage name="ordering" />
                 </FormGroup>
               </Grid>
               {values.parent === 0 && (

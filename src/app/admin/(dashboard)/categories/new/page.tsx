@@ -26,12 +26,14 @@ type FormCategoryStats = {
   video: string;
   parent?: number;
   isFront: boolean;
+  ordering: number
 };
 
 const validationSchema = Yub.object({
   categoryName: Yub.string().label('Category Name').required().max(50),
   parent: Yub.number(),
   isFront: Yub.bool(),
+  ordering: Yub.number().required().label('Ordering').typeError('${label} must be a number').max(99999),
   video: Yub.string().label('Video URL or Embed Code').when('parent', {
     is: 0,
     then: (schema) => schema.test(
@@ -81,6 +83,7 @@ export default function Page() {
     video: '',
     parent: 0,
     isFront: false,
+    ordering: 0
   };
 
   useEffect(() => {
@@ -111,6 +114,7 @@ export default function Page() {
           video: values.video,
           parentId: Number(values.parent ?? 0),
           isFront: Number(values.isFront ?? 0),
+          ordering: Number(values.ordering)
         })
       );
 
@@ -146,6 +150,13 @@ export default function Page() {
                     items={categories.map((category) => ({ text: category.name, value: category.id }))}
                   />
                   <CustomErrorMessage name="parent" />
+                </FormGroup>
+              </Grid>
+              {/* ordering */}
+              <Grid size={12}>
+                <FormGroup>
+                  <CustomTextField label="Ordering" name="ordering" required />
+                  <CustomErrorMessage name="ordering" />
                 </FormGroup>
               </Grid>
               {values.parent === 0 && (
