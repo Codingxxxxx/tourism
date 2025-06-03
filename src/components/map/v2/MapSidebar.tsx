@@ -1,7 +1,7 @@
 import PlacePhoto from './../PlacePhoto'
 import { PlaceDetails } from '@/stores/useGoogleMapStore';
-import { Box, Typography, Rating, Divider, Button } from '@mui/material';
-import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined, TypeSpecimen, KeyboardBackspace, Close } from '@mui/icons-material';
+import { Box, Typography, Rating, Divider, Button, IconButton, styled } from '@mui/material';
+import { LocationOnOutlined, AccessTimeOutlined, PhoneOutlined, DirectionsOutlined, Close } from '@mui/icons-material';
 import { formatOpeningHours } from '@/utils/openHourFormatter';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -16,12 +16,33 @@ export type MapSidebarProps = {
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
+const CloseButton = styled(IconButton)(({ theme }) => ({
+  backgroundColor: theme.palette.error.contrastText
+}));
+
 export default function MapSidebar({ placeDetails, destination }: MapSidebarProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const router = useRouter();
 
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
+      {/* close */}
+      <CloseButton  
+        className='shadow-lg'
+        color='error'
+        size='small'
+        sx={{
+          position: 'absolute',
+          zIndex: 10,
+          top: 0,
+          right: 0
+        }}
+        aria-label="close"
+        onClick={() => router.back()}
+      >
+        <Close fontSize='small' />
+      </CloseButton>
+      {/* galleries */}
       <PlacePhoto photos={placeDetails.photos} />
       {/* Seperator */}
       <Divider />
@@ -79,9 +100,6 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
         {/* description */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
             <Typography variant='body2' dangerouslySetInnerHTML={{ __html: destination?.description ?? ''}} />
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' , marginTop: 4}}>
-          <Button size='small' color='error' variant='text' startIcon={<Close />} onClick={() => router.back()}>Close</Button>
         </Box>
       </Box>
       {openDialog &&
