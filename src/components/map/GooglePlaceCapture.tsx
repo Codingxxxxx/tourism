@@ -2,6 +2,7 @@ import { useGoogleMapCaptureStore } from '@/stores/useGoogleMapCaptureStore';
 import { useGoogleMapStore } from '@/stores/useGoogleMapStore';
 import { GoogleMap, LoadScript, Marker, Autocomplete, useJsApiLoader, Libraries } from '@react-google-maps/api';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { TextField, FormControl } from '@mui//material';
 
 type Props = {
   onCaptured?: (event:  google.maps.MapMouseEvent) => void,
@@ -203,29 +204,36 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
         }}
         
       >
-        <input
-          ref={inputBoxRef}
+        <TextField 
+          variant='outlined'
+          placeholder='Search for a location...'
+          inputRef={(el) => {
+            if (el) {
+              searchBoxRef.current = el.querySelector('input'); // Get native input from MUI TextField
+            }
+          }}
           disabled={disableInteraction}
-          type='text'
-          placeholder='Search for a location'
-          className='bg-slate-100 text-secondary rounded disabled:bg-slate-200'
-          style={{
-            boxSizing: 'border-box',
-            border: '1px solid transparent',
-            width: '260px',
-            height: '45px',
-            padding: '0 12px',
-            borderRadius: '3px',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
-            fontSize: '14px',
-            outline: 'none',
-            textOverflow: 'ellipses',
+          sx={(theme) => ({
             position: 'absolute',
             top: '10px',
             left: '50%',
             transform: 'translateX(-50%)',
-            zIndex: 9999
-          }}
+            zIndex: 9999,
+            width: '260px',
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: theme.palette.background.paper,
+              height: '45px',
+              fontSize: '14px',
+              boxShadow: theme.shadows[3],
+              borderRadius: theme.shape.borderRadius,
+              '& fieldset': {
+                border: 'none', // ⬅️ Removes the black outline
+              },
+            },
+            '& .MuiInputBase-input.Mui-disabled': {
+              WebkitTextFillColor: 'inherit',
+            }
+          })}
         />
       </Autocomplete>
     </GoogleMap>
