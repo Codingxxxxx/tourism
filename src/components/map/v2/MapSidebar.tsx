@@ -26,23 +26,6 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
 
   return (
     <Box sx={{ position: 'relative', height: '100%' }}>
-      {/* close */}
-      <CloseButton  
-        className='shadow-lg border'
-        color='error'
-        size='small'
-        sx={{
-          position: 'absolute',
-          zIndex: 10,
-          top: 0,
-          right: 0,
-          border: '1px solid rgba(0,0,0,0.12)'
-        }}
-        aria-label="close"
-        onClick={() => router.back()}
-      >
-        <Close fontSize='small' />
-      </CloseButton>
       {/* galleries */}
       <PlacePhoto photos={placeDetails.photos} />
       {/* Seperator */}
@@ -101,6 +84,15 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
         {/* description */}
         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
             <Typography variant='body2' dangerouslySetInnerHTML={{ __html: destination?.description ?? ''}} />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' , marginTop: 4}}>
+          <Button 
+            color='error' 
+            variant='outlined' 
+            startIcon={<Close />} 
+            onClick={() => router.back()}
+            style={{ textTransform: 'none' }}
+          >Close Map</Button>
         </Box>
       </Box>
       {openDialog &&
