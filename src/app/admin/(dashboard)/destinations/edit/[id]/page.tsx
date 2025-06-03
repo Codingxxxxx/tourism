@@ -47,7 +47,7 @@ const validationSchema = Yub.object({
 
 const validateConfirmation = Yub.object({
   placeName: Yub.string().required().label('Place Name').max(255),
-  description: Yub.string().label('Description').max(255)
+  description: Yub.string().label('Description').max(500)
 });
 
 const GOOGLE_MAP_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
