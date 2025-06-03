@@ -28,14 +28,15 @@ export default function MapSidebar({ placeDetails, destination }: MapSidebarProp
     <Box sx={{ position: 'relative', height: '100%' }}>
       {/* close */}
       <CloseButton  
-        className='shadow-lg'
+        className='shadow-lg border'
         color='error'
         size='small'
         sx={{
           position: 'absolute',
           zIndex: 10,
           top: 0,
-          right: 0
+          right: 0,
+          border: '1px solid rgba(0,0,0,0.12)'
         }}
         aria-label="close"
         onClick={() => router.back()}
