@@ -74,6 +74,9 @@ export default function CustomGroupDropdown({
             <MenuItem
               key={child.value}
               value={child.value}
+              sx={{
+                paddingLeft: 6
+              }}
             >
               <ListItemText primary={child.text} />
               {isSelected(child.value) && <CheckIcon color="success" fontSize="small" />}
