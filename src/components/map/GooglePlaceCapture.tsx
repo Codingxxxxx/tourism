@@ -207,11 +207,7 @@ export default function GooglePlaceCapture({ disableInteraction = false, resetSt
         <TextField 
           variant='outlined'
           placeholder='Search for a location...'
-          inputRef={(el) => {
-            if (el) {
-              searchBoxRef.current = el.querySelector('input'); // Get native input from MUI TextField
-            }
-          }}
+          inputRef={inputBoxRef}
           disabled={disableInteraction}
           sx={(theme) => ({
             position: 'absolute',
