@@ -1,10 +1,12 @@
 'use client';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
-const theme = createTheme({
+let theme = createTheme({
   typography: {
     fontFamily: 'var(--font-roboto)',
   },
 });
+
+theme = responsiveFontSizes(theme);
 
 export default theme;
