@@ -63,11 +63,11 @@ export default function Page() {
           >
             <MuiLink sx={{ display: 'flex', alignItems: 'center', color: 'primary' }} underline='hover' href='/'>
               <HomeIcon className='text-slate-100' sx={{ mr: 1 }} />
-              <span className='text-slate-100'>Home</span>
+              <span className='text-slate-100 text-sm md:text-base'>Home</span>
             </MuiLink>
             <span className="text-slate-100">/</span>
             <MuiLink underline='hover' href={backLink}>
-              <span className='text-slate-100'>{decodeURIComponent(params.categoryName)}</span>
+              <span className='text-sm md:text-base text-slate-100 w-[17ch] md:w-auto overflow-hidden whitespace-nowrap text-ellipsis'>{decodeURIComponent(params.categoryName)}</span>
             </MuiLink>
             <Box
               sx={{
