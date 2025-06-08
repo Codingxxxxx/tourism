@@ -63,11 +63,11 @@ export default function Page() {
           >
             <MuiLink sx={{ display: 'flex', alignItems: 'center', color: 'primary' }} underline='hover' href='/'>
               <HomeIcon className='text-slate-100' sx={{ mr: 1 }} />
-              <span className='text-sm md:text-base text-slate-100'>Home</span>
+              <span className='text-slate-100'>Home</span>
             </MuiLink>
             <span className="text-slate-100">/</span>
             <MuiLink underline='hover' href={backLink}>
-              <span className='text-sm md:text-base text-slate-100'>{decodeURIComponent(params.categoryName)}</span>
+              <span className='text-slate-100'>{decodeURIComponent(params.categoryName)}</span>
             </MuiLink>
             <Box
               sx={{
@@ -80,7 +80,7 @@ export default function Page() {
                 }}
             >
               <span className="text-slate-100">/</span>
-              <span className='block ml-3 text-sm md:text-base text-slate-100'>{activeDestination ? activeDestination.name : decodeURIComponent(params.destinationName)}</span>
+              <span className='block ml-3 text-slate-100'>{activeDestination ? activeDestination.name : decodeURIComponent(params.destinationName)}</span>
             </Box>
           </Breadcrumbs>
           {/* Back button */}
@@ -99,7 +99,7 @@ export default function Page() {
             color='warning' 
             startIcon={<ArrowBack fontSize='small' />}
           >
-            <span className='text-xs sm:text-base'>Back</span>
+            Back
           </Button>
         </Box>
         {!isPending && destinations.length > 0 && <DestinationDetails destinations={destinations} onDestinationChanged={onDestinationChanged} />}

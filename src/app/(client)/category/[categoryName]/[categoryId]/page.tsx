@@ -13,7 +13,7 @@ import SkeletonVideo from '@/components/SkeletonVideo';
 import { ServerResponse } from '@/shared/types/serverActions';
 import EmbedIframe from '@/components/EmbedIframe';
 import EmbedVideo from '@/components/EmbedVideo';
-import { KeyboardBackspace } from '@mui/icons-material';
+import { Home, HomeMaxOutlined, HomeOutlined, KeyboardBackspace } from '@mui/icons-material';
 import { getImagePath } from '@/shared/utils/fileUtils';
 
 const caches: Record<string, Destination[]> = {};
@@ -93,8 +93,16 @@ export default function Page() {
 
           <div className="flex-1 overflow-auto md:pl-2">
             <header className="flex justify-between items-center p-4 bg-blue-700 text-white rounded-bl-none md:rounded-bl">
-              <Box>
-                <Link href="/">Home</Link> / {decodeURIComponent(params.categoryName)}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Link
+                  href='/'
+                  className='text-slate-100 flex'
+                >
+                  <Home sx={{ marginRight: 1 }} />
+                  Home
+                </Link>
+                <span className='block px-4'>/</span>
+                <span className='text-slate-100'>{decodeURIComponent(params.categoryName)}</span>
               </Box>
               <Button
                 size="small"
@@ -104,7 +112,7 @@ export default function Page() {
                 variant="contained"
                 startIcon={<KeyboardBackspace />}
               >
-                Back
+                <span className='text-sm md:text-base'>Back</span>
               </Button>
             </header>
 
@@ -117,7 +125,16 @@ export default function Page() {
                         key={cate.id}
                         onClick={() => onTabChange(cate.id, idx)}
                         label={
-                          <Typography variant="body1" fontWeight={500}>
+                          <Typography 
+                            sx={{
+                              fontSize: {
+                                xs: 'small',
+                                md: ''
+                              }
+                            }}
+                            variant='body1'
+                             fontWeight={500}
+                            >
                             {cate.name} ({cate.listingCount ?? 0})
                           </Typography>
                         }
