@@ -17,33 +17,22 @@ export default function PlacePhoto({ photos}: PlacePhotoProps) {
 
   const breakponts: SwiperOptions['breakpoints'] = {};
   breakponts[`${theme.breakpoints.values.md}`] = {
-    pagination: {
-      clickable: true,
-      enabled: photos.length > 1,
-    },
     spaceBetween: 0,
     slidesPerView: 1,
     loop
   };
 
   breakponts[`${theme.breakpoints.values.xs}`] = {
-    pagination: {
-      clickable: true,
-      enabled: true
-    },
     slidesPerView: 2,
     spaceBetween: 5,
-    loop: false
+    pagination: false
   };
 
   breakponts[`${theme.breakpoints.values.sm}`] = {
-    pagination: {
-      clickable: true,
-      enabled: true
-    },
     slidesPerView: 3,
     spaceBetween: 5,
-    loop: false
+    loop: false,
+    pagination: false
   };
 
   useEffect(() => {
@@ -57,6 +46,7 @@ export default function PlacePhoto({ photos}: PlacePhotoProps) {
       <Swiper
         modules={[Pagination]}
         effect='fade'
+        pagination={true}
         breakpoints={breakponts}
         style={{ cursor: 'pointer' }}
       >
