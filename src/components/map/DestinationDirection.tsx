@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
+import { useMediaQuery } from '@mui/material';
 
 type Props = {
   open?: boolean,
@@ -35,6 +36,7 @@ const Transition = forwardRef(function Transition(
 export default function DestinationDirection({ open = false, lat, lng, placeId, apiKey, placeName, onClose }: Props) {
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isBelowMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -46,7 +48,7 @@ export default function DestinationDirection({ open = false, lat, lng, placeId, 
             ? `place_id:${placeId}`   // preferred if available
             : `${lat},${lng}`;
 
-          const src = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origin}&destination=${destination}&mode=driving&language=en&zoom=10`;
+          const src = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origin}&destination=${destination}&mode=driving&language=en&zoom=${isBelowMd ? 9 : 10}`;
           setIframeSrc(src);
         },
         (err) => {
@@ -74,7 +76,9 @@ export default function DestinationDirection({ open = false, lat, lng, placeId, 
           >
             <CloseIcon />
           </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component="div">
+          <Typography 
+            sx={{ ml: 2, flex: 1 }}
+          >
             {placeName}
           </Typography>
         </Toolbar>
