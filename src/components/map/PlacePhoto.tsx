@@ -1,18 +1,17 @@
 import 'swiper/css/pagination';
 import 'swiper/css';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import type { SwiperOptions, SwiperProps } from 'swiper/types';
-import { Pagination, Navigation } from 'swiper/modules';
+import type { SwiperOptions } from 'swiper/types';
+import { Pagination } from 'swiper/modules';
 import Image from 'next/image';
 import { Box, useTheme } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 export type PlacePhotoProps = {
-  photos: google.maps.places.PlacePhoto[],
-  swiperOptions?: SwiperProps
+  photos: google.maps.places.PlacePhoto[]
 }
 
-export default function PlacePhoto({ photos, swiperOptions = {} }: PlacePhotoProps) {
+export default function PlacePhoto({ photos}: PlacePhotoProps) {
   const [loop, setLoop] = useState(true);
   const theme = useTheme();
 
@@ -60,7 +59,6 @@ export default function PlacePhoto({ photos, swiperOptions = {} }: PlacePhotoPro
         effect='fade'
         breakpoints={breakponts}
         style={{ cursor: 'pointer' }}
-        {...swiperOptions}
       >
         {photos.map(photo => {
           return (
