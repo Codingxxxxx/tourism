@@ -1,42 +1,73 @@
 import 'swiper/css/pagination';
 import 'swiper/css';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
+import type { SwiperOptions, SwiperProps } from 'swiper/types';
+import { Pagination, Navigation } from 'swiper/modules';
 import Image from 'next/image';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 export type PlacePhotoProps = {
-  photos: google.maps.places.PlacePhoto[]
+  photos: google.maps.places.PlacePhoto[],
+  swiperOptions?: SwiperProps
 }
 
-export default function PlacePhoto(props: PlacePhotoProps) {
+export default function PlacePhoto({ photos, swiperOptions = {} }: PlacePhotoProps) {
   const [loop, setLoop] = useState(true);
-  const [enablePagination, setEnablePagination] = useState(true);
+  const theme = useTheme();
+
+  const breakponts: SwiperOptions['breakpoints'] = {};
+  breakponts[`${theme.breakpoints.values.md}`] = {
+    pagination: {
+      clickable: true,
+      enabled: photos.length > 1,
+    },
+    spaceBetween: 0,
+    slidesPerView: 1,
+    loop
+  };
+
+  breakponts[`${theme.breakpoints.values.xs}`] = {
+    pagination: {
+      clickable: true,
+      enabled: true
+    },
+    slidesPerView: 2,
+    spaceBetween: 5,
+    loop: false
+  };
+
+  breakponts[`${theme.breakpoints.values.sm}`] = {
+    pagination: {
+      clickable: true,
+      enabled: true
+    },
+    slidesPerView: 3,
+    spaceBetween: 5,
+    loop: false
+  };
 
   useEffect(() => {
-    if (props.photos.length == 1) {
+    if (photos.length == 1) {
       setLoop(false);
-      setEnablePagination(false);
     }
-
   }, []);
 
   return (
     <Box sx={{ position: 'relative' }}>
       <Swiper
-        spaceBetween={0}
-        slidesPerView={1}
         modules={[Pagination]}
-        loop={loop}
         effect='fade'
-        pagination={{ clickable: true, enabled: enablePagination }} //
-        style={{ cursor: 'pointer' }}      >
-        {props.photos.map(photo => {
+        breakpoints={breakponts}
+        style={{ cursor: 'pointer' }}
+        {...swiperOptions}
+      >
+        {photos.map(photo => {
           return (
             <SwiperSlide key={photo.getUrl()}>
               <Box className='aspect-[16/9]' sx={{ position: 'relative' }}>
                 <Image  
+                  className='rounded'
                   src={photo.getUrl({ maxHeight: 500, maxWidth: 500 })} 
                   alt='' 
                   style={{ objectFit: 'cover', maxWidth: 500, maxHeight: 500 }} 

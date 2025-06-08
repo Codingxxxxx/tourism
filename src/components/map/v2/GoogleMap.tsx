@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle, RefObject } from 'react';
 import { useGoogleMapStore, PlaceDetails } from '@/stores/useGoogleMapStore';
 import MapSidebar from './MapSidebar';
@@ -28,6 +28,7 @@ type CustomMarkerIcon = {
 const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapProps, ref) => {
   const { getMarker } = useGoogleMapStore();
   const mapRef = useRef<HTMLDivElement>(null);
+  const isBelowMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   
   const [defaultMarkerIcon, setDefaultMarkerIcon] = useState<CustomMarkerIcon>();
   const [unselectedMarkerIcon, setUnselectedMarkerIcon] = useState<CustomMarkerIcon>();
@@ -51,7 +52,7 @@ const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapPr
           <circle fill="#b11210" cx="12" cy="10" r="5"/>
         </svg>
       `),
-      scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
+      scaledSize: isBelowMd ? new google.maps.Size(25, 40) : new google.maps.Size(30, 45), // Adjust the size as needed
     };
 
     const unselectedMarkerIcon = {
@@ -63,7 +64,7 @@ const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapPr
           <circle fill="#c96363" cx="12" cy="10" r="5"/>
         </svg>
       `),
-      scaledSize: new google.maps.Size(30, 45), // Adjust the size as needed
+      scaledSize: isBelowMd ? new google.maps.Size(25, 40) : new google.maps.Size(30, 45), // Adjust the size as needed
     };
 
     const placeService = new google.maps.places.PlacesService(mapInstance.current);
@@ -128,7 +129,8 @@ const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapPr
           if (listener) google.maps.event.removeListener(listener);
         });
       } else {
-        mapInstance.current?.setZoom(17);
+        // if on mobile, set zoom to bigger than desktop
+        mapInstance.current?.setZoom(isBelowMd ? 15 : 17);
       }
     };
 
@@ -178,17 +180,22 @@ const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapPr
   return (
     <Box className='rounded-3 shadow overflow-hidden' sx={{ position: 'relative', flexGrow: 1 }}>
       {/* Side bar */}
-      {selectedPlaceDetails && <Box 
-        className='rounded-lg bg-white shadow-lg left-1 top-1 border border-gray-300 overflow-hidden' 
-        sx={{ 
-          position: 'absolute', 
-          zIndex: 1, 
-          width: '360px', 
-          height: 'calc(100% - 10px)'
+      {selectedPlaceDetails && 
+        <Box
+          className='rounded-lg bg-white shadow-lg left-1 top-1 border border-gray-300 overflow-hidden' 
+          sx={{ 
+            position: 'absolute', 
+            zIndex: 1, 
+            width: '360px', 
+            height: 'calc(100% - 10px)',
+            display: {
+              xs: 'none',
+              md: 'block'
+            }
           }}
         >
-        <MapSidebar placeDetails={selectedPlaceDetails} destination={destination} />
-      </Box>
+          <MapSidebar placeDetails={selectedPlaceDetails} destination={destination} />
+        </Box>
       }
       {/* Map reference  */}
       <div className='rounded-lg border border-gray-300' ref={mapRef} style={{ height: '100%', width: '100%' }}></div>
