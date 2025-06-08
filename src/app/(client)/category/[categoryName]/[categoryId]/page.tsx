@@ -93,16 +93,16 @@ export default function Page() {
 
           <div className="flex-1 overflow-auto md:pl-2">
             <header className="flex justify-between items-center p-4 bg-blue-700 text-white rounded-bl-none md:rounded-bl">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Link
                   href='/'
-                  className='text-slate-100 flex'
+                  className='flex justify-center items-center text-slate-100 flex text-sm md:text-base'
                 >
                   <Home sx={{ marginRight: 1 }} />
                   Home
                 </Link>
                 <span className='block px-4'>/</span>
-                <span className='text-slate-100'>{decodeURIComponent(params.categoryName)}</span>
+                <span className='text-slate-100 text-sm md:text-base w-[17ch] md:w-auto overflow-hidden whitespace-nowrap text-ellipsis'>{decodeURIComponent(params.categoryName)}</span>
               </Box>
               <Button
                 size="small"
