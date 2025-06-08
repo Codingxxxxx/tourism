@@ -10,7 +10,7 @@ import { PlaceDetails, useGoogleMapStore } from '@/stores/useGoogleMapStore';
 import { AddAPhoto, CoPresentOutlined, Directions, LocationOnOutlined } from '@mui/icons-material';
 import Image from 'next/image';
 import { Destination } from '@/shared/types/dto';
-import { getImagePath } from '@/shared/utils/fileUtils';
+import { getImagePath, isGoogleImage } from '@/shared/utils/fileUtils';
 import { motion, useMotionValue, animate, useDragControls } from 'framer-motion';
 import DestinationDirection from '../map/DestinationDirection';
 import { formatOpeningHours } from '@/utils/openHourFormatter';
@@ -281,11 +281,11 @@ export default function DestinationDetailsDesktop({ destinations, onDestinationC
           handleDragEnd(e, info);
         }}
         dragListener={false}
-        className="lg:hidden flex flex-col bg-white rounded-t-2xl shadow-lg z-50"
+        className="lg:hidden flex flex-col bg-white rounded-t-2xl shadow-t-lg z-50"
       >
         {/* Drag handle */}
         <div
-          className="flex justify-center items-center border-b-1 border-slate-200"
+          className="flex justify-center items-center border border-slate-300 rounded-t-2xl shadow-t-lg"
           onPointerDown={(e) => dragControls.start(e)}
           style={{ minHeight: `${MIN_HEIGHT}px` }}
         >
@@ -309,6 +309,18 @@ export default function DestinationDetailsDesktop({ destinations, onDestinationC
         >
           {destinationMeta.map((destinationMetaData, idx) => {
             const { destination, galleries, placeName, placeDetails } = destinationMetaData;
+            
+            if (!isGoogleImage(destination.cover) && !galleries.some(image => image.getUrl().includes(destination.cover))) {
+              galleries.unshift({
+                getUrl(opts) {
+                  return getImagePath(destination.cover);
+                },
+                width: 0,
+                height:0,
+                html_attributions: []
+              })
+            }
+
             return (
               <ListItem 
                 key={destination.id} 
