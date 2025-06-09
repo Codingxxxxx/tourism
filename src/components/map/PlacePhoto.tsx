@@ -54,13 +54,16 @@ export default function PlacePhoto({ photos}: PlacePhotoProps) {
           return (
             <SwiperSlide key={photo.getUrl()}>
               <Box className='aspect-[16/9]' sx={{ position: 'relative' }}>
-                <Image  
+                <Image
                   className='rounded'
                   src={photo.getUrl({ maxHeight: 500, maxWidth: 500 })} 
                   alt='' 
                   style={{ objectFit: 'cover', maxWidth: 500, maxHeight: 500 }} 
                   fill 
-                  loading='lazy' />
+                  loading='lazy' 
+                  unoptimized
+                  onError={(evt)=> evt.currentTarget.src = '/no_category.jpg'}
+                />
               </Box>
               <div className='swiper-lazy-preloader'></div>
             </SwiperSlide>

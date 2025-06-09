@@ -235,7 +235,15 @@ export default function DestinationDetailsDesktop({ destinations, onDestinationC
                 <button className='position-relative cursor-pointer border rounded-lg shadow-md border-slate-300' onClick={() => onLocationClicked(meta)}>
                 {/* Place images */}
                 <Box className='w-[320px] aspect-[16/9] w-100' sx={{ position: 'relative' }}>
-                    <Image className='rounded-t-lg' src={cover} style={{ objectFit: 'cover' }} alt={meta.placeName} fill  onError={(evt) => evt.currentTarget.src = NO_IMAGE}/>
+                    <Image 
+                      className='rounded-t-lg' 
+                      src={cover} 
+                      style={{ objectFit: 'cover' }} 
+                      alt={meta.placeName} 
+                      fill  
+                      onError={(evt) => evt.currentTarget.src = NO_IMAGE}
+                      unoptimized
+                    />
                     {/* Photo count */}
                     <Box
                     className='bottom-2 right-2 bg-slate-50 rounded-lg p-1 opacity-75 text-slate-800' 
