@@ -156,6 +156,7 @@ export default function Page() {
                               src={destination.cover ? getImagePath(destination.cover) : NO_IMAGE}
                               alt={destination.name}
                               fill
+                              unoptimized
                               style={{ objectFit: 'cover' }}
                               onError={(evt) => (evt.currentTarget.src = NO_IMAGE)}
                             />

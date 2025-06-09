@@ -4,16 +4,23 @@ export async function GET(req: NextRequest) {
   const photoUrl = req.nextUrl.searchParams.get('photoUrl');
 
   if (!photoUrl) {
-    return NextResponse.json(
-      { error: "Photo URL is required" },
-      { status: 400 },
-    );
+    return new NextResponse(null, {
+      status: 404,
+      headers: {
+        "Cache-Control": "public, max-age=3600", // Cache 404 for 1 hour
+      },
+    });
   }
 
   try {
     const response = await fetch(photoUrl);
     if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
+      return new NextResponse(null, {
+        status: 404,
+        headers: {
+          "Cache-Control": "public, max-age=3600", // Cache 404 for 1 hour
+        },
+      });
     }
 
     const imageBuffer = await response.arrayBuffer();
@@ -28,9 +35,11 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching image:", error);
-    return NextResponse.json(
-      { error: "Error fetching image" },
-      { status: 500 },
-    );
+    return new NextResponse(null, {
+      status: 404,
+      headers: {
+        "Cache-Control": "public, max-age=3600", // Cache 404 for 1 hour
+      },
+    });
   }
 }
