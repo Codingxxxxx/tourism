@@ -5,6 +5,8 @@ import { buildResponse, HttpClient } from '@/server/libs/httpClient';
 import { PaginationParamters, Category } from '@/shared/types/dto';
 import { PaginatedDisplayCategories, ServerResponse } from '@/shared/types/serverActions';
 import { Destination } from '@/shared/types/dto';
+import { isCustomUploadImage } from '@/shared/utils/fileUtils';
+import { mapDestinationGoogleImage } from '@/server/libs/googleMapHelper';
 
 export async function getDisplayCategories(payload: PaginationParamters): Promise<ServerResponse<PaginatedDisplayCategories>> {
   const { data, isOk, meta, message } = await HttpClient.request({
@@ -52,11 +54,16 @@ export async function getSubCategories(categoryId: string): Promise<ServerRespon
 }
 
 export async function getListingBySubCategoryId(subCategoryId: string): Promise<ServerResponse<Destination[]>> {
-  const { isOk, message, data } = await HttpClient.request({
+  const { isOk, message, data } = await HttpClient.request<Destination[]>({
     method: 'GET',
     url: ApiEndpont.WEB_LISTING_DESTINATION + '/' + subCategoryId,
     forWeb: true
   });
+
+  // map google image
+  if (data && Array.isArray(data)) {
+    await mapDestinationGoogleImage(data);
+  }
 
   return buildResponse<Destination[]>({
     data,

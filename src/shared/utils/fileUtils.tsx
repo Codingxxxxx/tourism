@@ -6,8 +6,8 @@ export function convertByteToMB(bytes: number) {
 
 export function getImagePath(imageUrl: string) {
   if (!imageUrl) return '';
-  if (imageUrl.includes('google')) return `/cdn?photoUrl=${encodeURIComponent(imageUrl)}`; // url is from google
-  return SERVER_IMAGE + imageUrl;
+  if (imageUrl.includes('/uploads')) return SERVER_IMAGE + imageUrl;
+  return `/cdn?photoUrl=${encodeURIComponent(imageUrl)}`; // url is from google
 }
 
 export function isGoogleImage(imageUrl: string) {
@@ -18,4 +18,8 @@ export function getGoogleImageLiink(cdnUrl: string) {
   const queryString = cdnUrl.split('?')[1];
   const params = new URLSearchParams(queryString);
   return decodeURI(params.get('photoUrl') ?? '');
+}
+
+export function isCustomUploadImage(imageUrl: string) {
+  return imageUrl.includes('/uploads');
 }

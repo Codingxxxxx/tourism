@@ -156,8 +156,6 @@ export default function Page() {
           formData.set('file', file, file.name);
           const result = await uploadImage(formData);
           sourceUrl = result?.data?.url;
-        } else if (values.cover && values.cover.length > 0 && isGoogleImage(values.cover[0].url)) {
-          sourceUrl = getGoogleImageLiink(values.cover[0].url);
         }
     
         const responseState = await handleServerAction(() => createDestination({
