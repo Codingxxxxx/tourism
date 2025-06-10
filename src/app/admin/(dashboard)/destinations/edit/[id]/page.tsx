@@ -23,7 +23,7 @@ import { createDestination, getDestinationDetails, updateDestination } from '@/s
 import { useParams, useRouter } from 'next/navigation';
 import { CustomBackdrop } from '@/components/Backdrop';
 import FileInput, { FileObject } from '@/components/form/FileInput';
-import { getGoogleImageLiink, getImagePath, isGoogleImage } from '@/shared/utils/fileUtils';
+import { getGoogleImageLiink, getImagePath, isCustomUploadImage, isGoogleImage } from '@/shared/utils/fileUtils';
 import { uploadImage } from '@/server/actions/upload';
 
 type FormDestination = {
@@ -134,12 +134,23 @@ export default function Page() {
   const onLocationCaptured = () => {
     const googleImage = Array.isArray(capturedPlaceDetails?.photos) && capturedPlaceDetails.photos.length > 0 ? capturedPlaceDetails?.photos[0].getUrl({ maxWidth: 600, maxHeight: 600 }) : '';
 
-    let cover: FileObject[] = [{
-      filename: '',
-      mimetype: 'image/jpg',
-      url: getImagePath(destination?.cover ?? googleImage),
-      size: 0
-    }];
+    let cover: FileObject[] = [];
+
+    if (destination?.cover && isCustomUploadImage(destination.cover)) {
+      cover = [{
+        filename: '',
+        mimetype: 'image/jpg',
+        url: getImagePath(destination.cover),
+        size: 0
+      }];
+    } else if (googleImage) {
+      cover = [{
+        filename: '',
+        mimetype: 'image/jpg',
+        url: getImagePath(googleImage),
+        size: 0
+      }];
+    }
 
     setActiveStep(activeStep + 1)
     setFormConfirmInitial({
@@ -160,21 +171,15 @@ export default function Page() {
 
         let sourceUrl = '';
 
-        // get source from google if sourceUrl is empty
-        if (values.cover.length > 0 && isGoogleImage(values.cover[0].url)) {
+        // user upload new custom image
+        if (values.cover.length > 0 && !values.cover[0].url.includes(destination?.cover ?? '')) {
           sourceUrl = getGoogleImageLiink(values.cover[0].url);
-        } else if (values.cover.length > 0 && !values.cover[0].url.includes(destination?.cover ?? '')) {
           const formData = new FormData();
           const file = values.cover[0].file as File;
           formData.set('file', file, file.name);
           const result = await uploadImage(formData);
           sourceUrl = result?.data?.url;
-        } else if (values.cover.length > 0) {
-          sourceUrl = destination?.cover ?? '';
-        } else if (capturedPlaceDetails && capturedPlaceDetails?.photos?.length > 0) {
-          sourceUrl = capturedPlaceDetails?.photos[0].getUrl({ maxWidth: 600, maxHeight: 600 });
         }
-
 
         const responseState = await handleServerAction(() => updateDestination({
           name: values.placeName ?? capturedPlaceDetails?.placeName,

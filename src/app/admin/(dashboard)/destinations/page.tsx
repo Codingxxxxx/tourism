@@ -17,7 +17,7 @@ import ButtonAction from '@/components/datagrid/ButtonAction';
 import { useTransition } from 'react';
 import { CustomBackdrop } from '@/components/Backdrop';
 import Toast from '@/components/form/Toast';
-import { getImagePath } from '@/shared/utils/fileUtils';
+import { getImagePath, isCustomUploadImage } from '@/shared/utils/fileUtils';
 
 const NO_IMAGE = '/admin/no_place_image.jpg'
 
@@ -90,6 +90,7 @@ export default function PageCategory() {
       field: 'cover',
       headerName: 'Image',
       renderCell: ({ value, row }) => {
+        console.log(value)
         return (
           <Image 
             objectFit='cover' 

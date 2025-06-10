@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ *  handle proxy google image (from both browser and server side image) to google
+ * @param req 
+ * @returns 
+ */
 export async function GET(req: NextRequest) {
   const photoUrl = req.nextUrl.searchParams.get('photoUrl');
-
   if (!photoUrl) {
     return new NextResponse(null, {
       status: 404,
@@ -14,6 +18,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const response = await fetch(photoUrl);
+
     if (!response.ok) {
       return new NextResponse(null, {
         status: 404,
@@ -30,7 +35,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=31536000", // Cache for 1 year
+        "Cache-Control": "public, max-age=72000", // Cache for 20 hours
       },
     });
   } catch (error) {

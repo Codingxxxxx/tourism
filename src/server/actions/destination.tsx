@@ -5,6 +5,7 @@ import { buildResponse, HttpClient } from "../libs/httpClient";
 import { ApiEndpont } from "../const/api";
 import { PaginateDestination } from '@/shared/types/serverActions';
 import { PaginationParamters } from '@/shared/types/dto';
+import { mapDestinationGoogleImage } from '../libs/googleMapHelper';
 
 export async function createDestination(payload: FormCreateDestination): Promise<ServerResponse> {
   const { isOk, unauthorized, message } = await HttpClient.request({
@@ -25,7 +26,7 @@ export async function createDestination(payload: FormCreateDestination): Promise
 }
 
 export async function getDestinations(state: any, payload: PaginationParamters): Promise<ServerResponse<PaginateDestination>> {
-  const { isOk, unauthorized, data, message, meta } = await HttpClient.request({
+  const { isOk, unauthorized, data, message, meta } = await HttpClient.request<Destination[]>({
     method: 'GET',
     url: ApiEndpont.LISTING_LIST + '?' + new URLSearchParams({ limit: String(payload.limit), offset: String(payload.offset) })
   });
@@ -35,10 +36,14 @@ export async function getDestinations(state: any, payload: PaginationParamters):
     message
   });
 
+  if (isOk && Array.isArray(data)) {
+    await mapDestinationGoogleImage(data, 250);
+  }
+
   return buildResponse<PaginateDestination>({
     success: true,
     data: {
-      destinations: data,
+      destinations: data ?? [],
       meta
     }
   });
