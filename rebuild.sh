@@ -1,4 +1,4 @@
-#!/binb/ash
+#!/bin/bash
 
 cd /var/www/kampottic.com/tourism
 git pull
