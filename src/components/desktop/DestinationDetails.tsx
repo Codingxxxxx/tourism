@@ -232,32 +232,45 @@ export default function DestinationDetailsDesktop({ destinations, onDestinationC
             const cover = meta.destination.cover ? getImagePath(meta.destination.cover) : NO_IMAGE;
             return (
             <li key={idx}>
-                <button className='position-relative cursor-pointer border rounded-lg shadow-md border-slate-300' onClick={() => onLocationClicked(meta)}>
-                {/* Place images */}
-                <Box className='w-[320px] aspect-[16/9] w-100' sx={{ position: 'relative' }}>
-                    <Image 
-                      className='rounded-t-lg' 
-                      src={cover} 
-                      style={{ objectFit: 'cover' }} 
-                      alt={meta.placeName} 
-                      fill  
-                      onError={(evt) => evt.currentTarget.src = NO_IMAGE}
-                      unoptimized
-                    />
-                    {/* Photo count */}
-                    <Box
-                    className='bottom-2 right-2 bg-slate-50 rounded-lg p-1 opacity-75 text-slate-800' 
-                    sx={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <AddAPhoto sx={{ marginRight: 1 }} /> 
-                    <Typography className='text-xs'>
-                        <span className='text-sm'>Photos {meta.galleries?.length}</span>
-                    </Typography>
-                    </Box>
-                </Box>
-                {/* Information box */}
-                <Box sx={{ paddingX: 2, paddingY: 1 }}>
-                    <Typography variant='subtitle1' fontWeight='500' sx={{ marginTop: .25, textAlign: 'left' }}>{meta.placeName}</Typography>
-                </Box>
+                <button className='position-relative cursor-pointer border rounded-lg shadow-md border-slate-300 w-[320px]' onClick={() => onLocationClicked(meta)}>
+                  {/* Place images */}
+                  <Box className='aspect-[16/9]' sx={{ position: 'relative' }}>
+                      <Image 
+                        className='rounded-t-lg' 
+                        src={cover} 
+                        style={{ objectFit: 'cover' }} 
+                        alt={meta.placeName} 
+                        fill  
+                        onError={(evt) => evt.currentTarget.src = NO_IMAGE}
+                        unoptimized
+                      />
+                      {/* Photo count */}
+                      <Box
+                      className='bottom-2 right-2 bg-slate-50 rounded-lg p-1 opacity-75 text-slate-800' 
+                      sx={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <AddAPhoto sx={{ marginRight: 1 }} /> 
+                      <Typography className='text-xs'>
+                          <span className='text-sm'>Photos {meta.galleries?.length}</span>
+                      </Typography>
+                      </Box>
+                  </Box>
+                  {/* Information box */}
+                  <Box sx={{ paddingX: 2, paddingY: 1 }}>
+                      <Typography 
+                        variant='subtitle1' 
+                        fontWeight='500' 
+                        sx={{ 
+                          maxWidth: '100%',
+                          marginTop: .25, 
+                          textAlign: 'left',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}
+                      >
+                        {meta.placeName}
+                      </Typography>
+                  </Box>
                 </button>
             </li>
             )
