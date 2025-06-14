@@ -25,7 +25,7 @@ export default function Page() {
   const [isPending, startTransition] = useTransition();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [activeDestination, setActiveDestination] = useState<Destination>(); // current destination that user viewing on map
-  const backLink = `/category/${decodeURIComponent(params.categoryName)}/${params.categoryId}`;
+  const backLink = `/category/${params.categoryName}/${params.categoryId}`;
 
   const onDestinationChanged = (destination: Destination) =>  {
     setActiveDestination(destination);
