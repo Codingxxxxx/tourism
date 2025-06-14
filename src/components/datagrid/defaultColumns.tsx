@@ -18,9 +18,10 @@ export const MetaColumns: GridColDef[] = [
     width: 200,
     headerAlign: 'center',
     align: 'center',
+    sortable: true,
     renderCell: ({ value }) => {
       if (!value) return 'N/A';
-      return formatDate(value, 'yyyy-mm-dd hh:mm a');
+      return formatDate(value, 'yyyy-MM-dd hh:mm a');
     }
   }
 ]

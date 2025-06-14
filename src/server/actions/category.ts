@@ -53,7 +53,7 @@ export async function createCategory(formCrateCategory: FormCreateCateogry): Pro
   });
 }
 
-export async function getAllCategories(): Promise<ServerResponse> {
+export async function getAllCategories(): Promise<ServerResponse<Category[]>> {
   const { isOk, message, data, unauthorized } = await HttpClient.request({
     url: ApiEndpont.CATEGORY_ALL,
     method: 'GET'

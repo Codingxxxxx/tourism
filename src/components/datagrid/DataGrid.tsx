@@ -13,7 +13,7 @@ export function withDefaultFlex(columns: readonly GridColDef<any>[]): GridColDef
     flex: col.width ? undefined : 1,
     width: col.width ? col.width : undefined,
     hideable: false, 
-    sortable: false, 
+    sortable: col.sortable === undefined ? false : col.sortable, 
     filterable: false ,
     disableColumnMenu: true
   }));

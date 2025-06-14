@@ -21,7 +21,7 @@ export async function getGoogleMapPhoto(placeId: string, maxWidth: number = 600)
 
     const data = await res.json();
 
-    if (!data.result.photos || data.result.photos === 0) return null;
+    if (!(data && data.result && data.result.photos && data.result.photos.length > 0)) return null;
 
     // generate google image base on photo reference
     return IMAGE_BASE_URL + '&maxwidth=' + Math.max(maxWidth, 600) + '&photoreference=' + data.result.photos[0].photo_reference;
