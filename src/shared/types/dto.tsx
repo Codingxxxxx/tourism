@@ -61,6 +61,13 @@ export type PaginationParamters = {
   offset: number
 }
 
+export type DestinationPaginationParamters = {
+  orderBy: string,
+  order:  'ASC' | 'DESC',
+  categoryId?: string,
+  name?: string
+} & PaginationParamters
+
 export type FormCreateCateogry = {
   name: string,
   nameKH: string,

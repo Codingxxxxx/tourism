@@ -1,5 +1,5 @@
 'use server';
-import { Destination, FormCreateDestination } from "@/shared/types/dto";
+import { Destination, DestinationPaginationParamters, FormCreateDestination } from "@/shared/types/dto";
 import { ServerResponse } from "@/shared/types/serverActions";
 import { buildResponse, HttpClient } from "../libs/httpClient";
 import { ApiEndpont } from "../const/api";
@@ -25,10 +25,19 @@ export async function createDestination(payload: FormCreateDestination): Promise
   })
 }
 
-export async function getDestinations(state: any, payload: PaginationParamters): Promise<ServerResponse<PaginateDestination>> {
+export async function getDestinations(state: any, payload: DestinationPaginationParamters): Promise<ServerResponse<PaginateDestination>> {
+  const urlSearchParams = new URLSearchParams({
+    limit: String(payload.limit), 
+    offset: String(payload.offset),
+    name: payload.name ?? '',
+    categoryId: String(payload.categoryId ?? ''),
+    orderBy: String(payload.orderBy),
+    order: String(payload.order)
+  });
+
   const { isOk, unauthorized, data, message, meta } = await HttpClient.request<Destination[]>({
     method: 'GET',
-    url: ApiEndpont.LISTING_LIST + '?' + new URLSearchParams({ limit: String(payload.limit), offset: String(payload.offset) })
+    url: ApiEndpont.LISTING_LIST + '?' + urlSearchParams
   });
 
   if (!isOk) return buildResponse({
