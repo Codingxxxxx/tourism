@@ -28,8 +28,8 @@ export default function Login() {
 
   // provide default user in development or demo
   const [formStat, _] = useState<FormProps>({
-    email: AppConfig.ENABLE_DEMO_ACCOUNT ? 'admin@example.com' : '',
-    password: AppConfig.ENABLE_DEMO_ACCOUNT ? 'password123' : ''
+    email: '',
+    password: ''
   });
 
   const onFormSubmit = async (values: FormProps) => {
