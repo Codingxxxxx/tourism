@@ -149,7 +149,7 @@ export default function Page() {
                     {listing.map((destination) => (
                       <li key={destination.id}>
                         <Link
-                          href={`/destination/category/${params.categoryName}/${params.categoryId}/${selectedSubCategoryId}/${encodeURIComponent(destination.name)}/${destination.id}`}
+                          href={`/destination/category/${params.categoryName}/${params.categoryId}/${selectedSubCategoryId}/${destination.name}/${destination.id}`}
                         >
                           <Box className="relative aspect-[16/9] rounded overflow-hidden shadow-lg border border-slate-300">
                             <Image
