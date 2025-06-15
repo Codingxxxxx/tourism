@@ -137,12 +137,10 @@ const GoogleMap = forwardRef(({ markers, mapInstance, destination }: GoogleMapPr
     //mapInstance.current!.panBy(500, 200);
 
     // Remove previous markers
-    googleMarkers
-      .entries()
-      .forEach(([key, markerEl]) => {
-        markerEl.setMap(null);
-        googleMarkers.delete(key);
-      });
+    for (const [key, markerEl] of googleMarkers) {
+      markerEl.setMap(null);
+      googleMarkers.delete(key);
+    }
 
     setPlaceService(placeService);
     setDefaultMarkerIcon(defaultMarkerIcon);
