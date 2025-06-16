@@ -3,7 +3,9 @@ import { Inter, Geist_Mono, Roboto } from "next/font/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
-import "./globals.css";
+import './globals.css';
+import GTMHead from './GTMHead';
+import GTMBody from './GTMBody';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -34,9 +36,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <GTMHead />
+      </head>
       <body
         className={`${roboto.variable} ${geistMono.variable} antialiased container-fluid bg-white`}
       >
+        <GTMBody />
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             {children}
