@@ -38,11 +38,11 @@ export async function getSubCategories(categoryId: string): Promise<ServerRespon
       url: ApiEndpont.WEB_LISTING_CATEGORY + '/' + categoryId,
       forWeb: true,
     })
-  ])
+  ]);
   
   const categories = responseSubCategory.data ?? [];
 
-  if (responseParentCategory.isOk && responseParentCategory.data) {
+  if (responseParentCategory.isOk && responseParentCategory.data && responseParentCategory.data.name.toLowerCase().includes('kampot recommend')) {
     categories.push(responseParentCategory.data);
   }
 
