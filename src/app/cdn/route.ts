@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- *  handle proxy google image (from both browser and server side image) to google
- * @param req 
- * @returns 
- */
 export async function GET(req: NextRequest) {
-  const photoUrl = req.nextUrl.searchParams.get('photoUrl');
-  if (!photoUrl) {
+  const photoUrl = req.nextUrl.searchParams.get("photoUrl");
+
+  // Validate photoUrl to prevent SSRF or abuse
+  if (
+    !photoUrl ||
+    !photoUrl.startsWith("https://maps.googleapis.com/maps/api/place/photo")
+  ) {
     return new NextResponse(null, {
-      status: 404,
+      status: 400,
       headers: {
-        "Cache-Control": "public, max-age=3600", // Cache 404 for 1 hour
+        "Cache-Control": "public, max-age=3600",
       },
     });
   }
@@ -23,27 +23,31 @@ export async function GET(req: NextRequest) {
       return new NextResponse(null, {
         status: 404,
         headers: {
-          "Cache-Control": "public, max-age=3600", // Cache 404 for 1 hour
+          "Cache-Control": "public, max-age=3600",
+          Vary: "Accept-Encoding",
         },
       });
     }
 
-    const imageBuffer = await response.arrayBuffer();
-    const contentType = response.headers.get("content-type") || "image/jpeg";
+    console.log("DOWNLOAD_GOOGLE_IMAGE:", photoUrl);
 
-    return new NextResponse(imageBuffer, {
+    // Stream the response body directly
+    return new NextResponse(response.body, {
       status: 200,
       headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=72000", // Cache for 20 hours
+        "Content-Type": response.headers.get("content-type") || "image/jpeg",
+        "Cache-Control": "public, max-age=72000",
+        Vary: "Accept-Encoding",
       },
     });
-  } catch (error) {
-    console.error("Error fetching image:", error);
+  } catch (error: any) {
+    console.error("Error fetching image:", error.message || error);
+
     return new NextResponse(null, {
       status: 404,
       headers: {
-        "Cache-Control": "public, max-age=3600", // Cache 404 for 1 hour
+        "Cache-Control": "public, max-age=3600",
+        Vary: "Accept-Encoding",
       },
     });
   }
