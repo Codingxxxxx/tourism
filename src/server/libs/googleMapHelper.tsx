@@ -8,18 +8,20 @@ const IMAGE_BASE_URL = 'https://maps.googleapis.com/maps/api/place/photo?key=' +
 
 export async function getGoogleMapPhoto(placeId: string, maxWidth: number = 600): Promise<string | null | undefined> {
   try {
-    const res = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}`, {
+    const res = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}&fields=photos`, {
       next: {
           revalidate: 72000 // cache 20 hours, since google image doesn't change frequently
       }
-    });
+    }); 
 
     if (!res.ok) {
       console.error(await res.text())
-      null;
+      return null;
     }
 
     const data = await res.json();
+
+    console.log('PLACE_DETAILS: ', data);
 
     if (!(data && data.result && data.result.photos && data.result.photos.length > 0)) return null;
 
@@ -27,7 +29,7 @@ export async function getGoogleMapPhoto(placeId: string, maxWidth: number = 600)
     return IMAGE_BASE_URL + '&maxwidth=' + Math.max(maxWidth, 600) + '&photoreference=' + data.result.photos[0].photo_reference;
   } catch (error){
     console.error(error);
-    null;
+    return null;
   }
 }
 

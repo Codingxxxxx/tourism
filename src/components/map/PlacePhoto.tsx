@@ -50,7 +50,7 @@ export default function PlacePhoto({ photos}: PlacePhotoProps) {
         breakpoints={breakponts}
         style={{ cursor: 'pointer' }}
       >
-        {photos.map(photo => {
+        {photos.slice(0, 3).map(photo => {
           return (
             <SwiperSlide key={photo.getUrl()}>
               <Box className='aspect-[16/9]' sx={{ position: 'relative' }}>
